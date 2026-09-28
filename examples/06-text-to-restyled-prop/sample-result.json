@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "slug": "text-to-restyled-prop",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 15,
+    "model": "Not reported: neither the image-to-3d nor the retexture task response includes a model field. ai_model was omitted on both stages; the model stage requested model_type smart-topology and the retexture stage followed the API default.",
+    "note": "Two live runs, one per language, on September 27, 2026, started together. Each consumed 5 credits (image-to-3d, Smart Topology, 1,000-face target, untextured) + 10 credits (retexture with text_style_prompt and enable_pbr), read from consumed_credits. Model stage 2.7-2.9 s from creation to finish; retexture 41.7-44.6 s; 55-57 s wall from start to files on disk. A third retexture of the Python run's oak task with enable_original_uv true, made for comparison, took 37.9 s, cost 10 credits and produced the same 1,032-triangle, 1,262-vertex unwrap."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; primitive attributes and POSITION extents.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced 1,072 triangles, 1,341 vertices and an 8,574,288-byte GLB. Both GLBs carry POSITION, NORMAL and TEXCOORD_0, one material and three embedded images (base color, metallic-roughness, normal), normalized to 2.0 m on the longest side. The separate texture maps are 2048 x 2048 PNGs. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "restyled-prop.glb", "format": "glb", "bytes": 7320072, "sha256": "a4f7d94d95110c54e66302e40ebebbd3bcf551116478234674f1e2c5f588af96", "triangles": 1032, "vertices": 1262, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 0, "animations": 0}
+    ]
+  }
+}

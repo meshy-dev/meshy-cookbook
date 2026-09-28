@@ -1,0 +1,65 @@
+schema_version: 1
+slug: text-to-hero-prop
+order: 3
+title: Create a textured 3D prop from a text prompt
+description: Generate a concept image from a description, then create a dense hero
+  prop GLB with 4K textures.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- text-to-image
+- image-to-3d
+- pbr
+readme: README.md
+input:
+  type: text
+  description: A prop description; the runner includes the Marrow's sea chest prompt.
+  files: []
+outputs:
+- glb
+endpoints:
+- text-to-image
+- image-to-3d
+model_policy: text-to-image requests gpt-image-2-5-sunburst; image-to-3d omits ai_model
+  and follows latest.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 44
+  time_seconds:
+    min: 406
+    max: 430
+  basis: Historical README measurements documented September 21, 2026; approximate
+    end-to-end time, not a service guarantee.
+last_verified: '2026-09-21'
+verification_note: Historical live-run measurements documented in README.md. Curated
+  local artifacts were inspected September 23, 2026 without a new API run.
+previews:
+- path: assets/concept.png
+  alt: Generated concept image of Marrow's sea chest
+  role: concept
+- path: assets/result.png
+  alt: Textured pirate chest model
+  role: result
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

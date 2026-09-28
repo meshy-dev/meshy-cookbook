@@ -1,0 +1,80 @@
+schema_version: 1
+slug: image-to-multi-color-print
+order: 11
+title: Turn one image into a multi-color 3D print file
+description: Build the sea chest as a textured model from one image, then convert it
+  into a four-color 3MF that a multi-filament printer prints in color, in a realistic
+  or a cartoon style.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- 3d-printing
+- multi-color
+- 3mf
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a colorful object, plus a color style for the print file.
+  files:
+  - input/sea-chest.png
+  - input/SOURCES.md
+outputs:
+- 3mf
+- glb
+endpoints:
+- image-to-3d
+- print/multi-color
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The Multi-Color Print endpoint has no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 40
+  time_seconds:
+    min: 170
+    max: 183
+  basis: Two live runs on September 27, 2026, one per language, from fresh copies of
+    the repository, started 165 seconds apart. The model stage took 140–161 seconds
+    and the conversion 15–17 seconds, for 170–183 seconds from start to files on disk.
+    Observed range, not a service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026, from fresh
+  copies of the repository. Each cost 30 credits for the textured model and 10 for
+  the multi-color conversion, read from consumed_credits. One more conversion of the
+  Python run's model task in the cartoon style, 10 credits, was made for the style
+  comparison figure. Neither run needed a resume. A free probe the same day confirmed
+  that an untextured model task is rejected with 400 before anything is charged.
+previews:
+- path: input/sea-chest.png
+  alt: Included sea chest concept image
+  role: input
+- path: assets/model.png
+  alt: The textured chest, about 1.3 million triangles
+  role: concept
+- path: assets/result.png
+  alt: The chest as a four-color print file, drawn from the actual 3MF
+  role: result
+assets:
+- assets/SOURCES.md
+- assets/cartoon.png
+sample_result: sample-result.json

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slug": "text-to-hero-prop",
+  "historical_run": {
+    "documented_on": "2026-09-21",
+    "source": "README.md",
+    "credits": 44,
+    "model": "gpt-image-2-5-sunburst for the concept and Meshy 7.1 for 3D, according to the historical README.",
+    "note": "Credits and model attribution are historical README observations, not newly verified API responses. The exact generation timestamp and task response were not retained in this record. Archived tutorial observations (not a new run or inspection): Historical README reported concept generation in 37\u201340 s; 2K geometry in 3 min 33 s\u20133 min 36 s versus 4K in 6 min 09 s\u20136 min 30 s on two chest concepts. Observed triangle counts were about 0.96 million at 2K and 0.93\u20131.12 million at 4K. An 8K texture run took 12 min 15 s and produced a 108 MB file. These comparisons are observations, not a controlled quality benchmark."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-23",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays.",
+    "note": "Inspected existing python/output artifacts without calling Meshy. These ignored runtime files are not required for validation or export. Curated previews in assets/ show these samples; the model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "hero-prop.glb",
+        "format": "glb",
+        "bytes": 63864892,
+        "sha256": "39e78ab81d1a9b95dab6166a1e2b8168e41991790a10113c6375f34398056eeb",
+        "triangles": 1121650,
+        "vertices": 594932,
+        "meshes": 1,
+        "materials": 1,
+        "embedded_images": 3,
+        "skins": 0,
+        "animations": 0
+      }
+    ]
+  }
+}

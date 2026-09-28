@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "slug": "text-to-3d-prop",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 30,
+    "model": "Not reported: the text-to-3d task response echoes mode, model_type (standard) and seed but no ai_model field. ai_model was omitted on both stages; the preview followed the API default and the refine inherited the preview's model.",
+    "note": "Two live runs, one per language, on September 27, 2026, started together. Each consumed 20 credits (preview, should_remesh false, GLB only) + 10 credits (refine with enable_pbr), read from consumed_credits. Preview stage 50.2-60.9 s from creation to finish; refine 40.0-42.2 s; 98-105 s wall from start to files on disk. The refine task reuses the preview's seed. A second refine of the Python preview with a texture_prompt (navy body, cream nose cone and fins), made the same day, cost 10 credits, ran 57.7 s, reused the seed and returned a 403,910-triangle, 216,103-vertex, 17,816,512-byte GLB with new textures."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; primitive attributes and POSITION extents.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced 277,978 triangles, 149,722 vertices and a 16,852,672-byte GLB. Both GLBs carry POSITION, NORMAL and TEXCOORD_0, one material and three embedded images (base color, metallic-roughness, normal), and stand 1.90 m tall. The refine task also lists 2048 x 2048 PNG base color, metallic, roughness and normal maps under texture_urls, which the recipe does not download. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "textured-prop.glb", "format": "glb", "bytes": 19395692, "sha256": "25e6f62fd0daecf8e149b6f8128cb6779115993f1c12d59f3874457eeb21b383", "triangles": 403910, "vertices": 216091, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 0, "animations": 0}
+    ]
+  }
+}

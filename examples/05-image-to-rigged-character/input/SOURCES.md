@@ -1,0 +1,5 @@
+# Sample concept art
+
+`concept-art.png` is the same image as cookbook 01's sample: the sample image from the Meshy API quick start guide (https://docs.meshy.ai/images/api/quick-start/source-photo.webp), converted from WebP to a 1024 × 1024 PNG on 2026-09-16. It is Meshy-owned; use it freely to try the cookbook. The README calls the figure the armored character.
+
+It works for rigging because it shows one standing humanoid, facing the viewer, with both arms and legs clearly separated from the body.

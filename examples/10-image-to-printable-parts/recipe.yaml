@@ -1,0 +1,80 @@
+schema_version: 1
+slug: image-to-printable-parts
+order: 10
+title: Turn a character image into 3D-printable parts
+description: Build the armored character as an untextured mesh, check it for printing
+  at no cost, then split it into parts laid out on the build plate, as a 3MF for your
+  slicer and a GLB.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- 3d-printing
+- auto-split
+- printability
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a figure or object to print in parts.
+  files:
+  - input/concept-art.png
+  - input/SOURCES.md
+outputs:
+- 3mf
+- glb
+endpoints:
+- image-to-3d
+- print/analyze
+- print/split
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The printability and Auto Split endpoints have no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 30
+  time_seconds:
+    min: 139
+    max: 173
+  basis: Two live runs on September 27, 2026, one per language, from fresh copies of
+    the repository, started 16 seconds apart. The mesh stage took 31–37 seconds, the
+    printability check about 1 second and the split 95–120 seconds, for 139–173 seconds
+    from start to files on disk. Observed range, not a service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026, from fresh
+  copies of the repository. Each cost 20 credits for the untextured mesh, 0 for the
+  printability check and 10 for the split, read from consumed_credits, and each split
+  returned six parts. Neither run needed a resume. A free probe the same day confirmed
+  that Auto Split rejects a Smart Topology task with 400 before anything is charged.
+previews:
+- path: input/concept-art.png
+  alt: Armored character concept art
+  role: input
+- path: assets/model.png
+  alt: The untextured armored character mesh
+  role: concept
+- path: assets/result.png
+  alt: The armored character cut into six parts standing on the build plate, each in
+    its own filament color
+  role: result
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

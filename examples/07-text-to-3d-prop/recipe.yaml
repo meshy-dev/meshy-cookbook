@@ -1,0 +1,67 @@
+schema_version: 1
+slug: text-to-3d-prop
+order: 7
+title: Generate a 3D model from a description in two stages
+description: Describe a retro toy rocket, let Meshy build the untextured preview mesh,
+  then refine it into a textured GLB with PBR maps.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- text-to-3d
+- pbr
+- prop
+readme: README.md
+input:
+  type: text
+  description: A description of one object; the runner includes the retro toy rocket prompt.
+  files: []
+outputs:
+- glb
+endpoints:
+- text-to-3d
+model_policy: Both stages omit ai_model. The preview stage follows the API's current
+  default and the refine stage inherits the preview's model.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 30
+  time_seconds:
+    min: 98
+    max: 105
+  basis: Two live runs on September 27, 2026, one per language, started together.
+    The preview stage took 50–61 seconds and the refine stage 40–42 seconds, for
+    98–105 seconds from start to files on disk. Observed range, not a service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026. Each cost
+  20 credits for the preview mesh and 10 for the refine stage. Neither run needed
+  a resume. A second refine of the Python run's preview with a texture_prompt, made
+  the same day for the parameters table, cost 10 credits and returned the same mesh.
+previews:
+- path: assets/preview.png
+  alt: The untextured preview mesh of the rocket
+  role: concept
+- path: assets/result.png
+  alt: The textured retro toy rocket
+  role: result
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

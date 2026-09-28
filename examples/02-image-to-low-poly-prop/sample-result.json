@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-low-poly-prop",
+  "historical_run": {
+    "documented_on": "2026-09-21",
+    "source": "README.md",
+    "credits": 5,
+    "model": "meshy-t2, according to the historical README; task result did not report a model.",
+    "note": "Credits and model attribution are historical README observations, not newly verified API responses. The exact generation timestamp and task response were not retained in this record. Archived tutorial observations (not a new run or inspection): Historical README reported 2.5\u20133.1 s generation and 7\u20138 s end to end for default oak runs, with another identical request taking up to 11 s. Requested/observed face counts were 100/98, 300/324, 1,000/1,096\u20131,104, and 15,000/15,540."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-23",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays.",
+    "note": "Inspected existing python/output artifacts without calling Meshy. These ignored runtime files are not required for validation or export. Curated previews in assets/ show these samples; the model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "low-poly-prop.glb",
+        "format": "glb",
+        "bytes": 20520,
+        "sha256": "27b8704099da1439e241ac94f55e95d7a922598737e2a2d488e39efdac3356e3",
+        "triangles": 1096,
+        "vertices": 556,
+        "meshes": 1,
+        "materials": 0,
+        "embedded_images": 0,
+        "skins": 0,
+        "animations": 0
+      }
+    ]
+  }
+}

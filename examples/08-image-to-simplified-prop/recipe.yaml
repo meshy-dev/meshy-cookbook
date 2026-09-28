@@ -1,0 +1,82 @@
+schema_version: 1
+slug: image-to-simplified-prop
+order: 8
+title: Simplify a dense model to the face count you choose
+description: Build the sea chest from cookbook 03 as a dense textured model, then
+  remesh it into a 20,000-face quad mesh with its textures, as GLB and FBX.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- remesh
+- quad
+- optimization
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a prop, plus a face budget for the simplified mesh.
+  files:
+  - input/sea-chest.png
+  - input/SOURCES.md
+outputs:
+- glb
+- fbx
+endpoints:
+- image-to-3d
+- remesh
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The remesh endpoint has no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 35
+  time_seconds:
+    min: 249
+    max: 257
+  basis: Two live runs on September 27, 2026, one per language, started together.
+    The model stage took 108–109 seconds and the remesh stage 133–139 seconds, for
+    249–257 seconds from start to files on disk. Observed range, not a service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026. Each cost
+  30 credits for the dense model and 5 for the remesh. Four more remeshes of the
+  Python run's model task, at 2,000, 5,000 and 100,000 quad faces and 20,000 triangles,
+  were made for the comparison table at 5 credits each. Neither run needed a resume.
+previews:
+- path: input/sea-chest.png
+  alt: Included sea chest concept image
+  role: input
+- path: assets/dense.png
+  alt: The dense textured chest, about a million triangles
+  role: concept
+- path: assets/result.png
+  alt: The simplified chest at 20,000 quad faces, textures kept
+  role: result
+- path: assets/wireframe.png
+  alt: Wireframe of the simplified chest showing its quad faces
+  role: wireframe
+assets:
+- assets/SOURCES.md
+- assets/faces-2000.png
+- assets/faces-5000.png
+- assets/faces-20000.png
+- assets/faces-100000.png
+sample_result: sample-result.json

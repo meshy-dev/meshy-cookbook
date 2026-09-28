@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Meshy cookbook recipe",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "slug", "order", "title", "description", "author", "tags", "readme", "input", "outputs", "endpoints", "model_policy", "languages", "estimates", "last_verified", "verification_note", "previews", "assets", "sample_result"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+    "order": {"type": "integer", "minimum": 1},
+    "title": {"type": "string", "minLength": 1},
+    "description": {"type": "string", "minLength": 1, "maxLength": 300},
+    "author": {
+      "type": "object", "additionalProperties": false, "required": ["name", "url"],
+      "properties": {"name": {"type": "string", "minLength": 1}, "url": {"type": "string", "format": "uri", "pattern": "^https://"}}
+    },
+    "tags": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "readme": {"const": "README.md"},
+    "input": {
+      "type": "object", "additionalProperties": false, "required": ["type", "description", "files"],
+      "properties": {
+        "type": {"enum": ["image", "text", "photos"]},
+        "description": {"type": "string", "minLength": 1},
+        "files": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    },
+    "outputs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["glb", "usdz", "fbx", "obj", "3mf"]}},
+    "endpoints": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["image-to-3d", "text-to-image", "multi-image-to-3d", "rigging", "retexture", "text-to-3d", "remesh", "animations", "print/analyze", "print/split", "print/multi-color"]}},
+    "model_policy": {"type": "string", "minLength": 1},
+    "languages": {
+      "type": "object", "additionalProperties": false, "required": ["python", "typescript"],
+      "properties": {"python": {"$ref": "#/$defs/language"}, "typescript": {"$ref": "#/$defs/language"}}
+    },
+    "estimates": {
+      "type": "object", "additionalProperties": false, "required": ["credits", "time_seconds", "basis"],
+      "properties": {
+        "credits": {"type": "number", "minimum": 0},
+        "time_seconds": {
+          "type": "object", "additionalProperties": false, "required": ["min", "max"],
+          "properties": {"min": {"type": "number", "minimum": 0}, "max": {"type": "number", "minimum": 0}}
+        },
+        "basis": {"type": "string", "minLength": 1}
+      }
+    },
+    "last_verified": {"type": "string", "format": "date"},
+    "verification_note": {"type": "string", "minLength": 1},
+    "previews": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["path", "alt", "role"],
+        "properties": {"path": {"$ref": "#/$defs/path"}, "alt": {"type": "string", "minLength": 1}, "role": {"enum": ["input", "concept", "result", "wireframe", "skeleton", "animation", "front", "right", "back", "left"]}}
+      }
+    },
+    "sample_result": {"const": "sample-result.json"},
+    "assets": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+  },
+  "$defs": {
+    "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},
+    "language": {
+      "type": "object", "additionalProperties": false, "required": ["runtime", "entrypoint", "files", "shared"],
+      "properties": {
+        "runtime": {"type": "string", "minLength": 1},
+        "entrypoint": {"$ref": "#/$defs/path"},
+        "files": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+        "shared": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+      }
+    }
+  }
+}

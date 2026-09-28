@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-animated-character",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 44,
+    "model": "Not reported: none of the image-to-3d, rigging or animation task responses includes a model field. ai_model was omitted on the model stage, which followed the API default; the rigging and animation endpoints have no model selection.",
+    "note": "Two live runs, one per language, on September 27, 2026, from fresh copies of the repository; the TypeScript run started while the Python run's animation task was in progress. Each consumed 30 credits (image-to-3d, a-pose, remeshed to 30,000, textured with PBR) + 5 credits (rigging, height_meters 1.8) + 9 credits (animations, action_ids [0, 466, 4]), read from consumed_credits. Model stage 124.7-125.6 s from start to finish, rigging 37.6-37.7 s, animation 27.4-30.6 s, no queue time; 204.9 s from the first task's creation to the last task's finish on the Python run and 208-211 s wall from start to files on disk. Neither run needed a resume."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; joint names from skins[0].joints; clip names and durations from animations[] and their sampler inputs; Blender 5.2 headless import for the action list; FBX animation stack names read from the binary.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced a 7,073,508-byte GLB with 30,810 triangles, 32,386 vertices and the same 24-joint skeleton, and a 7,384,156-byte FBX. Both GLBs hold three animation clips named Idle (4.0 s), Regular_Jump (1.9 s) and Attack (2.8 s), in the order of action_ids, plus one embedded base color PNG; the clip names are the library key values. Blender imports the three clips as actions with Idle active; the FBX carries them as three animation stacks. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "animated-character.glb", "format": "glb", "bytes": 7248320, "sha256": "f3480fdf304d7f541179f05d10088e2debaefa5054b826f6009e3eb4da8cded4", "triangles": 30794, "vertices": 33975, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 3}
+    ]
+  }
+}

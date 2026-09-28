@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-3d-character",
+  "historical_run": {
+    "documented_on": "2026-09-21",
+    "source": "README.md",
+    "credits": 30,
+    "model": "Meshy 7.1, according to the historical README; ai_model omitted.",
+    "note": "Credits and model attribution are historical README observations, not newly verified API responses. The exact generation timestamp and task response were not retained in this record. Archived tutorial observations (not a new run or inspection): Historical README reported 1 min 34 s\u20132 min 40 s end to end, 765,812\u20131,028,430 triangles, and 28.0\u201335.9 MB across character runs."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-23",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays.",
+    "note": "Inspected existing python/output artifacts without calling Meshy. These ignored runtime files are not required for validation or export. Curated previews in assets/ show these samples; the model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "character.glb",
+        "format": "glb",
+        "bytes": 35187608,
+        "sha256": "c7a4768c914c9bf5dc62e2d3334d9585fc7d965848fe1ada2fc966c483dacd61",
+        "triangles": 1003852,
+        "vertices": 528785,
+        "meshes": 1,
+        "materials": 1,
+        "embedded_images": 3,
+        "skins": 0,
+        "animations": 0
+      }
+    ]
+  }
+}

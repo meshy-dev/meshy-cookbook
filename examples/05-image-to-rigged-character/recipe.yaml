@@ -1,0 +1,77 @@
+schema_version: 1
+slug: image-to-rigged-character
+order: 5
+title: Rig a 3D character with walk and run animations
+description: Turn one humanoid character image into a rigged GLB and FBX with walking
+  and running clips.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- character
+- rigging
+- animation
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a standing humanoid character.
+  files:
+  - input/concept-art.png
+  - input/SOURCES.md
+outputs:
+- glb
+- fbx
+endpoints:
+- image-to-3d
+- rigging
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The rigging endpoint has no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 35
+  time_seconds:
+    min: 170
+    max: 220
+  basis: Two live runs on September 25–26, 2026, one per language. The model stage
+    took 126–136 seconds and rigging 36–37 seconds; one rigging request took about
+    35 seconds to be accepted. Observed range, not a service guarantee.
+last_verified: '2026-09-26'
+verification_note: Live Python and TypeScript runs on September 25–26, 2026. Each
+  cost 30 credits for the model and 5 for the rig. Both runs were resumed once with
+  --resume after an interrupted request, without creating duplicate tasks.
+previews:
+- path: input/concept-art.png
+  alt: Included armored character concept art
+  role: input
+- path: assets/result.png
+  alt: Textured armored character in an A-pose
+  role: result
+- path: assets/skeleton.svg
+  alt: Front view of the 24-joint skeleton inside the character's mesh
+  role: skeleton
+- path: assets/walk-cycle.svg
+  alt: Side view of the skeleton at six moments of the walking loop
+  role: animation
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

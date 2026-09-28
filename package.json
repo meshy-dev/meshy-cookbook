@@ -1,0 +1,16 @@
+{
+  "name": "meshy-cookbook",
+  "private": true,
+  "type": "module",
+  "workspaces": ["examples/*/typescript"],
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "test": "node --import tsx --test tests/meshy.test.ts tests/rigged-character.test.ts tests/restyled-prop.test.ts tests/text-to-3d-prop.test.ts tests/simplified-prop.test.ts tests/animated-character.test.ts tests/printable-parts.test.ts tests/multi-color-print.test.ts",
+    "check": "npm run check --workspaces && tsc --noEmit -p tests/tsconfig.json"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.3",
+    "tsx": "4.23.13",
+    "typescript": "5.9.3"
+  }
+}

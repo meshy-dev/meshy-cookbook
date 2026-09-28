@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-printable-parts",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 30,
+    "model": "Not reported: none of the image-to-3d, print-analyze or print-split task responses includes a model field. ai_model was omitted on the mesh stage, which followed the API default; the printability and Auto Split endpoints have no model selection.",
+    "note": "Two live runs, one per language, on September 27, 2026, from fresh copies of the repository, started 16 seconds apart. Each consumed 20 credits (image-to-3d with should_texture false, GLB only) + 0 credits (print-analyze on the model task) + 10 credits (print-split with target_formats glb and 3mf, layout on_plate, mode and connectors omitted), read from consumed_credits. Mesh stage 30.6-37.4 s from creation to finish; check 1.2 s; split 94.7-119.7 s; 139-173 s wall from start to files on disk. Both splits returned part_count 6. The check reported both meshes watertight with 0 holes and 0 non-manifold edges, status warning for 510,393-631,467 degenerate faces; a local count of the Python run's raw mesh found no zero-area triangles and exactly 510,393 triangles smaller than one square millimetre, so the metric counts tiny triangles."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; 3MF objects, build items, component references and vertex extents parsed from the ZIP's model files with the standard library.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced a 21,394,020-byte, 1,069,452-triangle split GLB and a 14,339,231-byte 3MF with the same six parts on a 140.98 x 150.00 mm footprint, tallest part 139.84 mm. Both GLBs hold six meshes with POSITION and COLOR_0 attributes (one flat vertex color per part), no materials, no images, generator trimesh; the Python GLB's parts span 1.22 x 1.23 x 1.40 m in the on_plate layout. Both 3MFs are written by the Bambu Studio library (Application BambuStudio-02.03.01.00) in millimetres with the production extension: one build item, an object named meshy-split composed of six component parts (model_part0 to model_part5) in 3D/Objects/object_1.model, each assigned to its own extruder with a filament colour in Metadata/project_settings.config, placed at the centre of a 256 mm plate on a 144.84 x 150.00 mm footprint with every part resting on z = 0; the legs stand 131.91 mm tall on their hip cuts, the arms lie 98.7 mm long, the torso 104.7 x 67.3 x 49.7 mm and the head 40.3 x 35.4 x 27.6 mm. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "printable-parts.3mf", "format": "3mf", "bytes": 12886209, "sha256": "003148ecc6aed8f3fe082a0185312517ec3f541fac7d0df55c1cdd12d34af249", "triangles": 965906, "vertices": 482919, "meshes": 6, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0},
+      {"filename": "printable-parts.glb", "format": "glb", "bytes": 19323728, "sha256": "6d3a16c2e9d0625d2de1aa367b9204c194d3b8feb020177ff1655a36376f4d74", "triangles": 965906, "vertices": 482919, "meshes": 6, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0}
+    ]
+  }
+}

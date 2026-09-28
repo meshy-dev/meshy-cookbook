@@ -1,0 +1,84 @@
+schema_version: 1
+slug: photos-to-product-model
+order: 4
+title: Create a 3D product model from multiple photos
+description: Turn one to four views, front first, into a textured GLB and USDZ with
+  estimated real-world scale.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- product
+- multi-image-to-3d
+- ar
+readme: README.md
+input:
+  type: photos
+  description: One to four views of the same product, front first. Included armchair
+    views are synthetic.
+  files:
+  - input/armchair-001/1-front.jpg
+  - input/armchair-001/2-back.jpg
+  - input/armchair-001/3-side.jpg
+  - input/SOURCES.md
+outputs:
+- glb
+- usdz
+endpoints:
+- multi-image-to-3d
+model_policy: multi-image-to-3d omits ai_model, so it follows the current latest model.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 35
+  time_seconds:
+    min: 210
+    max: 240
+  basis: Historical README measurements documented September 21, 2026; approximate
+    end-to-end time, not a service guarantee.
+last_verified: '2026-09-21'
+verification_note: Historical live-run measurements documented in README.md. Curated
+  local artifacts were inspected September 23, 2026 without a new API run.
+previews:
+- path: input/armchair-001/1-front.jpg
+  alt: Synthetic armchair 1-front input view
+  role: input
+- path: input/armchair-001/2-back.jpg
+  alt: Synthetic armchair 2-back input view
+  role: input
+- path: input/armchair-001/3-side.jpg
+  alt: Synthetic armchair 3-side input view
+  role: input
+- path: assets/result.png
+  alt: Generated armchair model, front view
+  role: result
+- path: assets/right.png
+  alt: Generated armchair model, right view
+  role: right
+- path: assets/back.png
+  alt: Generated armchair model, back view
+  role: back
+- path: assets/left.png
+  alt: Generated armchair model, left view
+  role: left
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

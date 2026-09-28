@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["meshy.test.ts", "rigged-character.test.ts", "restyled-prop.test.ts", "text-to-3d-prop.test.ts", "simplified-prop.test.ts", "animated-character.test.ts", "printable-parts.test.ts", "multi-color-print.test.ts", "../shared/typescript/*.ts", "../examples/03-text-to-hero-prop/typescript/main.ts", "../examples/05-image-to-rigged-character/typescript/main.ts", "../examples/06-text-to-restyled-prop/typescript/main.ts", "../examples/07-text-to-3d-prop/typescript/main.ts", "../examples/08-image-to-simplified-prop/typescript/main.ts", "../examples/09-image-to-animated-character/typescript/main.ts", "../examples/10-image-to-printable-parts/typescript/main.ts", "../examples/11-image-to-multi-color-print/typescript/main.ts"]
+}

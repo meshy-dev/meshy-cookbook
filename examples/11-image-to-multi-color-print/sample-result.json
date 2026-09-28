@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-multi-color-print",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 40,
+    "model": "Not reported: neither the image-to-3d nor the print-multi-color task response includes a model field. ai_model was omitted on the model stage, which followed the API default; the Multi-Color Print endpoint has no model selection.",
+    "note": "Two live runs, one per language, on September 27, 2026, from fresh copies of the repository, started 165 seconds apart. Each consumed 30 credits (image-to-3d with should_texture true, enable_pbr false, GLB only) + 10 credits (print-multi-color with max_colors 4 and style realistic), read from consumed_credits. Model stage 140.4-161.2 s from start to finish; conversion 15.4-16.5 s; 170-183 s wall from start to files on disk. A third conversion of the Python run's model task with style cartoon, for the comparison figure, took 30.9 s and 10 credits. Every print task returned model_urls.3mf only and an empty thumbnail_url."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; 3MF mesh, vertex extents, build items, filament palette and per-triangle paint_color codes parsed from the ZIP's model and config files with the standard library, decoding Bambu Studio's TriangleSelector encoding.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced a 44,633,672-byte, 1,366,246-triangle textured GLB and a 38,021,207-byte 3MF of the same triangles on a 95.66 x 78.51 x 75.00 mm footprint with palette #3F3124, #1F1C18, #9D8A72, #685744. Both GLBs hold one mesh with POSITION, NORMAL and TEXCOORD_0, one material and one embedded JPEG base color texture, 1.90 m on the longest side, generator pygltflib. Both 3MFs are written by the Bambu Studio library (Application BambuStudio-02.03.01.00) in millimetres with the production extension: one object of one mesh part, one build item at (125, 125, 0), four Bambu PLA Basic filaments in Metadata/project_settings.config, printer Bambu Lab X1 Carbon 0.4 nozzle, the model scaled to exactly 75.00 mm tall. The colors are per-triangle paint_color attributes; in the realistic style 384,370 of the Python run's 1,253,204 triangles are subdivided so that one triangle carries more than one color, while the cartoon conversion of the same model (24,003,179 bytes) assigns one whole color per triangle. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "textured-model.glb", "format": "glb", "bytes": 41161484, "sha256": "0f799fab5c329ea94a089e68adde755c2f4c6223176173441840b89d1e01daf0", "triangles": 1253204, "vertices": 666491, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 0, "animations": 0},
+      {"filename": "multi-color-print.3mf", "format": "3mf", "bytes": 35345793, "sha256": "a438c89201ae2c0b943f5962159ab8df9df30b4056b05d766d0a029bd1ef2691", "triangles": 1253204, "vertices": 626091, "meshes": 1, "materials": 4, "embedded_images": 0, "skins": 0, "animations": 0}
+    ]
+  }
+}

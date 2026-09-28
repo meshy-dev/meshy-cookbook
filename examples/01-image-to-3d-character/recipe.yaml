@@ -1,0 +1,66 @@
+schema_version: 1
+slug: image-to-3d-character
+order: 1
+title: Generate a 3D character from concept art
+description: Turn one concept image into a dense, textured character GLB with PBR
+  maps.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- character
+- image-to-3d
+- pbr
+readme: README.md
+input:
+  type: image
+  description: One character concept image.
+  files:
+  - input/concept-art.png
+  - input/SOURCES.md
+outputs:
+- glb
+endpoints:
+- image-to-3d
+model_policy: Standard image-to-3d omits ai_model, so it follows the current latest
+  model.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 30
+  time_seconds:
+    min: 94
+    max: 160
+  basis: Historical README measurements documented September 21, 2026; approximate
+    end-to-end time, not a service guarantee.
+last_verified: '2026-09-21'
+verification_note: Historical live-run measurements documented in README.md. Curated
+  local artifacts were inspected September 23, 2026 without a new API run.
+previews:
+- path: input/concept-art.png
+  alt: Included concept image
+  role: input
+- path: assets/result.png
+  alt: Textured armored character model
+  role: result
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

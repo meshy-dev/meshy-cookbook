@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-rigged-character",
+  "historical_run": {
+    "documented_on": "2026-09-26",
+    "source": "README.md",
+    "credits": 35,
+    "model": "Not reported: neither the image-to-3d nor the rigging task response included a model field. ai_model was omitted, so the model stage used the API default.",
+    "note": "Two live runs, one per language, on September 25-26, 2026. Each consumed 30 credits (image-to-3d) + 5 credits (rigging), read from consumed_credits. Model stage 126-136 s from creation to finish; rigging 36-37 s. The Python run's rigging POST exceeded the client's former 60 s read timeout although the task was created; its ID was recovered from GET /openapi/v1/rigging and the run resumed. The TypeScript run lost DNS while polling the model and was resumed. Neither resume created a duplicate task."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-26",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; joint names from skins[0].joints.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced 30,756 triangles, 34,158 vertices and the same 24-joint skeleton. All rigged files have 24 joints and one embedded base-color image. Walking loop 1.07 s, running loop 0.67 s. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "rigged-character.glb", "format": "glb", "bytes": 7000544, "sha256": "aa423e393ab4294e08becc638008fa4e199332cf3929a1c8f23898fce5f8b598", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1},
+      {"filename": "walking.glb", "format": "glb", "bytes": 7013316, "sha256": "7df7a7a9cea50c838246a99537d9a09ede73eb5497ba28e8e90f6afa7f14c152", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1},
+      {"filename": "running.glb", "format": "glb", "bytes": 7008704, "sha256": "3e4653d3a5d8d79dbab2b66290eec56c69b64efccbc9d5f12c0947dae35daa30", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1}
+    ]
+  }
+}

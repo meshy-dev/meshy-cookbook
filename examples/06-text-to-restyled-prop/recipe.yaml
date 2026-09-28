@@ -1,0 +1,78 @@
+schema_version: 1
+slug: text-to-restyled-prop
+order: 6
+title: Restyle a model with a text prompt
+description: Rebuild the gray low-poly oak from cookbook 02 and give it an autumn
+  look from a short text style prompt, as a textured GLB with PBR maps.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- retexture
+- texturing
+- pbr
+- low-poly
+- image-to-3d
+readme: README.md
+input:
+  type: text
+  description: A style prompt, plus the oak concept image for the model stage.
+  files:
+  - input/low-poly-oak.png
+  - input/SOURCES.md
+outputs:
+- glb
+endpoints:
+- image-to-3d
+- retexture
+model_policy: Both stages omit ai_model. The model stage sets model_type to smart-topology
+  and follows the service default for that model type; the retexture stage follows
+  the API's current default.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 15
+  time_seconds:
+    min: 55
+    max: 57
+  basis: Two live runs on September 27, 2026, one per language, started together.
+    The model stage took about 3 seconds and retexturing 42–45 seconds, for 55–57
+    seconds from start to files on disk. Observed range, not a service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026. Each cost
+  5 credits for the model stage and 10 for the retexture stage. A third retexture of
+  the Python run's oak task with enable_original_uv true, made for comparison, produced
+  the same 1,032-triangle, 1,262-vertex unwrap.
+previews:
+- path: input/low-poly-oak.png
+  alt: Included oak concept image
+  role: input
+- path: assets/result.png
+  alt: The low-poly oak restyled as an autumn tree
+  role: result
+assets:
+- assets/SOURCES.md
+- assets/gray-oak.png
+- assets/base-color.jpg
+- assets/metallic.jpg
+- assets/roughness.jpg
+- assets/normal.jpg
+sample_result: sample-result.json

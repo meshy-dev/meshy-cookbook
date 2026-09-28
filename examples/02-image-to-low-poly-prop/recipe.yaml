@@ -1,0 +1,70 @@
+schema_version: 1
+slug: image-to-low-poly-prop
+order: 2
+title: Generate low-poly props with Smart Topology
+description: Generate an untextured low-poly prop at a chosen face count from one
+  concept image.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- low-poly
+- smart-topology
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One prop concept image and an optional target face count.
+  files:
+  - input/low-poly-oak.png
+  - input/SOURCES.md
+outputs:
+- glb
+endpoints:
+- image-to-3d
+model_policy: model_type is smart-topology; ai_model is omitted and follows the service
+  default for that model type.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 5
+  time_seconds:
+    min: 7
+    max: 8
+  basis: 'Historical README measurements documented September 21, 2026; 7–8 seconds
+    end to end in the recorded fast runs. A separate run took 11 seconds for generation
+    alone, so this observed range is not a maximum or service guarantee.'
+last_verified: '2026-09-21'
+verification_note: Historical live-run measurements documented in README.md. Curated
+  local artifacts were inspected September 23, 2026 without a new API run.
+previews:
+- path: input/low-poly-oak.png
+  alt: Included concept image
+  role: input
+- path: assets/result.png
+  alt: Untextured low-poly oak model
+  role: result
+- path: assets/wireframe.svg
+  alt: Wireframe projection of the recorded 1,096-triangle oak mesh
+  role: wireframe
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

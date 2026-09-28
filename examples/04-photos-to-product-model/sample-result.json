@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "slug": "photos-to-product-model",
+  "historical_run": {
+    "documented_on": "2026-09-21",
+    "source": "README.md",
+    "credits": 35,
+    "model": "Meshy 7.1, according to the historical README; ai_model omitted.",
+    "note": "Credits and model attribution are historical README observations, not newly verified API responses. The exact generation timestamp and task response were not retained in this record. Archived tutorial observations (not a new run or inspection): Historical README reported armchair generation in 3 min 30 s\u20133 min 48 s, 168,196\u2013249,108 triangles, 29.0\u201332.6 MB GLBs, and estimated heights of 0.80\u20130.85 m. Dimensions were not physical measurements."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-23",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays.",
+    "note": "Inspected existing python/output artifacts without calling Meshy. These ignored runtime files are not required for validation or export. Curated previews in assets/ show these samples; the model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "armchair.glb",
+        "format": "glb",
+        "bytes": 32596476,
+        "sha256": "9cbaa9bf668ad4ce6d52e2099fd928db66d9bcb641416cbd8b22327884741f7a",
+        "triangles": 219382,
+        "vertices": 119230,
+        "meshes": 1,
+        "materials": 1,
+        "embedded_images": 3,
+        "skins": 0,
+        "animations": 0
+      },
+      {
+        "filename": "armchair.usdz",
+        "format": "usdz",
+        "bytes": 33490592,
+        "sha256": "cacfb912a71079983ba12b907bf47469a8878ea0ed1eff435491aa44dd5b4d6c"
+      }
+    ]
+  }
+}

@@ -1,0 +1,86 @@
+schema_version: 1
+slug: image-to-animated-character
+order: 9
+title: Animate a 3D character with idle, jump and attack clips
+description: Turn one humanoid character image into a rigged character with idle,
+  jump and attack clips from the animation library in one GLB and one FBX.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- character
+- animation
+- rigging
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a standing humanoid character, plus the action ids to
+    apply.
+  files:
+  - input/concept-art.png
+  - input/SOURCES.md
+outputs:
+- glb
+- fbx
+endpoints:
+- image-to-3d
+- rigging
+- animations
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The rigging and animation endpoints have no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 44
+  time_seconds:
+    min: 205
+    max: 211
+  basis: Two live runs on September 27, 2026, one per language, from fresh copies of
+    the repository. The model stage took 125–126 seconds, rigging 38 seconds and the
+    animation stage 27–31 seconds; 205–211 seconds end to end. Observed range, not a
+    service guarantee.
+last_verified: '2026-09-27'
+verification_note: Live Python and TypeScript runs on September 27, 2026, from fresh
+  copies of the repository. Each cost 30 credits for the model, 5 for the rig and 9
+  for the three actions, read from consumed_credits. Neither run needed a resume.
+previews:
+- path: input/concept-art.png
+  alt: Included armored character concept art
+  role: input
+- path: assets/result.png
+  alt: Textured armored character in an A-pose
+  role: result
+- path: assets/clips.svg
+  alt: Side view of the skeleton at four moments of each clip, idle, jump and attack
+  role: animation
+- path: assets/idle.gif
+  alt: The animated character playing the Idle clip
+  role: animation
+- path: assets/jump.gif
+  alt: The animated character playing the Regular_Jump clip
+  role: animation
+- path: assets/attack.gif
+  alt: The animated character playing the Attack clip
+  role: animation
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json

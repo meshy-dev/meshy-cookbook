@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-simplified-prop",
+  "historical_run": {
+    "documented_on": "2026-09-27",
+    "source": "README.md",
+    "credits": 35,
+    "model": "Not reported: neither the image-to-3d nor the remesh task response includes a model field. ai_model was omitted on the model stage, which followed the API default; the remesh endpoint has no model selection.",
+    "note": "Two live runs, one per language, on September 27, 2026, started together. Each consumed 30 credits (image-to-3d with should_texture and enable_pbr, GLB only) + 5 credits (remesh, quad topology, target_polycount 20000, GLB and FBX), read from consumed_credits. Model stage 107.8-108.8 s from creation to finish; remesh 132.6-138.9 s; 249-257 s wall from start to files on disk. Four extra remeshes of the Python run's model task (quad 2,000, 5,000 and 100,000; triangle 20,000) were made for the README's comparison table at 5 credits each; their measurements are in the README."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-09-27",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; primitive attributes and POSITION extents; FBX polygon sides counted after import in Blender 5.2.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced a 1,158,688-triangle, 44,751,024-byte dense GLB and a 39,978-triangle, 22,262,660-byte simplified GLB whose FBX holds 19,977 quads and 24 triangles. Both dense GLBs carry three embedded JPEG images; both simplified GLBs carry the same three maps re-baked as PNG (about 19.6 MB of the 20.7 MB file, with 1.1 MB of geometry), which is why the file only halves while the geometry shrinks by more than 30 times. The GLB stores each quad as two triangles; the FBX keeps the quads. All four models are about 1.90 m on the longest side. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "dense-prop.glb", "format": "glb", "bytes": 49964712, "sha256": "dfcc754bdaab6b3ddcd342f2ae87284c5e567d050cbbd7ba765c5c92d91d5f7c", "triangles": 1329968, "vertices": 705150, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 0, "animations": 0},
+      {"filename": "simplified-prop.glb", "format": "glb", "bytes": 20729316, "sha256": "e0d3d86e02c6b3fb114fa3af2edf737c9e21e4a6130b43a2c210d6f424dd8464", "triangles": 39181, "vertices": 28362, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 0, "animations": 0}
+    ]
+  }
+}
