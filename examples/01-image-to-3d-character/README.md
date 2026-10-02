@@ -90,7 +90,7 @@ The whole run is a single stage of two to three minutes, and Meshy does two jobs
 |---|
 | ![Textured armored character generated from the concept](assets/result.png) |
 
-One limit to know: this mesh is dense. Expect about a million triangles and a file around 35 MB. That is fine for renders and for inspecting the result, but too heavy to drop into a game or a web page as it is. Step 5 covers what to do about that.
+One limit to know: this mesh is dense. Expect about a million triangles and a file around 35 MB. That is fine for renders and for inspecting the result, but too heavy to drop into a game or a web page as it is. Step 5 says how to simplify it.
 
 ## Step 5: Turn it around
 
@@ -112,7 +112,7 @@ Look at the face, the hands, the armor and the back, and check that they match t
 What comes next depends on where the character is going:
 
 - **A rigged, animated character:** the [rigging recipe](../05-image-to-rigged-character/) uses this same image and adds a skeleton with walking and running clips.
-- **A website or game:** ask your agent to help make a lighter copy of the model before integrating it, and keep this original for its full detail.
+- **A website or game:** simplify the mesh first. The [simplify recipe](../08-image-to-simplified-prop/) rebuilds a dense model as a quad mesh at a face count you choose, about 20,000 by default, keeping its textures. The remesh endpoint it uses accepts the task ID of a model Meshy already built, so your agent can simplify this character for 5 credits without generating it again, as long as Meshy still has the task, which is three days. Keep this original for its full detail.
 - **A lighter shape from the start:** the [low-poly recipe](../02-image-to-low-poly-prop/) builds a small, simple model at a face count you choose.
 
 ## Try your own idea

@@ -118,7 +118,7 @@ Help me look at output/armchair.glb from all sides and compare it with the three
 
 Compare each side against the matching input view. Check the thin parts, such as the legs, and the surfaces no view showed, such as the underside of the seat. Then check the size: the estimate from Step 4 is only as good as the pictures, so compare it with the real object and correct it in your 3D tool before anyone places the chair in their room.
 
-Before putting the model on a product page, ask your agent to help reduce the file size and check how it looks in your viewer. Expect a file around 33 MB. Keep a copy of the original result.
+Expect a file around 33 MB, which is more than a product page wants to load. Before putting the model on a page, simplify the mesh: the [simplify recipe](../08-image-to-simplified-prop/) rebuilds a dense model as a quad mesh at a face count you choose, keeping its textures. The remesh endpoint it uses takes a model file as well as a task ID, so your agent can send the downloaded GLB and simplify it for 5 credits without generating it again. Check how the lighter copy looks in your viewer, and keep a copy of the original result.
 
 ## Try your own idea
 

@@ -101,7 +101,7 @@ Meshy builds the complete mesh from the concept, then generates its textures: a 
 |---|
 | ![Textured chest model generated from that concept](assets/result.png) |
 
-One limit to know: this mesh is heavy. Expect about 1.1 million triangles and a file around 64 MB. That is the point of a hero prop, but it is far too large to use as it is in a game or on a web page. Step 6 covers what to do about that.
+One limit to know: this mesh is heavy. Expect about 1.1 million triangles and a file around 64 MB. That is the point of a hero prop, but it is far too large to use as it is in a game or on a web page. Step 6 says how to simplify it.
 
 ## Step 6: Compare it with the concept
 
@@ -121,7 +121,7 @@ Help me look at output/hero-prop.glb from all sides, next to output/hero-prop-co
 
 Put the concept next to the model and compare shape and materials. The two sides the concept showed should match it closely. Look at how the wood, iron and brass read under light, since that is what the PBR maps are for. Adjust the model's scale in your 3D tool before placing it in a scene.
 
-To use the chest in a website or a real-time scene, ask your agent to help prepare a smaller copy, and keep this original for renders and close-ups.
+To use the chest in a website or a real-time scene, simplify the mesh first. The [simplify recipe](../08-image-to-simplified-prop/) starts from this same concept image and rebuilds the chest as a quad mesh of about 20,000 faces, keeping its textures, and shows what to look for on the result. The remesh endpoint it uses accepts the task ID of a model Meshy already built, so your agent can simplify this chest for 5 credits without generating it again, as long as Meshy still has the task, which is three days. Keep this original for renders and close-ups.
 
 ## Try your own idea
 
