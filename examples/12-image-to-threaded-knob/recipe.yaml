@@ -1,0 +1,81 @@
+schema_version: 1
+slug: image-to-threaded-knob
+order: 12
+title: Turn one image into a 3D-printable cabinet knob with a screw thread
+description: Build the sunburst knob as a mesh from one image, size it to a 38 mm
+  cap, cut a threaded hole for an 8-32 or M4 cabinet-knob screw into its stem, and
+  check the STL for printing.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- 3d-printing
+- stl
+- screw-thread
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One image of a knob, plus the screw thread to cut, 8-32 or M4.
+  files:
+  - input/sunburst-knob.png
+  - input/SOURCES.md
+outputs:
+- stl
+endpoints:
+- image-to-3d
+- print/analyze
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The printability check has no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 20
+  time_seconds:
+    min: 68
+    max: 71
+  basis: Two live runs on October 12, 2026, one per language, from fresh copies of
+    the repository, started 5 seconds apart. The model stage generated in 29–34 seconds,
+    the thread cut ran locally in about a second, and the two free printability checks
+    took about 16 seconds each, for 68–71 seconds from start to files on disk. Observed
+    range, not a service guarantee.
+last_verified: '2026-10-12'
+verification_note: Live Python and TypeScript runs on October 12, 2026, from fresh
+  copies of the repository with only the recipe's own requirements installed. Each
+  cost 20 credits for the mesh-only model, read from consumed_credits; all printability
+  checks consumed 0. Each run was then resumed with the M4 screw, which cut the second
+  thread from the same model and ran both checks again for no credits. Every check
+  reported healthy and watertight.
+previews:
+- path: input/sunburst-knob.png
+  alt: Included sunburst knob image, a brass Art Deco cabinet knob
+  role: input
+- path: assets/model.png
+  alt: The untextured knob mesh, exactly as it comes back from Meshy
+  role: concept
+- path: assets/result.png
+  alt: The finished knob cut in half through its stem, showing the sunburst top and
+    the threaded screw hole, drawn from the actual STL
+  role: result
+assets:
+- assets/SOURCES.md
+- assets/thread.png
+sample_result: sample-result.json

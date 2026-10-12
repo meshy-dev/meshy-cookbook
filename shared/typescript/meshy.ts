@@ -41,6 +41,8 @@ export interface Printability {
   error_count: number;
   warning_count: number;
   metrics: { is_watertight: boolean; volume: number; non_manifold_edges: number; degenerate_faces: number; holes: number };
+  intended_print?: { printer_type: string; height_mm: number; longest_side_mm: number; wall_thickness_mm: number; dimensions_mm: number[] }; // when a printer or print size was sent
+  thin_walls?: { thin_area_ratio: number; has_thin_walls: boolean; status: string }; // when a printer or print size was sent
 }
 
 /** The task fields the cookbook reads. Not a full API typing. */
