@@ -104,7 +104,7 @@ This check takes seconds and costs nothing. Meshy measures the mesh the way a sl
 | Holes | Openings in the surface | 0 |
 | Non-manifold edges | Every edge of a mesh should be shared by exactly two triangles. An edge shared by one, or by three, is a spot a slicer cannot interpret | 0 |
 | Degenerate faces | Triangles smaller than a square millimeter at the model's scale. A mesh of a million triangles has hundreds of thousands of them, and a slicer handles them without complaint | A warning, not an error |
-| Volume | How much material the solid holds, in the model's own units | More than zero |
+| Volume | How much material the shape holds, in the model's own units | More than zero |
 
 The agent reports the result in one line, and the recipe saves the full report as `printability.json`. Expect the mesh to be watertight, with no holes and no non-manifold edges, and expect the report's status to be a warning for about half a million degenerate faces. The check is a confirmation, not a repair: the split runs whatever it reports. For a mesh of your own that reports errors, [If something goes wrong](#if-something-goes-wrong) points at the repair endpoint.
 
@@ -113,7 +113,7 @@ The agent reports the result in one line, and the recipe saves the full report a
 This stage takes about two minutes. Meshy takes the mesh it just built, which never leaves Meshy between the stages, and:
 
 1. **Chooses where to cut.** The recipe leaves the choice to Meshy, which follows the shape: an arm meets the body at the shoulder, so the cut goes there. You can name the parts you want instead, as [Parameters worth changing](#parameters-worth-changing) shows.
-2. **Rebuilds each part as a solid.** Every part gets a flat cut face where it was separated, and any wall a cut left too thin is thickened so the part prints solid. Slivers too small to print are removed.
+2. **Rebuilds each part as a closed shape.** Every part gets a flat cut face where it was separated, and any wall a cut left too thin is thickened so the part prints solid. Slivers too small to print are removed.
 3. **Stands the parts on the plate.** Each part is set down on its cut face and spread out on the build plate: the legs stand on their hip cuts, the head on its neck cut, and the arms and the torso lie on their cut sides. The layout fits a 150 mm square, the same arrangement as the On Plate view in the Meshy web app, so nothing has to be repositioned before slicing.
 
 | The six parts on the build plate, drawn from the actual split file: the legs standing on their hip cuts, the head on its neck cut, the arms and the torso lying on their cut sides |
