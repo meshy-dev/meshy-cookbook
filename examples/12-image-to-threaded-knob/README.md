@@ -102,6 +102,10 @@ The hole is 0.15 mm wider on every side than the screw, so the screw turns in pr
 
 One limit to know: this clearance comes from a knob printed in PLA, the most common printing plastic, on a Bambu Lab P1S printer, and that knob took a real 8-32 screw. The M4 hole uses the same clearance but hasn't been tested in a print. Print one knob and try the screw before you print a set.
 
+| A sunburst knob Jessie Bergau printed with this 0.15 mm clearance, held on a kitchen drawer by an 8-32 screw. Still from a video courtesy of Jessie Bergau. |
+|---|
+| ![A white 3D printed sunburst knob screwed into a wooden kitchen drawer front, with a hand gripping it and a stock metal knob on the cabinet door below](assets/printed-knob.jpg) |
+
 ## Step 4: Start the run and approve the cost
 
 Paste this prompt. The agent quotes the cost and waits for your approval before anything is generated.

@@ -17,6 +17,14 @@ These files come from the live Python run of October 12, 2026 (image-to-3d task 
 
 The mesh was not edited. The brass material shows the design the image describes; a print comes out in whatever filament is loaded.
 
+## The printed knob photo
+
+`printed-knob.jpg` is not an output of this recipe. It shows a sunburst knob that Jessie Bergau designed in the Meshy agent and printed in PLA on a Bambu Lab P1S, with the same 0.15 mm clearance, screwed into a kitchen drawer with an 8-32 screw. Jessie sent the video on October 14, 2026 with permission to publish, attribution required ("Still from a video courtesy of Jessie Bergau").
+
+| Published asset | Source | SHA-256 of source |
+|---|---|---|
+| `printed-knob.jpg` | The frame at 7.0 s of `V1-0044_Asset__MESHY.mp4` (3840 × 2160, 9.3 s), cropped to 1920 × 1080 at (880, 560), scaled to 1200 × 675 with lanczos and saved as JPEG; no other edits | `edcef6fbb10323d3b0407e539bda41655e23ba98f635fa218770898c1a529dcf` |
+
 See [input provenance](../input/SOURCES.md) for the sample input.
 
 These are previews of one observed output. The ignored runtime STL files are not part of the repository or a public download. Generation can produce different results.
