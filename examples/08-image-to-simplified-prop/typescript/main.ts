@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE_IMAGE = join(DIRECTORY, "../input/sea-chest.png");
@@ -39,6 +39,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
 }
 
 const validPolycount = (value: unknown): value is number => Number.isInteger(value) && (value as number) >= 100 && (value as number) <= 300000;
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
+  }
+}
 
 async function loadState(path: string, image?: string, polycount?: number): Promise<RunState> {
   const state = JSON.parse(await readFile(path, "utf8"));
@@ -81,14 +96,12 @@ export async function run(image?: string, polycount?: number, resume = false, ou
 
   let modelId = state.model_task_id;
   if (modelId === null) {
-    state.creating = "model";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
+    modelId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
       image_url: imageUrl,
       should_texture: true,
       enable_pbr: true,
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = modelId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -99,14 +112,12 @@ export async function run(image?: string, polycount?: number, resume = false, ou
     model = await client.wait("image-to-3d", modelId, "model");
     await client.download(model.model_urls.glb, join(output, "dense-prop.glb"));
     await client.download(model.thumbnail_url, join(output, "dense-prop-thumbnail.png"));
-    state.creating = "remesh";
-    await saveState(checkpoint, state);
-    remeshId = await client.create("remesh", {
+    remeshId = await createStage(checkpoint, state, "remesh", () => client.create("remesh", {
       input_task_id: modelId,
       topology: "quad",
       target_polycount: state.polycount,
       target_formats: ["glb", "fbx"],
-    });
+    }));
     state.remesh_task_id = remeshId;
     state.creating = null;
     await saveState(checkpoint, state);

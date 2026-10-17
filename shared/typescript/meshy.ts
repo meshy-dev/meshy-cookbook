@@ -13,10 +13,12 @@ import { setTimeout as sleep } from "node:timers/promises";
 const BASE_URL = "https://api.meshy.ai/openapi";
 const VERSIONS: Record<string, string> = { "text-to-3d": "v2" }; // every other endpoint is served under v1
 const POLL_MS = 5_000;
+const DOWNLOAD_IDLE_MS = 120_000;
 const MIME: Record<string, string> = {
   ".png": "image/png",
   ".jpg": "image/jpeg",
   ".jpeg": "image/jpeg",
+  ".webp": "image/webp",
 };
 
 /** `result` of a rigging task: the rigged files and the free walking and running clips. */
@@ -64,6 +66,11 @@ export class MeshyAPIError extends Error {
   constructor(public status: number, public body: string) {
     super(`Meshy API returned ${status}: ${body}`);
     this.name = "MeshyAPIError";
+  }
+
+  /** A 4xx other than 408: Meshy rejected the request, so a POST created no task and charged nothing. */
+  get refused(): boolean {
+    return this.status >= 400 && this.status < 500 && this.status !== 408;
   }
 }
 
@@ -162,26 +169,49 @@ export class Meshy {
     }
   }
 
-  /** Stream to a temporary file, then replace `dest` only after success. */
-  async download(url: string, dest: string): Promise<string> {
-    const res = await fetch(url, { signal: AbortSignal.timeout(120_000) }); // signed URL: no auth header
-    if (!res.ok) throw new MeshyAPIError(res.status, await res.text());
-    await mkdir(dirname(dest), { recursive: true });
-    if (!res.body) throw new Error("Download response has no body");
-    const temporary = `${dest}.${randomUUID()}.tmp`;
+  /**
+   * Stream to a temporary file, then replace `dest` only after success.
+   * Gives up after `idleMs` without data, like Python's read timeout, so a large
+   * file on a slow link may take longer than that in total.
+   */
+  async download(url: string, dest: string, idleMs = DOWNLOAD_IDLE_MS): Promise<string> {
+    const idle = new AbortController();
+    const timer = setTimeout(() => idle.abort(new Error(`Download received no data for ${idleMs / 1000} s`)), idleMs);
     try {
-      await pipeline(Readable.fromWeb(res.body as ReadableStream<Uint8Array>), createWriteStream(temporary, { flags: "wx" }));
-      await rename(temporary, dest);
+      const res = await fetch(url, { signal: idle.signal }); // signed URL: no auth header
+      timer.refresh();
+      if (!res.ok) throw new MeshyAPIError(res.status, await res.text());
+      await mkdir(dirname(dest), { recursive: true });
+      if (!res.body) throw new Error("Download response has no body");
+      const temporary = `${dest}.${randomUUID()}.tmp`;
+      try {
+        await pipeline(
+          Readable.fromWeb(res.body as ReadableStream<Uint8Array>),
+          async function* (chunks: AsyncIterable<Uint8Array>) {
+            for await (const chunk of chunks) {
+              timer.refresh();
+              yield chunk;
+            }
+          },
+          createWriteStream(temporary, { flags: "wx" }),
+          { signal: idle.signal },
+        );
+        await rename(temporary, dest);
+      } finally {
+        await rm(temporary, { force: true });
+      }
+    } catch (error) {
+      throw idle.signal.aborted ? idle.signal.reason : error; // say why, not just "aborted"
     } finally {
-      await rm(temporary, { force: true });
+      clearTimeout(timer);
     }
     return dest;
   }
 
-  /** Encode a local .png/.jpg as a base64 data URI for `image_url` fields. */
+  /** Encode a local .png/.jpg/.webp as a base64 data URI for `image_url` fields. */
   static async dataUri(path: string): Promise<string> {
     const mime = MIME[extname(path).toLowerCase()];
-    if (!mime) throw new Error(`Input must be a PNG or JPEG file: ${path}`);
+    if (!mime) throw new Error(`Input must be a PNG, JPEG or WebP file: ${path}`);
     if (!(await stat(path)).isFile()) throw new Error(`Input is not a file: ${path}`);
     return `data:${mime};base64,${(await readFile(path)).toString("base64")}`;
   }

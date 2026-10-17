@@ -90,6 +90,24 @@ class TextTo3dPropTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_post_clears_the_marker_so_resume_creates_that_stage(self):
+        self.client.create.side_effect = ["preview-id", recipe.MeshyAPIError(402, "Insufficient credits")]
+        with patch("builtins.print"), self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["preview_task_id"], state["refine_task_id"], state["creating"]), ("preview-id", None, None))
+        self.client.create.side_effect = ["refine-id"]
+        with patch("builtins.print"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_count, 3)
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = recipe.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"prompt": " "}, {"preview_task_id": None}, {"refine_task_id": "bad/id"},

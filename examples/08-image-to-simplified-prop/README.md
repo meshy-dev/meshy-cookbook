@@ -237,7 +237,7 @@ To simplify the same dense model at another count without building it again:
 
 Resume then downloads the dense files again and creates only the new remesh task, which costs 5 credits. The saved model task stays valid for three days.
 
-If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `model_task_id` or `remesh_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. The checkpoint contains no API key or signed download URLs.
+If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `model_task_id` or `remesh_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. When Meshy refuses a request outright, for example with a 402 for missing credits or a 400 for an invalid parameter, no task exists, so the script clears the marker itself before it stops. Fix the cause, correcting the input saved in `output/run.json` if that is what Meshy refused, and `--resume` retries that stage. The checkpoint contains no API key or signed download URLs.
 
 ## How it works
 

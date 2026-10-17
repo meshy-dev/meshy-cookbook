@@ -5,6 +5,7 @@ import { mkdtemp, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { afterEach, test } from "node:test";
+import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 import { Meshy, MeshyAPIError, MeshyTaskError, MeshyTimeoutError, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/03-text-to-hero-prop/typescript/main.js";
@@ -74,7 +75,7 @@ test("resume concept creates only the missing model", async () => directory(asyn
   const client = fakeClient();
   await run(undefined, true, output, client);
   assert.deepEqual(client.created, [{ endpoint: "image-to-3d", payload: {
-    input_task_id: "concept-id", geometry_resolution: "4k", should_texture: true,
+    ai_model: "meshy-7.1", input_task_id: "concept-id", geometry_resolution: "4k", should_texture: true,
     enable_pbr: true, texture_resolution: "4k", target_formats: ["glb"],
   } }]);
   assert.equal(JSON.parse(await readFile(join(output, "run.json"), "utf8")).model_task_id, "model-id");
@@ -120,6 +121,34 @@ test("an unknown POST outcome cannot create a duplicate on resume", async () => 
   await assert.rejects(run(undefined, true, output, client), /outcome.*unknown/);
   assert.equal(calls, 1);
 }));
+
+test("a refused POST clears the creating marker so resume creates that stage", async (context) => directory(async (output) => {
+  context.mock.method(console, "log", () => {});
+  const client = fakeClient();
+  const create = client.create;
+  client.create = async (endpoint: string, payload: Record<string, unknown>) => {
+    if (endpoint === "image-to-3d") throw new MeshyAPIError(402, "Insufficient credits");
+    return create(endpoint, payload);
+  };
+  await assert.rejects(run("A chest", false, output, client), MeshyAPIError);
+  const state = JSON.parse(await readFile(join(output, "run.json"), "utf8"));
+  assert.deepEqual([state.concept_task_id, state.model_task_id, state.creating], ["concept-id", null, null]);
+  client.create = create;
+  await run(undefined, true, output, client);
+  assert.deepEqual(client.created.map((call) => call.endpoint), ["text-to-image", "image-to-3d"]);
+}));
+
+test("a server error keeps the creating marker", async () => directory(async (output) => {
+  const client = fakeClient();
+  client.create = async () => { throw new MeshyAPIError(500, "Internal error"); };
+  await assert.rejects(run("A chest", false, output, client), MeshyAPIError);
+  await assert.rejects(run(undefined, true, output, client), /outcome.*unknown/);
+}));
+
+test("only a 4xx other than 408 counts as a refused request", () => {
+  for (const status of [400, 401, 402, 403, 404, 422, 429]) assert.equal(new MeshyAPIError(status, "").refused, true, String(status));
+  for (const status of [408, 500, 502, 503]) assert.equal(new MeshyAPIError(status, "").refused, false, String(status));
+});
 
 test("invalid checkpoint, changed prompt and accidental new run fail before opening a client", async () => directory(async (output) => {
   const badStates = [ { version: true }, { prompt: "" }, { concept_task_id: 3 }, { concept_task_id: null },
@@ -191,6 +220,37 @@ test("download streams without auth and preserves previous file on stream failur
   assert.equal(await readFile(dest, "utf8"), "complete");
 }));
 
+test("download outlasts the idle timeout while data keeps arriving", async () => directory(async (output) => {
+  const dest = join(output, "model.glb");
+  let sent = 0;
+  globalThis.fetch = async () => new Response(new ReadableStream({ async pull(controller) {
+    await sleep(40);
+    if (++sent <= 5) controller.enqueue(new TextEncoder().encode(`chunk${sent}`));
+    else controller.close();
+  } }));
+  await new Meshy("offline-test", "/nonexistent/.env").download("https://example.invalid/signed", dest, 100);
+  assert.equal(await readFile(dest, "utf8"), "chunk1chunk2chunk3chunk4chunk5");
+}));
+
+test("download that stalls past the idle timeout fails and keeps the previous file", async () => directory(async (output) => {
+  const dest = join(output, "model.glb");
+  await writeFile(dest, "previous");
+  let pulls = 0;
+  globalThis.fetch = async () => new Response(new ReadableStream({ pull(controller) {
+    if (++pulls === 1) controller.enqueue(new TextEncoder().encode("partial"));
+    else return new Promise(() => {});
+  } }));
+  await assert.rejects(new Meshy("offline-test", "/nonexistent/.env").download("https://example.invalid/signed", dest, 50), /no data for 0.05 s/);
+  assert.equal(await readFile(dest, "utf8"), "previous");
+  assert.deepEqual(await readdir(output), ["model.glb"]);
+}));
+
+test("a .webp input becomes a webp data URI", async () => directory(async (output) => {
+  const image = join(output, "photo.WEBP");
+  await writeFile(image, "RIFF....WEBP");
+  assert.match(await Meshy.dataUri(image), /^data:image\/webp;base64,/);
+}));
+
 test("invalid CLI inputs fail before a client can be opened", async () => directory(async (cwd) => {
   const cases: [string, string[]][] = [
     ...["NaN", "Infinity", "2.5", "99", "15001"].map((value): [string, string[]] => ["02-image-to-low-poly-prop", ["missing.png", value]]),
@@ -202,7 +262,7 @@ test("invalid CLI inputs fail before a client can be opened", async () => direct
       cwd, env: { ...process.env, MESHY_API_KEY: "" }, encoding: "utf8",
     });
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /Face count|PNG or JPEG|ENOENT/);
+    assert.match(result.stderr, /Face count|PNG or JPEG paths|PNG, JPEG or WebP|ENOENT/);
     assert.doesNotMatch(result.stderr, /MESHY_API_KEY is not set/);
   }
 }));

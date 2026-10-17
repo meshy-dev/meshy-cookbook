@@ -123,6 +123,30 @@ class PrintablePartsTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_post_clears_the_marker_so_resume_creates_that_stage(self):
+        def refuse_split(endpoint, payload):
+            if endpoint == "print/split":
+                raise recipe.MeshyAPIError(402, "Insufficient credits")
+            return IDS[endpoint]
+
+        self.client.create.side_effect = refuse_split
+        with patch("builtins.print"), self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["model_task_id"], state["split_task_id"], state["creating"]), ("model-id", None, None))
+        self.client.create.side_effect = lambda endpoint, payload: IDS[endpoint]
+        with patch("builtins.print"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual([call.args[0] for call in self.client.create.call_args_list],
+                         ["image-to-3d", "print/analyze", "print/split", "print/analyze", "print/split"])
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = recipe.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"image": ""}, {"model_task_id": None}, {"split_task_id": "bad/id"},
@@ -141,7 +165,7 @@ class PrintablePartsTests(unittest.TestCase):
             constructor.assert_not_called()
 
     def test_bad_image_fails_before_client_and_checkpoint(self):
-        for image, message in [("missing.png", "does not exist"), ("wrong.gif", "PNG or JPEG")]:
+        for image, message in [("missing.png", "does not exist"), ("wrong.gif", "PNG, JPEG or WebP")]:
             with self.subTest(image=image), patch.object(recipe, "Meshy", wraps=recipe.Meshy) as constructor:
                 with self.assertRaisesRegex(ValueError, message):
                     recipe.run(image, output=self.output)

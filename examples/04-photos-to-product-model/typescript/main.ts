@@ -29,7 +29,7 @@ const taskId = await client.create("multi-image-to-3d", {
 const task = await client.wait("multi-image-to-3d", taskId);
 await client.download(task.model_urls.glb, join(OUTPUT, "armchair.glb"));
 await client.download(task.model_urls.usdz!, join(OUTPUT, "armchair.usdz"));
-for (const [view, url] of Object.entries(task.thumbnail_urls!)) {
+for (const [view, url] of Object.entries(task.thumbnail_urls ?? {})) {
   await client.download(url, join(OUTPUT, `armchair-${view}.png`));
 }
 console.log(`Done: ${join(OUTPUT, "armchair.glb")}  (${task.consumed_credits} credits)`);

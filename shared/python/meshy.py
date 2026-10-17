@@ -27,6 +27,11 @@ class MeshyAPIError(Exception):
         self.status = status
         self.body = body
 
+    @property
+    def refused(self) -> bool:
+        """A 4xx other than 408: Meshy rejected the request, so a POST created no task and charged nothing."""
+        return 400 <= self.status < 500 and self.status != 408
+
 
 class MeshyTaskError(Exception):
     """Task ended FAILED or CANCELED. Carries the task and `task_error.message`."""
@@ -155,10 +160,10 @@ class Meshy:
 
     @staticmethod
     def data_uri(path: Path) -> str:
-        """Encode a local .png/.jpg as a base64 data URI for `image_url` fields."""
-        mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg"}.get(path.suffix.lower())
+        """Encode a local .png/.jpg/.webp as a base64 data URI for `image_url` fields."""
+        mime = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp"}.get(path.suffix.lower())
         if mime is None:
-            raise ValueError(f"Input must be a PNG or JPEG file: {path}")
+            raise ValueError(f"Input must be a PNG, JPEG or WebP file: {path}")
         if not path.is_file():
             raise ValueError(f"Input file does not exist: {path}")
         return f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"

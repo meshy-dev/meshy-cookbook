@@ -26,6 +26,7 @@ task_id = client.create(
     {
         "image_url": image_url,
         "model_type": "smart-topology",
+        "ai_model": "meshy-t2",
         "target_polycount": POLYCOUNT,
         "should_texture": False,
         "target_formats": ["glb"],

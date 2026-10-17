@@ -6,10 +6,11 @@ import os
 import re
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # so `shared` imports
-from shared.python.meshy import Meshy
+from shared.python.meshy import Meshy, MeshyAPIError
 
 DIRECTORY = Path(__file__).resolve().parent
 SAMPLE = DIRECTORY.parent / "input/concept-art.png"
@@ -43,6 +44,20 @@ def save_state(path: Path, state: dict) -> None:
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+
+
+@contextmanager
+def creating(path: Path, state: dict, stage: str):
+    """Mark `stage` as being created, and clear the mark if the API refuses the POST, which creates no task."""
+    state["creating"] = stage
+    save_state(path, state)  # if POST is interrupted, do not blindly repeat it
+    try:
+        yield
+    except MeshyAPIError as error:
+        if error.refused:
+            state["creating"] = None
+            save_state(path, state)
+        raise
 
 
 def load_state(path: Path, image: str | None, actions: list[int] | None) -> dict:
@@ -104,20 +119,19 @@ def run(
 
     model_id = state["model_task_id"]
     if model_id is None:
-        state["creating"] = "model"
-        save_state(checkpoint, state)  # if POST is interrupted, do not blindly repeat it
-        model_id = client.create(
-            "image-to-3d",
-            {
-                "image_url": image_url,
-                "pose_mode": "a-pose",
-                "should_remesh": True,
-                "target_polycount": 30000,
-                "should_texture": True,
-                "enable_pbr": True,
-                "target_formats": ["glb"],
-            },
-        )
+        with creating(checkpoint, state, "model"):
+            model_id = client.create(
+                "image-to-3d",
+                {
+                    "image_url": image_url,
+                    "pose_mode": "a-pose",
+                    "should_remesh": True,
+                    "target_polycount": 30000,
+                    "should_texture": True,
+                    "enable_pbr": True,
+                    "target_formats": ["glb"],
+                },
+            )
         state.update(model_task_id=model_id, creating=None)
         save_state(checkpoint, state)
     model = None
@@ -125,30 +139,28 @@ def run(
     if rig_id is None:
         model = client.wait("image-to-3d", model_id, label="model")
         client.download(model["thumbnail_url"], output / "character-thumbnail.png")
-        state["creating"] = "rig"
-        save_state(checkpoint, state)
-        rig_id = client.create(
-            "rigging",
-            {
-                "input_task_id": model_id,
-                "height_meters": 1.8,
-            },
-        )
+        with creating(checkpoint, state, "rig"):
+            rig_id = client.create(
+                "rigging",
+                {
+                    "input_task_id": model_id,
+                    "height_meters": 1.8,
+                },
+            )
         state.update(rig_task_id=rig_id, creating=None)
         save_state(checkpoint, state)
     rig = None
     animation_id = state["animation_task_id"]
     if animation_id is None:
         rig = client.wait("rigging", rig_id, label="rig")
-        state["creating"] = "animation"
-        save_state(checkpoint, state)
-        animation_id = client.create(
-            "animations",
-            {
-                "rig_task_id": rig_id,
-                "action_ids": state["actions"],
-            },
-        )
+        with creating(checkpoint, state, "animation"):
+            animation_id = client.create(
+                "animations",
+                {
+                    "rig_task_id": rig_id,
+                    "action_ids": state["actions"],
+                },
+            )
         state.update(animation_task_id=animation_id, creating=None)
         save_state(checkpoint, state)
     animation = client.wait("animations", animation_id, label="animation")

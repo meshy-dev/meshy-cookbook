@@ -186,7 +186,7 @@ The face count can be anything from 100 to 15,000. Each run overwrites the files
 
 ## How it works
 
-1. **Create a Smart Topology task from the image.** `Meshy.data_uri` validates and encodes the PNG as a data URI before opening a client. `client.create` POSTs it to `/openapi/v1/image-to-3d` with `model_type` set to `smart-topology` and the face count you asked for.
+1. **Create a Smart Topology task from the image.** `Meshy.data_uri` validates and encodes the PNG as a data URI before opening a client. `client.create` POSTs it to `/openapi/v1/image-to-3d` with `model_type` set to `smart-topology`, `ai_model` set to `meshy-t2`, and the face count you asked for.
 
 ```python
 image_url = Meshy.data_uri(INPUT)
@@ -195,6 +195,7 @@ task_id = client.create(
     {
         "image_url": image_url,
         "model_type": "smart-topology",
+        "ai_model": "meshy-t2",
         "target_polycount": POLYCOUNT,
         "should_texture": False,
         "target_formats": ["glb"],
@@ -236,7 +237,8 @@ These sample measurements illustrate the tradeoffs; results vary. Only the 1,000
 | Parameter | We use | Why |
 |---|---|---|
 | [`model_type`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `"smart-topology"` | Selects Smart Topology. Omit it for the standard, dense model. |
-| [`target_polycount`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `POLYCOUNT` (default `1000`) | The target face count, from 100 to 15,000; the result lands near it. See the comparison above to choose a starting point. |
+| [`ai_model`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `"meshy-t2"` | The Smart Topology model the results on this page were recorded with, set so they still hold when the API default changes. `"meshy-t2.5"`, the default when `ai_model` is omitted, gives sharper detail and accepts 100 to 30,000 faces, but takes longer to generate. |
+| [`target_polycount`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `POLYCOUNT` (default `1000`) | The target face count, from 100 to 15,000 for `meshy-t2`; the result lands near it. See the comparison above to choose a starting point. |
 | [`should_texture`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `false` | Off, so Meshy returns the mesh as soon as it is built, for 5 credits. Set `true` to have Meshy paint a base color texture from the image, which adds a texturing stage and raises the run to 15 credits at the published prices; add `enable_pbr` for metallic, roughness and normal maps. |
 | [`target_formats`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `["glb"]` | Add `"fbx"` for Unity or Unreal |
 

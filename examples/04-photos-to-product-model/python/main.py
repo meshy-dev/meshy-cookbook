@@ -36,6 +36,6 @@ task_id = client.create(
 task = client.wait("multi-image-to-3d", task_id)
 client.download(task["model_urls"]["glb"], OUTPUT / "armchair.glb")
 client.download(task["model_urls"]["usdz"], OUTPUT / "armchair.usdz")
-for view, url in task["thumbnail_urls"].items():
+for view, url in (task.get("thumbnail_urls") or {}).items():
     client.download(url, OUTPUT / f"armchair-{view}.png")
 print(f"Done: {OUTPUT / 'armchair.glb'}  ({task['consumed_credits']} credits)")

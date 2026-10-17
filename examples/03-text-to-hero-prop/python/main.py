@@ -6,10 +6,11 @@ import os
 import re
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # so `shared` imports
-from shared.python.meshy import Meshy
+from shared.python.meshy import Meshy, MeshyAPIError
 
 DIRECTORY = Path(__file__).resolve().parent
 SAMPLE = (
@@ -35,6 +36,20 @@ def save_state(path: Path, state: dict) -> None:
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+
+
+@contextmanager
+def creating(path: Path, state: dict, stage: str):
+    """Mark `stage` as being created, and clear the mark if the API refuses the POST, which creates no task."""
+    state["creating"] = stage
+    save_state(path, state)  # if POST is interrupted, do not blindly repeat it
+    try:
+        yield
+    except MeshyAPIError as error:
+        if error.refused:
+            state["creating"] = None
+            save_state(path, state)
+        raise
 
 
 def load_state(path: Path, prompt: str | None) -> dict:
@@ -77,16 +92,15 @@ def run(prompt: str | None = None, resume: bool = False, output: Path = OUTPUT, 
 
     concept_id = state["concept_task_id"]
     if concept_id is None:
-        state["creating"] = "concept"
-        save_state(checkpoint, state)  # if POST is interrupted, do not blindly repeat it
-        concept_id = client.create(
-            "text-to-image",
-            {
-                "ai_model": "gpt-image-2-5-sunburst",
-                "prompt": state["prompt"],
-                "remove_background": True,
-            },
-        )
+        with creating(checkpoint, state, "concept"):
+            concept_id = client.create(
+                "text-to-image",
+                {
+                    "ai_model": "gpt-image-2-5-sunburst",
+                    "prompt": state["prompt"],
+                    "remove_background": True,
+                },
+            )
         state.update(concept_task_id=concept_id, creating=None)
         save_state(checkpoint, state)
     concept = None
@@ -94,19 +108,19 @@ def run(prompt: str | None = None, resume: bool = False, output: Path = OUTPUT, 
     if task_id is None:
         concept = client.wait("text-to-image", concept_id)
         client.download(concept["image_urls"][0], output / "hero-prop-concept.png")
-        state["creating"] = "model"
-        save_state(checkpoint, state)
-        task_id = client.create(
-            "image-to-3d",
-            {
-                "input_task_id": concept_id,
-                "geometry_resolution": "4k",
-                "should_texture": True,
-                "enable_pbr": True,
-                "texture_resolution": "4k",
-                "target_formats": ["glb"],
-            },
-        )
+        with creating(checkpoint, state, "model"):
+            task_id = client.create(
+                "image-to-3d",
+                {
+                    "ai_model": "meshy-7.1",
+                    "input_task_id": concept_id,
+                    "geometry_resolution": "4k",
+                    "should_texture": True,
+                    "enable_pbr": True,
+                    "texture_resolution": "4k",
+                    "target_formats": ["glb"],
+                },
+            )
         state.update(model_task_id=task_id, creating=None)
         save_state(checkpoint, state)
     task = client.wait("image-to-3d", task_id)

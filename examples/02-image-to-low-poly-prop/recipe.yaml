@@ -22,8 +22,8 @@ outputs:
 - glb
 endpoints:
 - image-to-3d
-model_policy: model_type is smart-topology; ai_model is omitted and follows the service
-  default for that model type.
+model_policy: model_type is smart-topology and ai_model is pinned to meshy-t2, the
+  model the sample results were recorded with. An omitted ai_model now runs meshy-t2.5.
 languages:
   python:
     runtime: Python 3.10+

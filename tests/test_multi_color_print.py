@@ -102,6 +102,24 @@ class MultiColorPrintTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_post_clears_the_marker_so_resume_creates_that_stage(self):
+        self.client.create.side_effect = ["model-id", recipe.MeshyAPIError(402, "Insufficient credits")]
+        with patch("builtins.print"), self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["model_task_id"], state["print_task_id"], state["creating"]), ("model-id", None, None))
+        self.client.create.side_effect = ["print-id"]
+        with patch("builtins.print"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_count, 3)
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = recipe.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"image": ""}, {"style": "vivid"}, {"style": None}, {"model_task_id": None}, {"print_task_id": "bad/id"},
@@ -122,7 +140,7 @@ class MultiColorPrintTests(unittest.TestCase):
             constructor.assert_not_called()
 
     def test_bad_inputs_fail_before_client_and_checkpoint(self):
-        cases = [("missing.png", None, "does not exist"), ("wrong.gif", None, "PNG or JPEG"), (None, "vivid", "realistic or cartoon"), (None, "Realistic", "realistic or cartoon")]
+        cases = [("missing.png", None, "does not exist"), ("wrong.gif", None, "PNG, JPEG or WebP"), (None, "vivid", "realistic or cartoon"), (None, "Realistic", "realistic or cartoon")]
         for image, style, message in cases:
             with self.subTest(image=image, style=style), patch.object(recipe, "Meshy", wraps=recipe.Meshy) as constructor:
                 with self.assertRaisesRegex(ValueError, message):

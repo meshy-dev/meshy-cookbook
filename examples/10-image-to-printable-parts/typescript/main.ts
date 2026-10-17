@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type Printability, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Printability, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE = join(DIRECTORY, "../input/concept-art.png");
@@ -33,6 +33,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
+  }
+}
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
   }
 }
 
@@ -74,13 +89,11 @@ export async function run(image?: string, resume = false, output = OUTPUT, clien
 
   let modelId = state.model_task_id;
   if (modelId === null) {
-    state.creating = "model";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
+    modelId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
       image_url: imageUrl,
       should_texture: false,
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = modelId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -100,13 +113,11 @@ export async function run(image?: string, resume = false, output = OUTPUT, clien
       `Printability ${printability.status}: watertight ${metrics.is_watertight ? "yes" : "no"}, `
       + `${metrics.holes} holes, ${metrics.non_manifold_edges} non-manifold edges, ${metrics.degenerate_faces} degenerate faces`,
     );
-    state.creating = "split";
-    await saveState(checkpoint, state);
-    splitId = await client.create("print/split", {
+    splitId = await createStage(checkpoint, state, "split", () => client.create("print/split", {
       input_task_id: modelId,
       target_formats: ["glb", "3mf"],
       layout: "on_plate",
-    });
+    }));
     state.split_task_id = splitId;
     state.creating = null;
     await saveState(checkpoint, state);

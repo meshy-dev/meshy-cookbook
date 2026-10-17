@@ -99,6 +99,24 @@ class SimplifiedPropTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_post_clears_the_marker_so_resume_creates_that_stage(self):
+        self.client.create.side_effect = ["model-id", recipe.MeshyAPIError(402, "Insufficient credits")]
+        with patch("builtins.print"), self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["model_task_id"], state["remesh_task_id"], state["creating"]), ("model-id", None, None))
+        self.client.create.side_effect = ["remesh-id"]
+        with patch("builtins.print"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_count, 3)
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = recipe.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"image": ""}, {"polycount": 99}, {"polycount": "20000"}, {"model_task_id": None}, {"remesh_task_id": "bad/id"},
@@ -119,7 +137,7 @@ class SimplifiedPropTests(unittest.TestCase):
             constructor.assert_not_called()
 
     def test_bad_inputs_fail_before_client_and_checkpoint(self):
-        cases = [("missing.png", None, "does not exist"), ("wrong.gif", None, "PNG or JPEG"), (None, 99, "100 to 300000"), (None, 300001, "100 to 300000"), (None, 2.5, "100 to 300000")]
+        cases = [("missing.png", None, "does not exist"), ("wrong.gif", None, "PNG, JPEG or WebP"), (None, 99, "100 to 300000"), (None, 300001, "100 to 300000"), (None, 2.5, "100 to 300000")]
         for image, polycount, message in cases:
             with self.subTest(image=image, polycount=polycount), patch.object(recipe, "Meshy", wraps=recipe.Meshy) as constructor:
                 with self.assertRaisesRegex(ValueError, message):

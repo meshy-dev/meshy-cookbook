@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { afterEach, test } from "node:test";
-import type { Task } from "../shared/typescript/meshy.js";
+import { MeshyAPIError, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/09-image-to-animated-character/typescript/main.js";
 
 const blockNetwork: typeof fetch = async () => { throw new Error("Unexpected HTTP request in offline test"); };
@@ -120,8 +120,33 @@ test("an unknown POST outcome cannot create a duplicate on resume", async () => 
   assert.equal(calls, 1);
 }));
 
+test("a refused animation keeps the rig, and resume uses the corrected actions", async (context) => directory(async (output) => {
+  context.mock.method(console, "log", () => {});
+  const client = fakeClient();
+  const create = client.create;
+  client.create = async (endpoint: string, payload: Record<string, unknown>) => {
+    if (endpoint === "animations") throw new MeshyAPIError(400, "Invalid action_id. See https://docs.meshy.ai/en/api/animation-library for available animation IDs.");
+    return create(endpoint, payload);
+  };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  const path = join(output, "run.json");
+  const state = JSON.parse(await readFile(path, "utf8"));
+  assert.deepEqual([state.model_task_id, state.rig_task_id, state.animation_task_id, state.creating], ["model-id", "rig-id", null, null]);
+  await writeFile(path, JSON.stringify({ ...state, actions: [0, 4] }));
+  client.create = create;
+  await run(undefined, undefined, true, output, client);
+  assert.deepEqual(client.created.at(-1), { endpoint: "animations", payload: { rig_task_id: "rig-id", action_ids: [0, 4] } });
+}));
+
+test("a server error keeps the creating marker", async () => directory(async (output) => {
+  const client = fakeClient();
+  client.create = async () => { throw new MeshyAPIError(500, "Internal error"); };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  await assert.rejects(run(undefined, undefined, true, output, client), /outcome.*unknown/);
+}));
+
 test("invalid checkpoint, changed inputs, bad input and accidental new run fail before opening a client", async () => directory(async (output) => {
-  await assert.rejects(run(undefined, "wrong.gif", false, output), /PNG or JPEG/);
+  await assert.rejects(run(undefined, "wrong.gif", false, output), /PNG, JPEG or WebP/);
   await assert.rejects(run(undefined, "missing.png", false, output), /ENOENT|does not exist/);
   for (const actions of [[], [0, 0], [...Array(11).keys()], [-1], [4.5]]) {
     await assert.rejects(run(actions, undefined, false, output), /one to ten different action ids/);

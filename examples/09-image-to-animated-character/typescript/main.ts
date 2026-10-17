@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type AnimationResult, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type AnimationResult, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE = join(DIRECTORY, "../input/concept-art.png");
@@ -44,6 +44,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
+  }
+}
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
   }
 }
 
@@ -89,9 +104,7 @@ export async function run(actions?: number[], image?: string, resume = false, ou
 
   let modelId = state.model_task_id;
   if (modelId === null) {
-    state.creating = "model";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
+    modelId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
       image_url: imageUrl,
       pose_mode: "a-pose",
       should_remesh: true,
@@ -99,7 +112,7 @@ export async function run(actions?: number[], image?: string, resume = false, ou
       should_texture: true,
       enable_pbr: true,
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = modelId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -109,12 +122,10 @@ export async function run(actions?: number[], image?: string, resume = false, ou
   if (rigId === null) {
     model = await client.wait("image-to-3d", modelId, "model");
     await client.download(model.thumbnail_url, join(output, "character-thumbnail.png"));
-    state.creating = "rig";
-    await saveState(checkpoint, state);
-    rigId = await client.create("rigging", {
+    rigId = await createStage(checkpoint, state, "rig", () => client.create("rigging", {
       input_task_id: modelId,
       height_meters: 1.8,
-    });
+    }));
     state.rig_task_id = rigId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -123,12 +134,10 @@ export async function run(actions?: number[], image?: string, resume = false, ou
   let animationId = state.animation_task_id;
   if (animationId === null) {
     rig = await client.wait("rigging", rigId, "rig");
-    state.creating = "animation";
-    await saveState(checkpoint, state);
-    animationId = await client.create("animations", {
+    animationId = await createStage(checkpoint, state, "animation", () => client.create("animations", {
       rig_task_id: rigId,
       action_ids: state.actions,
-    });
+    }));
     state.animation_task_id = animationId;
     state.creating = null;
     await saveState(checkpoint, state);

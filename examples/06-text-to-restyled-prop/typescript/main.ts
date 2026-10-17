@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE_PROMPT =
@@ -37,6 +37,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
+  }
+}
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
   }
 }
 
@@ -82,15 +97,14 @@ export async function run(prompt?: string, image?: string, resume = false, outpu
 
   let modelId = state.model_task_id;
   if (modelId === null) {
-    state.creating = "model";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
+    modelId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
       image_url: imageUrl,
       model_type: "smart-topology",
+      ai_model: "meshy-t2",
       target_polycount: 1000,
       should_texture: false,
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = modelId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -100,15 +114,14 @@ export async function run(prompt?: string, image?: string, resume = false, outpu
   if (retextureId === null) {
     model = await client.wait("image-to-3d", modelId, "model");
     await client.download(model.thumbnail_url, join(output, "low-poly-prop-thumbnail.png"));
-    state.creating = "retexture";
-    await saveState(checkpoint, state);
-    retextureId = await client.create("retexture", {
+    retextureId = await createStage(checkpoint, state, "retexture", () => client.create("retexture", {
       input_task_id: modelId,
+      ai_model: "meshy-7",
       text_style_prompt: state.prompt,
       enable_original_uv: false,
       enable_pbr: true,
       target_formats: ["glb"],
-    });
+    }));
     state.retexture_task_id = retextureId;
     state.creating = null;
     await saveState(checkpoint, state);

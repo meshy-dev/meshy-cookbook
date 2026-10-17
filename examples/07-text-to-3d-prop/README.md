@@ -197,7 +197,7 @@ Resume reuses saved tasks and creates only stages that have not started. Startin
 
 A normal run refuses to start when `output/run.json` already exists. To generate again, archive the current `output/` directory first. Passing a different description with `--resume` is rejected.
 
-If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `preview_task_id` or `refine_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. The checkpoint contains no API key or signed download URLs.
+If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `preview_task_id` or `refine_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. When Meshy refuses a request outright, for example with a 402 for missing credits or a 400 for an invalid parameter, no task exists, so the script clears the marker itself before it stops. Fix the cause, correcting the input saved in `output/run.json` if that is what Meshy refused, and `--resume` retries that stage. The checkpoint contains no API key or signed download URLs.
 
 ## How it works
 
@@ -274,6 +274,6 @@ The preview stage took 50–61 seconds and the refine stage 40–42 seconds; eac
 | [`texture_prompt`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-refine-task) | omitted | Up to 800 characters to steer the textures separately from the shape, such as a different paint scheme for the same rocket |
 | [`enable_pbr`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-refine-task) | `true` | Adds the metallic, roughness and normal maps. Off, the refine returns the base color texture only |
 | [`texture_resolution`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-refine-task) | omitted (`2k`) | `4k` costs the same 10 credits; `8k` costs 15 |
-| [`target_formats`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-preview-task) | `["glb"]` | Add `"fbx"` for Unity or Unreal, or `"usdz"` for Apple AR Quick Look. Omitted, every format is generated and the task takes longer |
+| [`target_formats`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-preview-task) | `["glb"]` | Add `"fbx"` for Unity or Unreal, or `"usdz"` for Apple AR Quick Look. Omitted, every format except `3mf` is generated (GLB, OBJ, FBX, STL and USDZ) and the task takes longer |
 
 `ai_model` is omitted on both stages: the preview follows the API's current default, and the refine inherits the preview's model.

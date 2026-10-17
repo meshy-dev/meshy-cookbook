@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE =
@@ -36,6 +36,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
+  }
+}
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
   }
 }
 
@@ -77,13 +92,11 @@ export async function run(prompt?: string, resume = false, output = OUTPUT, clie
 
   let conceptId = state.concept_task_id;
   if (conceptId === null) {
-    state.creating = "concept";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    conceptId = await client.create("text-to-image", {
+    conceptId = await createStage(checkpoint, state, "concept", () => client.create("text-to-image", {
       ai_model: "gpt-image-2-5-sunburst",
       prompt: state.prompt,
       remove_background: true,
-    });
+    }));
     state.concept_task_id = conceptId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -94,16 +107,15 @@ export async function run(prompt?: string, resume = false, output = OUTPUT, clie
     const concept = await client.wait("text-to-image", conceptId);
     await client.download(concept.image_urls[0], join(output, "hero-prop-concept.png"));
     conceptCredits = concept.consumed_credits;
-    state.creating = "model";
-    await saveState(checkpoint, state);
-    taskId = await client.create("image-to-3d", {
+    taskId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
+      ai_model: "meshy-7.1",
       input_task_id: conceptId,
       geometry_resolution: "4k",
       should_texture: true,
       enable_pbr: true,
       texture_resolution: "4k",
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = taskId;
     state.creating = null;
     await saveState(checkpoint, state);

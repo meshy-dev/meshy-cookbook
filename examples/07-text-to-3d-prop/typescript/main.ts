@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE_PROMPT =
@@ -35,6 +35,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
+  }
+}
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
   }
 }
 
@@ -77,14 +92,12 @@ export async function run(prompt?: string, resume = false, output = OUTPUT, clie
 
   let previewId = state.preview_task_id;
   if (previewId === null) {
-    state.creating = "preview";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    previewId = await client.create("text-to-3d", {
+    previewId = await createStage(checkpoint, state, "preview", () => client.create("text-to-3d", {
       mode: "preview",
       prompt: state.prompt,
       should_remesh: false,
       target_formats: ["glb"],
-    });
+    }));
     state.preview_task_id = previewId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -94,14 +107,12 @@ export async function run(prompt?: string, resume = false, output = OUTPUT, clie
   if (refineId === null) {
     preview = await client.wait("text-to-3d", previewId, "preview");
     await client.download(preview.thumbnail_url, join(output, "preview-thumbnail.png"));
-    state.creating = "refine";
-    await saveState(checkpoint, state);
-    refineId = await client.create("text-to-3d", {
+    refineId = await createStage(checkpoint, state, "refine", () => client.create("text-to-3d", {
       mode: "refine",
       preview_task_id: previewId,
       enable_pbr: true,
       target_formats: ["glb"],
-    });
+    }));
     state.refine_task_id = refineId;
     state.creating = null;
     await saveState(checkpoint, state);

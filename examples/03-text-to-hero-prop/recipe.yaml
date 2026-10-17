@@ -21,8 +21,8 @@ outputs:
 endpoints:
 - text-to-image
 - image-to-3d
-model_policy: text-to-image requests gpt-image-2-5-sunburst; image-to-3d omits ai_model
-  and follows latest.
+model_policy: text-to-image requests gpt-image-2-5-sunburst; image-to-3d pins meshy-7.1,
+  which geometry_resolution 4k requires.
 languages:
   python:
     runtime: Python 3.10+

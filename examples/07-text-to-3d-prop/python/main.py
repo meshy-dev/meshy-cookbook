@@ -6,10 +6,11 @@ import os
 import re
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # so `shared` imports
-from shared.python.meshy import Meshy
+from shared.python.meshy import Meshy, MeshyAPIError
 
 DIRECTORY = Path(__file__).resolve().parent
 SAMPLE_PROMPT = (
@@ -34,6 +35,20 @@ def save_state(path: Path, state: dict) -> None:
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+
+
+@contextmanager
+def creating(path: Path, state: dict, stage: str):
+    """Mark `stage` as being created, and clear the mark if the API refuses the POST, which creates no task."""
+    state["creating"] = stage
+    save_state(path, state)  # if POST is interrupted, do not blindly repeat it
+    try:
+        yield
+    except MeshyAPIError as error:
+        if error.refused:
+            state["creating"] = None
+            save_state(path, state)
+        raise
 
 
 def load_state(path: Path, prompt: str | None) -> dict:
@@ -78,17 +93,16 @@ def run(prompt: str | None = None, resume: bool = False, output: Path = OUTPUT, 
 
     preview_id = state["preview_task_id"]
     if preview_id is None:
-        state["creating"] = "preview"
-        save_state(checkpoint, state)  # if POST is interrupted, do not blindly repeat it
-        preview_id = client.create(
-            "text-to-3d",
-            {
-                "mode": "preview",
-                "prompt": state["prompt"],
-                "should_remesh": False,
-                "target_formats": ["glb"],
-            },
-        )
+        with creating(checkpoint, state, "preview"):
+            preview_id = client.create(
+                "text-to-3d",
+                {
+                    "mode": "preview",
+                    "prompt": state["prompt"],
+                    "should_remesh": False,
+                    "target_formats": ["glb"],
+                },
+            )
         state.update(preview_task_id=preview_id, creating=None)
         save_state(checkpoint, state)
     preview = None
@@ -96,17 +110,16 @@ def run(prompt: str | None = None, resume: bool = False, output: Path = OUTPUT, 
     if refine_id is None:
         preview = client.wait("text-to-3d", preview_id, label="preview")
         client.download(preview["thumbnail_url"], output / "preview-thumbnail.png")
-        state["creating"] = "refine"
-        save_state(checkpoint, state)
-        refine_id = client.create(
-            "text-to-3d",
-            {
-                "mode": "refine",
-                "preview_task_id": preview_id,
-                "enable_pbr": True,
-                "target_formats": ["glb"],
-            },
-        )
+        with creating(checkpoint, state, "refine"):
+            refine_id = client.create(
+                "text-to-3d",
+                {
+                    "mode": "refine",
+                    "preview_task_id": preview_id,
+                    "enable_pbr": True,
+                    "target_formats": ["glb"],
+                },
+            )
         state.update(refine_task_id=refine_id, creating=None)
         save_state(checkpoint, state)
     task = client.wait("text-to-3d", refine_id, label="refine")

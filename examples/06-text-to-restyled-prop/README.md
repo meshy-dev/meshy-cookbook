@@ -162,7 +162,7 @@ Save a copy of your first result before generating another version. Changing the
 **Source:** [Python](python/main.py) · [TypeScript](typescript/main.ts)\
 **Last verified run measurements:** September 27, 2026 · [Sample result](sample-result.json)
 
-The retexture endpoint generates new textures for a model Meshy already made, from a text style prompt, a style image or up to four reference views. This recipe builds its input with the same untextured Smart Topology request as the [low-poly recipe](../02-image-to-low-poly-prop/), chains the two tasks with `input_task_id`, and textures the mesh from a text prompt with PBR maps. The model never leaves Meshy between the stages.
+The retexture endpoint generates new textures for a model Meshy already made, from a text style prompt, a style image or, with Meshy 7, up to four reference views. This recipe builds its input with the same untextured Smart Topology request as the [low-poly recipe](../02-image-to-low-poly-prop/), chains the two tasks with `input_task_id`, and textures the mesh from a text prompt with PBR maps. The model never leaves Meshy between the stages.
 
 ## Run it
 
@@ -210,7 +210,7 @@ Resume reuses saved tasks and creates only stages that have not started. Startin
 
 A normal run refuses to start when `output/run.json` already exists. To restyle again, archive the current `output/` directory first. Passing a different prompt or image with `--resume` is rejected.
 
-If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `model_task_id` or `retexture_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. The checkpoint contains no API key or signed download URLs.
+If execution stops while a create request is in flight, the checkpoint may contain a `creating` marker without its task ID. The script stops rather than risk duplicate charges. Check the Meshy task history for the submitted request; if it exists, put its ID in `model_task_id` or `retexture_task_id` as appropriate and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. When Meshy refuses a request outright, for example with a 402 for missing credits or a 400 for an invalid parameter, no task exists, so the script clears the marker itself before it stops. Fix the cause, correcting the input saved in `output/run.json` if that is what Meshy refused, and `--resume` retries that stage. The checkpoint contains no API key or signed download URLs.
 
 ## How it works
 
@@ -224,6 +224,7 @@ model_id = client.create(
     {
         "image_url": image_url,
         "model_type": "smart-topology",
+        "ai_model": "meshy-t2",
         "target_polycount": 1000,
         "should_texture": False,
         "target_formats": ["glb"],
@@ -247,6 +248,7 @@ retexture_id = client.create(
     "retexture",
     {
         "input_task_id": model_id,
+        "ai_model": "meshy-7",
         "text_style_prompt": state["prompt"],
         "enable_original_uv": False,
         "enable_pbr": True,
@@ -289,13 +291,15 @@ The model stage took about 3 seconds and the retexture stage 42–45 seconds; ea
 | Parameter | We use | Why |
 |---|---|---|
 | [`model_type`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) (image-to-3d) | `"smart-topology"` | Builds the mesh directly at the face count, as cookbook 02 does |
-| [`target_polycount`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `1000` | The target face count, from 100 to 15,000 |
+| [`ai_model`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) (image-to-3d) | `"meshy-t2"` | The Smart Topology model of cookbook 02, and the one an omitted `ai_model` ran when the results on this page were recorded. `"meshy-t2.5"`, the default when `ai_model` is omitted, accepts 100 to 30,000 faces but takes longer |
+| [`target_polycount`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `1000` | The target face count, from 100 to 15,000 for `meshy-t2` |
 | [`should_texture`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `false` | The retexture stage does the texturing; leaving it off keeps the model stage at 5 credits and a few seconds |
+| [`ai_model`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) (retexture) | `"meshy-7"` | Meshy 7, the texture model the endpoint runs when `ai_model` is omitted, now and when the results on this page were recorded. It is also the only model that accepts `multiview_image_urls` |
 | [`input_task_id`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) (retexture) | the image-to-3d task ID | Chains the two tasks inside Meshy. To retexture a GLB you already have, send `model_url` with a public URL or a data URI instead |
-| [`text_style_prompt`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | the prompt | Up to 800 characters. Send `image_style_url` with a picture instead to match a reference image, or `multiview_image_urls` with up to four views |
+| [`text_style_prompt`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | the prompt | Up to 800 characters. Send `image_style_url` with a picture instead to match a reference image, or `multiview_image_urls` with up to four views, which needs the `meshy-7` model this recipe sets |
 | [`enable_original_uv`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | `false` | The gray oak has no UV layout, so Meshy unwraps one. `true` keeps the layout of a model that has one |
 | [`enable_pbr`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | `true` | Adds the metallic, roughness and normal maps. Off, the task returns the base color texture only |
 | [`texture_resolution`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | omitted (`2k`) | `4k` costs the same 10 credits; `8k` costs 15 |
 | [`target_formats`](https://docs.meshy.ai/en/api/retexture#create-a-retexture-task) | `["glb"]` | Add `"fbx"` for Unity or Unreal, or `"usdz"` for Apple AR Quick Look |
 
-`ai_model` is omitted on both stages, so each follows the API's current default.
+`ai_model` is set on both stages to the models an omitted value ran when the results on this page were recorded, so the recipe keeps running them when the API defaults change.

@@ -98,6 +98,24 @@ class RiggedCharacterTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_post_clears_the_marker_so_resume_creates_that_stage(self):
+        self.client.create.side_effect = ["model-id", rigged.MeshyAPIError(402, "Insufficient credits")]
+        with patch("builtins.print"), self.assertRaises(rigged.MeshyAPIError):
+            rigged.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["model_task_id"], state["rig_task_id"], state["creating"]), ("model-id", None, None))
+        self.client.create.side_effect = ["rig-id"]
+        with patch("builtins.print"):
+            rigged.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_count, 3)
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = rigged.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(rigged.MeshyAPIError):
+            rigged.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            rigged.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_image_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"image": ""}, {"model_task_id": None}, {"rig_task_id": "bad/id"},
@@ -118,7 +136,7 @@ class RiggedCharacterTests(unittest.TestCase):
     def test_bad_image_fails_before_client_and_checkpoint(self):
         for image in ["missing.png", "wrong.gif"]:
             with self.subTest(image=image), patch.object(rigged, "Meshy", wraps=rigged.Meshy) as constructor:
-                with self.assertRaisesRegex(ValueError, "PNG or JPEG|does not exist"):
+                with self.assertRaisesRegex(ValueError, "PNG, JPEG or WebP|does not exist"):
                     rigged.run(image, output=self.output)
                 constructor.assert_not_called()
             self.assertFalse((self.output / "run.json").exists())

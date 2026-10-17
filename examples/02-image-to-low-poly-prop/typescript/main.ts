@@ -18,6 +18,7 @@ const client = new Meshy(); // reads MESHY_API_KEY from .env
 const taskId = await client.create("image-to-3d", {
   image_url: imageUrl,
   model_type: "smart-topology",
+  ai_model: "meshy-t2",
   target_polycount: POLYCOUNT,
   should_texture: false,
   target_formats: ["glb"],

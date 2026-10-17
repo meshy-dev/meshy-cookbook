@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { afterEach, test } from "node:test";
-import type { Task } from "../shared/typescript/meshy.js";
+import { MeshyAPIError, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/08-image-to-simplified-prop/typescript/main.js";
 
 const blockNetwork: typeof fetch = async () => { throw new Error("Unexpected HTTP request in offline test"); };
@@ -99,8 +99,31 @@ test("an unknown POST outcome cannot create a duplicate on resume", async () => 
   assert.equal(calls, 1);
 }));
 
+test("a refused POST clears the creating marker so resume creates that stage", async (context) => directory(async (output) => {
+  context.mock.method(console, "log", () => {});
+  const client = fakeClient();
+  const create = client.create;
+  client.create = async (endpoint: string, payload: Record<string, unknown>) => {
+    if (endpoint === "remesh") throw new MeshyAPIError(402, "Insufficient credits");
+    return create(endpoint, payload);
+  };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  const state = JSON.parse(await readFile(join(output, "run.json"), "utf8"));
+  assert.deepEqual([state.model_task_id, state.remesh_task_id, state.creating], ["model-id", null, null]);
+  client.create = create;
+  await run(undefined, undefined, true, output, client);
+  assert.deepEqual(client.created.map((call) => call.endpoint), ["image-to-3d", "remesh"]);
+}));
+
+test("a server error keeps the creating marker", async () => directory(async (output) => {
+  const client = fakeClient();
+  client.create = async () => { throw new MeshyAPIError(500, "Internal error"); };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  await assert.rejects(run(undefined, undefined, true, output, client), /outcome.*unknown/);
+}));
+
 test("invalid checkpoint, changed inputs, bad input and accidental new run fail before opening a client", async () => directory(async (output) => {
-  await assert.rejects(run("wrong.gif", undefined, false, output), /PNG or JPEG/);
+  await assert.rejects(run("wrong.gif", undefined, false, output), /PNG, JPEG or WebP/);
   await assert.rejects(run("missing.png", undefined, false, output), /ENOENT|does not exist/);
   for (const polycount of [99, 300001, 2.5, Number.NaN]) await assert.rejects(run(undefined, polycount, false, output), /100 to 300000/);
   const badStates = [ { version: true }, { image: "" }, { polycount: 99 }, { polycount: "20000" }, { model_task_id: null }, { remesh_task_id: "bad/id" },

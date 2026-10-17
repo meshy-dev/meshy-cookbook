@@ -6,10 +6,11 @@ import os
 import re
 import sys
 import tempfile
+from contextlib import contextmanager
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # so `shared` imports
-from shared.python.meshy import Meshy
+from shared.python.meshy import Meshy, MeshyAPIError
 
 DIRECTORY = Path(__file__).resolve().parent
 SAMPLE = DIRECTORY.parent / "input/concept-art.png"
@@ -31,6 +32,20 @@ def save_state(path: Path, state: dict) -> None:
     finally:
         if temporary is not None:
             temporary.unlink(missing_ok=True)
+
+
+@contextmanager
+def creating(path: Path, state: dict, stage: str):
+    """Mark `stage` as being created, and clear the mark if the API refuses the POST, which creates no task."""
+    state["creating"] = stage
+    save_state(path, state)  # if POST is interrupted, do not blindly repeat it
+    try:
+        yield
+    except MeshyAPIError as error:
+        if error.refused:
+            state["creating"] = None
+            save_state(path, state)
+        raise
 
 
 def load_state(path: Path, image: str | None) -> dict:
@@ -72,16 +87,15 @@ def run(image: str | None = None, resume: bool = False, output: Path = OUTPUT, c
 
     model_id = state["model_task_id"]
     if model_id is None:
-        state["creating"] = "model"
-        save_state(checkpoint, state)  # if POST is interrupted, do not blindly repeat it
-        model_id = client.create(
-            "image-to-3d",
-            {
-                "image_url": image_url,
-                "should_texture": False,
-                "target_formats": ["glb"],
-            },
-        )
+        with creating(checkpoint, state, "model"):
+            model_id = client.create(
+                "image-to-3d",
+                {
+                    "image_url": image_url,
+                    "should_texture": False,
+                    "target_formats": ["glb"],
+                },
+            )
         state.update(model_task_id=model_id, creating=None)
         save_state(checkpoint, state)
     model = None
@@ -100,16 +114,15 @@ def run(image: str | None = None, resume: bool = False, output: Path = OUTPUT, c
             f"{metrics['holes']} holes, {metrics['non_manifold_edges']} non-manifold edges, {metrics['degenerate_faces']} degenerate faces",
             flush=True,
         )
-        state["creating"] = "split"
-        save_state(checkpoint, state)
-        split_id = client.create(
-            "print/split",
-            {
-                "input_task_id": model_id,
-                "target_formats": ["glb", "3mf"],
-                "layout": "on_plate",
-            },
-        )
+        with creating(checkpoint, state, "split"):
+            split_id = client.create(
+                "print/split",
+                {
+                    "input_task_id": model_id,
+                    "target_formats": ["glb", "3mf"],
+                    "layout": "on_plate",
+                },
+            )
         state.update(split_task_id=split_id, creating=None)
         save_state(checkpoint, state)
     task = client.wait("print/split", split_id, label="split")

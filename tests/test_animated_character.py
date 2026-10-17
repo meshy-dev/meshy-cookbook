@@ -124,6 +124,28 @@ class AnimatedCharacterTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_animation_keeps_the_rig_and_resume_uses_corrected_actions(self):
+        invalid = animated.MeshyAPIError(400, "Invalid action_id. See https://docs.meshy.ai/en/api/animation-library for available animation IDs.")
+        self.client.create.side_effect = ["model-id", "rig-id", invalid]
+        with patch("builtins.print"), self.assertRaises(animated.MeshyAPIError):
+            animated.run(output=self.output, client=self.client)
+        checkpoint = self.output / "run.json"
+        state = json.loads(checkpoint.read_text())
+        self.assertEqual((state["model_task_id"], state["rig_task_id"], state["animation_task_id"], state["creating"]),
+                         ("model-id", "rig-id", None, None))
+        animated.save_state(checkpoint, {**state, "actions": [0, 4]})
+        self.client.create.side_effect = ["animation-id"]
+        with patch("builtins.print"):
+            animated.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_args.args, ("animations", {"rig_task_id": "rig-id", "action_ids": [0, 4]}))
+
+    def test_server_error_keeps_the_marker(self):
+        self.client.create.side_effect = animated.MeshyAPIError(500, "Internal error")
+        with self.assertRaises(animated.MeshyAPIError):
+            animated.run(output=self.output, client=self.client)
+        with self.assertRaisesRegex(ValueError, "outcome.*unknown"):
+            animated.run(resume=True, output=self.output, client=self.client)
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [
             {"version": True}, {"image": ""}, {"actions": []}, {"actions": [0, 0]}, {"actions": ["4"]},
@@ -147,7 +169,7 @@ class AnimatedCharacterTests(unittest.TestCase):
     def test_bad_image_or_actions_fail_before_client_and_checkpoint(self):
         for image in ["missing.png", "wrong.gif"]:
             with self.subTest(image=image), patch.object(animated, "Meshy", wraps=animated.Meshy) as constructor:
-                with self.assertRaisesRegex(ValueError, "PNG or JPEG|does not exist"):
+                with self.assertRaisesRegex(ValueError, "PNG, JPEG or WebP|does not exist"):
                     animated.run(None, image, output=self.output)
                 constructor.assert_not_called()
             self.assertFalse((self.output / "run.json").exists())

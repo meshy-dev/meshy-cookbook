@@ -25,9 +25,9 @@ outputs:
 endpoints:
 - image-to-3d
 - retexture
-model_policy: Both stages omit ai_model. The model stage sets model_type to smart-topology
-  and follows the service default for that model type; the retexture stage follows
-  the API's current default.
+model_policy: Both stages pin ai_model to the models an omitted value ran when the
+  sample results were recorded. The model stage sets model_type to smart-topology
+  with meshy-t2, as cookbook 02 does; the retexture stage uses meshy-7.
 languages:
   python:
     runtime: Python 3.10+

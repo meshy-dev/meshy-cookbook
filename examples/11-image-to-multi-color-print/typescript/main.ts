@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, open, readFile, rename, rm, stat } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { Meshy, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE_IMAGE = join(DIRECTORY, "../input/sea-chest.png");
@@ -42,6 +42,21 @@ async function saveState(path: string, state: RunState): Promise<void> {
 }
 
 const validStyle = (value: unknown): value is Style => (STYLES as readonly unknown[]).includes(value);
+
+/** Mark `stage` as being created, then POST; clear the mark if the API refuses the POST, which creates no task. */
+async function createStage(path: string, state: RunState, stage: NonNullable<RunState["creating"]>, post: () => Promise<string>): Promise<string> {
+  state.creating = stage;
+  await saveState(path, state); // if POST is interrupted, do not blindly repeat it
+  try {
+    return await post();
+  } catch (error) {
+    if (error instanceof MeshyAPIError && error.refused) {
+      state.creating = null;
+      await saveState(path, state);
+    }
+    throw error;
+  }
+}
 
 async function loadState(path: string, image?: string, style?: string): Promise<RunState> {
   const state = JSON.parse(await readFile(path, "utf8"));
@@ -84,14 +99,12 @@ export async function run(image?: string, style?: string, resume = false, output
 
   let modelId = state.model_task_id;
   if (modelId === null) {
-    state.creating = "model";
-    await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
+    modelId = await createStage(checkpoint, state, "model", () => client.create("image-to-3d", {
       image_url: imageUrl,
       should_texture: true,
       enable_pbr: false,
       target_formats: ["glb"],
-    });
+    }));
     state.model_task_id = modelId;
     state.creating = null;
     await saveState(checkpoint, state);
@@ -102,13 +115,11 @@ export async function run(image?: string, style?: string, resume = false, output
     model = await client.wait("image-to-3d", modelId, "model");
     await client.download(model.model_urls.glb, join(output, "textured-model.glb"));
     await client.download(model.thumbnail_url, join(output, "textured-model-thumbnail.png"));
-    state.creating = "print";
-    await saveState(checkpoint, state);
-    printId = await client.create("print/multi-color", {
+    printId = await createStage(checkpoint, state, "print", () => client.create("print/multi-color", {
       input_task_id: modelId,
       max_colors: 4,
       style: state.style,
-    });
+    }));
     state.print_task_id = printId;
     state.creating = null;
     await saveState(checkpoint, state);

@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { afterEach, test } from "node:test";
-import type { Task } from "../shared/typescript/meshy.js";
+import { MeshyAPIError, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/06-text-to-restyled-prop/typescript/main.js";
 
 const blockNetwork: typeof fetch = async () => { throw new Error("Unexpected HTTP request in offline test"); };
@@ -14,8 +14,8 @@ afterEach(() => { globalThis.fetch = blockNetwork; });
 const SAMPLE_PROMPT =
   "An oak tree in autumn: rough dark brown bark with deep vertical grooves on the trunk, " +
   "dense orange and gold leaves on the canopy. Stylized hand-painted game prop.";
-const MODEL_PAYLOAD = { model_type: "smart-topology", target_polycount: 1000, should_texture: false, target_formats: ["glb"] };
-const RETEXTURE_PAYLOAD = { input_task_id: "model-id", text_style_prompt: SAMPLE_PROMPT, enable_original_uv: false, enable_pbr: true, target_formats: ["glb"] };
+const MODEL_PAYLOAD = { model_type: "smart-topology", ai_model: "meshy-t2", target_polycount: 1000, should_texture: false, target_formats: ["glb"] };
+const RETEXTURE_PAYLOAD = { input_task_id: "model-id", ai_model: "meshy-7", text_style_prompt: SAMPLE_PROMPT, enable_original_uv: false, enable_pbr: true, target_formats: ["glb"] };
 const TEXTURE_FILES = ["base-color.png", "metallic.png", "roughness.png", "normal.png"];
 
 function task(endpoint: string, id: string): Task {
@@ -105,8 +105,31 @@ test("an unknown POST outcome cannot create a duplicate on resume", async () => 
   assert.equal(calls, 1);
 }));
 
+test("a refused POST clears the creating marker so resume creates that stage", async (context) => directory(async (output) => {
+  context.mock.method(console, "log", () => {});
+  const client = fakeClient();
+  const create = client.create;
+  client.create = async (endpoint: string, payload: Record<string, unknown>) => {
+    if (endpoint === "retexture") throw new MeshyAPIError(402, "Insufficient credits");
+    return create(endpoint, payload);
+  };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  const state = JSON.parse(await readFile(join(output, "run.json"), "utf8"));
+  assert.deepEqual([state.model_task_id, state.retexture_task_id, state.creating], ["model-id", null, null]);
+  client.create = create;
+  await run(undefined, undefined, true, output, client);
+  assert.deepEqual(client.created.map((call) => call.endpoint), ["image-to-3d", "retexture"]);
+}));
+
+test("a server error keeps the creating marker", async () => directory(async (output) => {
+  const client = fakeClient();
+  client.create = async () => { throw new MeshyAPIError(500, "Internal error"); };
+  await assert.rejects(run(undefined, undefined, false, output, client), MeshyAPIError);
+  await assert.rejects(run(undefined, undefined, true, output, client), /outcome.*unknown/);
+}));
+
 test("invalid checkpoint, changed inputs, bad input and accidental new run fail before opening a client", async () => directory(async (output) => {
-  await assert.rejects(run(undefined, "wrong.gif", false, output), /PNG or JPEG/);
+  await assert.rejects(run(undefined, "wrong.gif", false, output), /PNG, JPEG or WebP/);
   await assert.rejects(run(undefined, "missing.png", false, output), /ENOENT|does not exist/);
   await assert.rejects(run("  ", undefined, false, output), /empty/);
   await assert.rejects(run("x".repeat(801), undefined, false, output), /800 characters/);

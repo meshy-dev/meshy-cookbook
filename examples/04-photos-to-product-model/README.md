@@ -211,12 +211,12 @@ task = client.wait("multi-image-to-3d", task_id)
 
    On `FAILED` or `CANCELED`, the client raises an error with `task_error.message`. After 30 minutes it raises `MeshyTimeoutError`; use the task ID to check progress before retrying.
 
-3. **Download the GLB, the USDZ and the four renders.** `client.download` streams `model_urls.glb` and `model_urls.usdz` to `output/`, then each entry of `thumbnail_urls`.
+3. **Download the GLB, the USDZ and the four renders.** `client.download` streams `model_urls.glb` and `model_urls.usdz` to `output/`, then each entry of `thumbnail_urls`. The renders are best effort: a view Meshy could not render is left out, and the model files are saved either way.
 
 ```python
 client.download(task["model_urls"]["glb"], OUTPUT / "armchair.glb")
 client.download(task["model_urls"]["usdz"], OUTPUT / "armchair.usdz")
-for view, url in task["thumbnail_urls"].items():
+for view, url in (task.get("thumbnail_urls") or {}).items():
     client.download(url, OUTPUT / f"armchair-{view}.png")
 ```
 

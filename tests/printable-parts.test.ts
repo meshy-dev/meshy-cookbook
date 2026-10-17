@@ -4,7 +4,7 @@ import { mkdtemp, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 import { afterEach, test } from "node:test";
-import type { Printability, Task } from "../shared/typescript/meshy.js";
+import { MeshyAPIError, type Printability, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/10-image-to-printable-parts/typescript/main.js";
 
 const blockNetwork: typeof fetch = async () => { throw new Error("Unexpected HTTP request in offline test"); };
@@ -124,8 +124,31 @@ test("an unknown POST outcome cannot create a duplicate on resume", async () => 
   assert.equal(calls, 1);
 }));
 
+test("a refused POST clears the creating marker so resume creates that stage", async (context) => directory(async (output) => {
+  context.mock.method(console, "log", () => {});
+  const client = fakeClient();
+  const create = client.create;
+  client.create = async (endpoint: string, payload: Record<string, unknown>) => {
+    if (endpoint === "print/split") throw new MeshyAPIError(402, "Insufficient credits");
+    return create(endpoint, payload);
+  };
+  await assert.rejects(run(undefined, false, output, client), MeshyAPIError);
+  const state = JSON.parse(await readFile(join(output, "run.json"), "utf8"));
+  assert.deepEqual([state.model_task_id, state.split_task_id, state.creating], ["model-id", null, null]);
+  client.create = create;
+  await run(undefined, true, output, client);
+  assert.deepEqual(client.created.map((call) => call.endpoint), ["image-to-3d", "print/analyze", "print/analyze", "print/split"]);
+}));
+
+test("a server error keeps the creating marker", async () => directory(async (output) => {
+  const client = fakeClient();
+  client.create = async () => { throw new MeshyAPIError(500, "Internal error"); };
+  await assert.rejects(run(undefined, false, output, client), MeshyAPIError);
+  await assert.rejects(run(undefined, true, output, client), /outcome.*unknown/);
+}));
+
 test("invalid checkpoint, changed input, bad input and accidental new run fail before opening a client", async () => directory(async (output) => {
-  await assert.rejects(run("wrong.gif", false, output), /PNG or JPEG/);
+  await assert.rejects(run("wrong.gif", false, output), /PNG, JPEG or WebP/);
   await assert.rejects(run("missing.png", false, output), /ENOENT|does not exist/);
   const badStates = [ { version: true }, { image: "" }, { model_task_id: null }, { split_task_id: "bad/id" },
     { creating: "anything" }, { creating: "split" }, { creating: "check" }, { extra: "secret" } ];
