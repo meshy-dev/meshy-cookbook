@@ -82,3 +82,9 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: create-product-model
+  description: Use several views of one object to create a model for web and AR.
+  topics:
+  - Multi-image to 3D
+  short_name: Photos to product model

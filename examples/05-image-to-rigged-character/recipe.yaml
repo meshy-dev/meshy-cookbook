@@ -75,3 +75,10 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: rig-3d-character
+  description: Turn a character image into a rigged model that walks and runs.
+  topics:
+  - Rigging
+  - Image to 3D
+  short_name: Image to rigged character

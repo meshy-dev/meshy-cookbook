@@ -3,7 +3,7 @@
   "title": "Meshy cookbook recipe",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema_version", "slug", "order", "title", "description", "author", "tags", "readme", "input", "outputs", "endpoints", "model_policy", "languages", "estimates", "last_verified", "verification_note", "previews", "assets", "sample_result"],
+  "required": ["schema_version", "slug", "order", "title", "description", "author", "tags", "readme", "input", "outputs", "endpoints", "model_policy", "languages", "estimates", "last_verified", "verification_note", "previews", "assets", "sample_result", "site"],
   "properties": {
     "schema_version": {"const": 1},
     "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
@@ -52,7 +52,16 @@
       }
     },
     "sample_result": {"const": "sample-result.json"},
-    "assets": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
+    "assets": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+    "site": {
+      "type": "object", "additionalProperties": false, "required": ["slug", "description", "topics", "short_name"],
+      "properties": {
+        "slug": {"type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"},
+        "description": {"type": "string", "minLength": 1, "maxLength": 300},
+        "topics": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z0-9](?:[A-Za-z0-9 -]*[A-Za-z0-9])?$"}},
+        "short_name": {"type": "string", "minLength": 1, "maxLength": 80}
+      }
+    }
   },
   "$defs": {
     "path": {"type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"},

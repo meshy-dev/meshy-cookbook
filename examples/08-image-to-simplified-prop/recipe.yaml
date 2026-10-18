@@ -80,3 +80,11 @@ assets:
 - assets/faces-20000.png
 - assets/faces-100000.png
 sample_result: sample-result.json
+site:
+  slug: simplify-3d-model
+  description: Turn a million-triangle chest into a 20,000-face quad mesh that keeps
+    its textures.
+  topics:
+  - Remesh
+  - Image to 3D
+  short_name: Image to simplified prop

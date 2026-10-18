@@ -78,3 +78,11 @@ assets:
 - assets/SOURCES.md
 - assets/cartoon.png
 sample_result: sample-result.json
+site:
+  slug: prepare-multi-color-3d-print
+  description: Build a textured chest from one image and turn it into a four-color
+    3MF for a multi-filament printer.
+  topics:
+  - 3D printing
+  - Image to 3D
+  short_name: Image to multi-color print

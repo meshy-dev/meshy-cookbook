@@ -64,3 +64,9 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: generate-3d-character
+  description: Bring a character image into 3D, with color and surface detail.
+  topics:
+  - Image to 3D
+  short_name: Image to character

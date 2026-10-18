@@ -68,3 +68,10 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: generate-low-poly-props
+  description: Make a simple, lightweight shape from an image. Start with a tree.
+  topics:
+  - Image to 3D
+  - Low-poly
+  short_name: Image to low-poly prop

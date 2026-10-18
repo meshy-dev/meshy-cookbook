@@ -63,3 +63,9 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: create-textured-3d-prop
+  description: Describe an object. Get a concept image and a detailed 3D model.
+  topics:
+  - Text to 3D
+  short_name: Words to 3D prop

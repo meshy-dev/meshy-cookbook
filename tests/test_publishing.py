@@ -60,6 +60,26 @@ class PublishingTests(unittest.TestCase):
         with self.assertRaisesRegex(publish.ValidationError, "last_verified"):
             publish.load_recipes(self.root)
 
+    def test_site_metadata_is_required_and_exported(self):
+        catalog = publish.build(self.root, self.output)
+        self.assertEqual(catalog["recipes"][0]["site"]["slug"], "generate-3d-character")
+        self.assertEqual(json.loads((self.output / "catalog.json").read_text())["recipes"][0]["site"], catalog["recipes"][0]["site"])
+        self.change_metadata(lambda data: data["site"].update(topics=["<script>"]))
+        with self.assertRaisesRegex(publish.ValidationError, "site.topics"):
+            publish.load_recipes(self.root)
+        self.change_metadata(lambda data: data.pop("site"))
+        with self.assertRaisesRegex(publish.ValidationError, "'site' is a required property"):
+            publish.load_recipes(self.root)
+
+    def test_site_slugs_and_topic_spellings_are_unique(self):
+        other = yaml.safe_load((self.root / "examples/02-image-to-low-poly-prop/recipe.yaml").read_text())["site"]
+        self.change_metadata(lambda data: data["site"].update(slug=other["slug"]))
+        with self.assertRaisesRegex(publish.ValidationError, "site.slug must be unique"):
+            publish.load_recipes(self.root)
+        self.change_metadata(lambda data: data["site"].update(slug="generate-3d-character", topics=["Image to 3d"]))
+        with self.assertRaisesRegex(publish.ValidationError, "use one spelling per topic"):
+            publish.load_recipes(self.root)
+
     def test_duplicate_yaml_keys_are_rejected(self):
         with self.metadata_path.open("a") as stream:
             stream.write("slug: overridden\n")

@@ -32,6 +32,17 @@ of the numbered source folder. The metadata lists inputs, output formats, endpoi
 requested model policy, languages and runtimes, author, tags, historical credit/time
 estimates, last live verification date, previews, and the sample-result record.
 
+The `site` block is how the recipe appears on the cookbook site, which builds the
+recipe page, its catalog row, and its topic pages from it:
+
+- `site.slug`: the page URL, `recipes/<site.slug>/`. It is separate from `slug`, so
+  the page URL and the export paths can each stay put when the other changes. Treat
+  it as permanent once the page is live: other pages link to it.
+- `site.description`: the page description, also used as search text.
+- `site.topics`: the topic labels the recipe is filed under, most relevant first.
+  Each topic has its own page; spell a topic the same way in every recipe.
+- `site.short_name`: a short extra search term, such as `Image to character`.
+
 Paths in metadata are relative to the recipe directory except `languages.*.shared`,
 which is relative to the repository root. Every published file must be explicitly
 listed: language files, inputs, previews, and additional `assets` such as provenance
@@ -45,9 +56,10 @@ identify exact artifacts by SHA-256 and size, without publishing models or claim
 a fresh live run. Updating a preview alone must not advance `last_verified`.
 
 Validation checks schema types, dates, duplicate YAML keys, unique slugs/order,
-listed files, repository containment, secret/runtime paths, symlinks, Python syntax,
-and local Markdown links and heading fragments. Every fenced `python` statement in
-a recipe README must also occur in its actual runner's syntax tree. This allows
+unique `site.slug` values, one spelling per site topic, listed files, repository
+containment, secret/runtime paths, symlinks, Python syntax, and local Markdown
+links and heading fragments. Every fenced `python` statement in a recipe README
+must also occur in its actual runner's syntax tree. This allows
 excerpted code while catching stale payloads. Reference-style links and HTML
 `src`/`href`/`poster` attributes are checked too. External URLs are left to editorial
 review; validation does not contact them. TypeScript type checks and execution tests
@@ -85,7 +97,8 @@ root. `catalog.json` contains:
 The site should render the exported README and read language-tab code directly
 from the exported entrypoint files. Metadata-relative paths can be resolved through
 the `files` mapping using `source_directory`; shared source paths are already
-repository-relative. Use `slug` to choose the site route and `order` for navigation.
+repository-relative. Use `site.slug` for the page route, `order` for navigation,
+and `slug` to find the recipe's exported files.
 
 ### Resolve Markdown links before rendering
 
@@ -94,8 +107,9 @@ it unchanged against the site URL.** Each recipe's `resolved_links` supplies a
 mapping keyed by the exported Markdown `from` path and exact `original` destination:
 
 - `export_path` points to a copied asset, source file, or another recipe README.
-- `page_slug`, when present, identifies a recipe page. Replace that link with the
-  site's own route for the slug instead of a raw README URL.
+- `page_slug`, when present, is the `slug` of the recipe the link points to. Replace
+  that link with that recipe's own page route (its `site.slug`) instead of a raw
+  README URL.
 - `repository_url` handles local source references outside published recipe files.
 - `fragment` and `query` are separate fields to preserve when constructing the URL.
 

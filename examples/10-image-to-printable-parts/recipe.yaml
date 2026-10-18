@@ -78,3 +78,11 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: split-3d-model-for-printing
+  description: Build a character from one image, check it for printing, and cut it
+    into parts laid out on the build plate as a 3MF.
+  topics:
+  - 3D printing
+  - Image to 3D
+  short_name: Image to printable parts

@@ -209,7 +209,7 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
     if not paths:
         raise ValidationError("No examples/*/recipe.yaml files found")
     recipes = []
-    slugs, orders = set(), set()
+    slugs, orders, site_slugs, topic_pages = set(), set(), set(), {}
     for path in paths:
         public_path(path, root)
         try:
@@ -221,6 +221,15 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
             raise ValidationError(f"{path}: recipe slug and order must each be unique")
         slugs.add(metadata["slug"])
         orders.add(metadata["order"])
+        # The website builds each recipe page at recipes/<site.slug>/ and each topic page
+        # at topic/<topic, lowercased, non-alphanumerics as "-">/ from this block.
+        if metadata["site"]["slug"] in site_slugs:
+            raise ValidationError(f"{path}: site.slug must be unique; it is the recipe's website URL")
+        site_slugs.add(metadata["site"]["slug"])
+        for topic in metadata["site"]["topics"]:
+            page = re.sub(r"[^a-z0-9]+", "-", topic.lower())
+            if topic_pages.setdefault(page, topic) != topic:
+                raise ValidationError(f"{path}: topic {topic!r} is spelled {topic_pages[page]!r} in another recipe; use one spelling per topic")
         estimate = metadata["estimates"]["time_seconds"]
         if estimate["min"] > estimate["max"]:
             raise ValidationError(f"{path}: minimum estimated time exceeds maximum")

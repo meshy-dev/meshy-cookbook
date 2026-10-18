@@ -38,6 +38,7 @@ selected language's `main` file, and the shared client it imports.
   before adding a recipe or changing its published structure.
 - Run `python scripts/publish.py validate` and the offline checks documented in
   `CONTRIBUTING.md`. Publishing and tests must not spend Meshy credits.
-- Keep a recipe's public slug stable when changing its folder name or display order.
+- Keep a recipe's `slug` and `site.slug` stable when changing its folder name or display
+  order. `site.slug` is its page URL on the cookbook site.
 - A documentation edit or inspection of a saved artifact is not a new live verification;
   retain the original observation date and describe the evidence accurately.

@@ -65,3 +65,10 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: generate-3d-model-from-text
+  description: Describe an object. Meshy builds the mesh first, then textures it,
+    in two stages.
+  topics:
+  - Text to 3D
+  short_name: Text to 3D model

@@ -84,3 +84,11 @@ previews:
 assets:
 - assets/SOURCES.md
 sample_result: sample-result.json
+site:
+  slug: animate-3d-character
+  description: Rig a character and get one file with idle, jump and attack clips for
+    a game engine.
+  topics:
+  - Animation
+  - Rigging
+  short_name: Image to animated character

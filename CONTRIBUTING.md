@@ -12,7 +12,7 @@ A recipe should help someone produce a specific 3D asset or complete a useful wo
 - `python/` and `typescript/` contain runnable implementations with equivalent literal request payloads, dependency files, and `.env.example`.
 - `shared/` contains the small HTTP, polling, and download clients. Keep workflow decisions in each example.
 
-Use an existing recipe as the starting point. Give a new recipe a unique slug and meaningful title; folder numbering only suggests a reading order. Follow the metadata schema and export contract in [scripts/README.md](scripts/README.md).
+Use an existing recipe as the starting point. Give a new recipe a unique slug and meaningful title; folder numbering only suggests a reading order. Fill in its `site` block too (page URL, description, topics, and a short search name): the cookbook site builds the recipe's page and catalog entry from it. Follow the metadata schema and export contract in [scripts/README.md](scripts/README.md).
 
 ## Tutorial checklist
 

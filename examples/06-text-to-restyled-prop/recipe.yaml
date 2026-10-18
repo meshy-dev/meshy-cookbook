@@ -76,3 +76,11 @@ assets:
 - assets/roughness.jpg
 - assets/normal.jpg
 sample_result: sample-result.json
+site:
+  slug: restyle-3d-model
+  description: Give the gray low-poly oak color and surface detail from a short text
+    prompt.
+  topics:
+  - Retexture
+  - Low-poly
+  short_name: Text to restyled prop
