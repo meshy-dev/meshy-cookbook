@@ -294,7 +294,7 @@ The same goes for the constants at the top of `main.py` and `main.ts`: change `C
 
 A normal run refuses to start when `output/run.json` already exists. To build another image, archive the current `output/` directory first. Passing a different image with `--resume` is rejected.
 
-If execution stops while the model request is in flight, the checkpoint, `output/run.json`, may contain a `creating` marker without a task ID. The script stops rather than risk a duplicate charge. Check the [API console logs](https://www.meshy.ai/api-console/logs) for the submitted request; if it exists, put its ID in `model_task_id` and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. The checkpoint contains no API key or signed download URLs.
+If execution stops while the model request is in flight, the checkpoint, `output/run.json`, may contain a `creating` marker without a task ID. The script stops rather than risk a duplicate charge. Check the [API console logs](https://www.meshy.ai/api-console/logs) for the submitted request; if it exists, put its ID in `model_task_id` and set `creating` to `null` before resuming. If no task was created, clear the marker only after confirming that. When Meshy refuses the request outright, for example with a 402 for missing credits or a 400 for an invalid parameter, no task exists, so the script clears the marker itself before it stops. Fix the cause and `--resume` retries the model stage. The checkpoint contains no API key or signed download URLs.
 
 ## How it works
 

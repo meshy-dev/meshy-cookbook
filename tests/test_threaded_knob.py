@@ -167,6 +167,17 @@ class ThreadedKnobTests(unittest.TestCase):
             constructor.assert_not_called()
         self.assertEqual(self.client.create.call_count, 1)
 
+    def test_refused_model_request_clears_the_marker_and_resume_retries(self):
+        self.client.create.side_effect = recipe.MeshyAPIError(402, "Insufficient credits")
+        with self.assertRaises(recipe.MeshyAPIError):
+            recipe.run(output=self.output, client=self.client)
+        state = json.loads((self.output / "run.json").read_text())
+        self.assertEqual((state["model_task_id"], state["creating"]), (None, None))
+        self.client.create.side_effect = ["model-id", "check-1", "check-2"]
+        with patch("builtins.print"):
+            recipe.run(resume=True, output=self.output, client=self.client)
+        self.assertEqual(self.client.create.call_args_list[1].args[0], "image-to-3d")
+
     def test_invalid_state_inputs_and_new_run_rejected_before_client(self):
         cases = [{"version": True}, {"image": ""}, {"screw": "M5"}, {"screw": None}, {"model_task_id": "bad/id"}, {"creating": "check"}, {"extra": "secret"}]
         with patch.object(recipe, "Meshy") as constructor:
@@ -182,7 +193,7 @@ class ThreadedKnobTests(unittest.TestCase):
             constructor.assert_not_called()
 
     def test_bad_inputs_fail_before_client_and_checkpoint(self):
-        cases = [(None, "missing.png", "does not exist"), (None, "wrong.gif", "PNG or JPEG"), ("M5", None, "8-32 or M4"), ("8/32", None, "8-32 or M4")]
+        cases = [(None, "missing.png", "does not exist"), (None, "wrong.gif", "PNG, JPEG or WebP"), ("M5", None, "8-32 or M4"), ("8/32", None, "8-32 or M4")]
         for screw, image, message in cases:
             with self.subTest(image=image, screw=screw), patch.object(recipe, "Meshy", wraps=recipe.Meshy) as constructor:
                 with self.assertRaisesRegex(ValueError, message):

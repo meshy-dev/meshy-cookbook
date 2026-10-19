@@ -15,7 +15,7 @@ import numpy as np
 from manifold3d import CrossSection, Error, Manifold, Mesh
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))  # so `shared` imports
-from shared.python.meshy import Meshy
+from shared.python.meshy import Meshy, MeshyAPIError
 
 DIRECTORY = Path(__file__).resolve().parent
 SAMPLE_IMAGE = DIRECTORY.parent / "input/sunburst-knob.png"
@@ -207,14 +207,20 @@ def run(screw: str | None = None, image: str | None = None, resume: bool = False
     if model_id is None:
         state["creating"] = "model"
         save_state(checkpoint, state)  # if POST is interrupted, do not blindly repeat it
-        model_id = client.create(
-            "image-to-3d",
-            {
-                "image_url": image_url,
-                "should_texture": False,
-                "target_formats": ["stl"],
-            },
-        )
+        try:
+            model_id = client.create(
+                "image-to-3d",
+                {
+                    "image_url": image_url,
+                    "should_texture": False,
+                    "target_formats": ["stl"],
+                },
+            )
+        except MeshyAPIError as error:
+            if error.refused:  # Meshy refused the request, so no task exists and resume may try again
+                state["creating"] = None
+                save_state(checkpoint, state)
+            raise
         state.update(model_task_id=model_id, creating=None)
     save_state(checkpoint, state)
     model = client.wait("image-to-3d", model_id, label="model")

@@ -5,7 +5,7 @@ import { mkdir, open, readFile, rename, rm, stat, writeFile } from "node:fs/prom
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import Module, { type Manifold as Solid } from "manifold-3d";
-import { Meshy, type Printability, type Task } from "../../../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, type Printability, type Task } from "../../../shared/typescript/meshy.js";
 
 const DIRECTORY = import.meta.dirname;
 const SAMPLE_IMAGE = join(DIRECTORY, "../input/sunburst-knob.png");
@@ -244,11 +244,19 @@ export async function run(screw?: string, image?: string, resume = false, output
   if (modelId === null) {
     state.creating = "model";
     await saveState(checkpoint, state); // if POST is interrupted, do not blindly repeat it
-    modelId = await client.create("image-to-3d", {
-      image_url: imageUrl,
-      should_texture: false,
-      target_formats: ["stl"],
-    });
+    try {
+      modelId = await client.create("image-to-3d", {
+        image_url: imageUrl,
+        should_texture: false,
+        target_formats: ["stl"],
+      });
+    } catch (error) {
+      if (error instanceof MeshyAPIError && error.refused) { // Meshy refused the request, so no task exists and resume may try again
+        state.creating = null;
+        await saveState(checkpoint, state);
+      }
+      throw error;
+    }
     state.model_task_id = modelId;
     state.creating = null;
   }
