@@ -50,15 +50,16 @@ languages:
 estimates:
   credits: 35
   time_seconds:
-    min: 170
-    max: 220
-  basis: Two live runs on September 25–26, 2026, one per language. The model stage
-    took 126–136 seconds and rigging 36–37 seconds; one rigging request took about
-    35 seconds to be accepted. Observed range, not a service guarantee.
-last_verified: '2026-09-26'
-verification_note: Live Python and TypeScript runs on September 25–26, 2026. Each
-  cost 30 credits for the model and 5 for the rig. Both runs were resumed once with
-  --resume after an interrupted request, without creating duplicate tasks.
+    min: 118
+    max: 203
+  basis: Two live runs on October 19, 2026, one per language, from a fresh copy of
+    the repository, on Meshy's new rigging engine. The model stage took 94–177 seconds
+    and rigging 14–16 seconds; 118–203 seconds from start to files on disk. Observed
+    range, not a service guarantee.
+last_verified: '2026-10-19'
+verification_note: Live Python and TypeScript runs on October 19, 2026, from a fresh
+  copy of the repository. Each cost 30 credits for the model and 5 for the rig, read
+  from consumed_credits. Neither run needed a resume.
 previews:
 - path: input/concept-art.png
   alt: Included armored character concept art
