@@ -28,7 +28,7 @@ class PublishingTests(unittest.TestCase):
         self.root.mkdir()
         shutil.copytree(self.source / "schemas", self.root / "schemas")
         for recipe in self.recipes:
-            for path in recipe.files:
+            for path in recipe.files | recipe.bundle:
                 target = self.root / path.relative_to(self.source)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copyfile(path, target)
@@ -53,7 +53,7 @@ class PublishingTests(unittest.TestCase):
 
     def test_validation_needs_no_runtime_output(self):
         self.assertFalse(list(self.root.glob("examples/*/*/output")))
-        self.assertEqual(len(publish.load_recipes(self.root)), 12)
+        self.assertEqual(len(publish.load_recipes(self.root)), 13)
 
     def test_metadata_requires_valid_types_and_dates(self):
         self.change_metadata(lambda data: data.update(last_verified="not-a-date"))
@@ -78,6 +78,21 @@ class PublishingTests(unittest.TestCase):
             publish.load_recipes(self.root)
         self.change_metadata(lambda data: data["site"].update(slug="generate-3d-character", topics=["Image to 3d"]))
         with self.assertRaisesRegex(publish.ValidationError, "use one spelling per topic"):
+            publish.load_recipes(self.root)
+
+    def test_web_files_ship_in_the_zip_but_not_the_site_export(self):
+        web = self.directory / "web"
+        web.mkdir()
+        (web / "package.json").write_text('{"private": true}\n')
+        (web / "index.html").write_text("<!doctype html>\n")
+        self.change_metadata(lambda data: data.update(web={"runtime": "Node.js 22+", "files": ["web/package.json", "web/index.html"]}))
+        entry = publish.build(self.root, self.output)["recipes"][0]
+        self.assertFalse(any("/web/" in file["source_path"] for file in entry["files"]))
+        self.assertFalse((self.output / "recipes" / entry["slug"] / "web").exists())
+        with zipfile.ZipFile(self.output / entry["download"]) as bundle:
+            self.assertIn("examples/01-image-to-3d-character/web/index.html", bundle.namelist())
+        self.change_metadata(lambda data: data["web"].update(files=["web/package.json", "web/index.html", "README.md"]))
+        with self.assertRaisesRegex(publish.ValidationError, "web files must be in web/"):
             publish.load_recipes(self.root)
 
     def test_duplicate_yaml_keys_are_rejected(self):

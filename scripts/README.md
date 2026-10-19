@@ -50,6 +50,13 @@ notes. The recipe README, recipe metadata, and sample-result record are included
 automatically. Add new supporting source files to the relevant language's `files`
 or `shared` array. Keep `.env.example` as an empty or clearly marked API-key template.
 
+A recipe that ends in a browser page lists the page's files under an optional `web`
+block (`runtime` and `files`, all under `web/`, including `web/package.json` and
+`web/index.html`). Both languages share the page. Its files go into the recipe's
+download ZIP but not into the exported file tree, because the cookbook site serves
+only Markdown, code, data and images, never a page's HTML or JavaScript. Links from
+a README to a `web/` file resolve to the repository on GitHub.
+
 [Sample-result records](../schemas/sample-result.schema.json) separate historical
 API measurements from later local artifact inspection. The checked-in records
 identify exact artifacts by SHA-256 and size, without publishing models or claiming
