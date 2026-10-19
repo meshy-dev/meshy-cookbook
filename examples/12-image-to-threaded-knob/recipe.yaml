@@ -80,3 +80,11 @@ assets:
 - assets/thread.png
 - assets/printed-knob.jpg
 sample_result: sample-result.json
+site:
+  slug: 3d-print-cabinet-knob
+  description: Build a cabinet knob from one image, size it to a 38 mm cap and cut
+    a thread for an 8-32 or M4 screw, as an STL ready to print.
+  topics:
+  - 3D printing
+  - Image to 3D
+  short_name: Image to threaded knob
