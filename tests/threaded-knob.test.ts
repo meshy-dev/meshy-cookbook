@@ -15,7 +15,7 @@ afterEach(() => { globalThis.fetch = blockNetwork; });
 const manifold = await Module();
 manifold.setup();
 const { Manifold, Mesh } = manifold;
-const MODEL_PAYLOAD = { should_texture: false, target_formats: ["stl"] };
+const MODEL_PAYLOAD = { ai_model: "meshy-7.1", should_texture: false, target_formats: ["stl"] };
 const REPORT = { status: "healthy", metrics: { is_watertight: true, non_manifold_edges: 0 }, thin_walls: { thin_area_ratio: 0.04 } };
 let fixtures: string;
 let knobStl: string;
@@ -219,4 +219,17 @@ test("invalid checkpoint, changed image, bad input and accidental new run fail b
   await checkpoint(output);
   await assert.rejects(run(undefined, "other.png", true, output), /Image differs/);
   await assert.rejects(run(undefined, undefined, false, output), /already exists/);
+}));
+
+test("a check that can't measure thin walls still saves both reports", async (context) => directory(async (output) => {
+  const client = fakeClient();
+  const unmeasured = { ...REPORT, thin_walls: { thin_area_ratio: null } };
+  client.wait = async (endpoint: string, id: string) => {
+    const result = task(endpoint, id);
+    return endpoint === "print/analyze" ? { ...result, printability: unmeasured as unknown as Task["printability"] } : result;
+  };
+  const logs = context.mock.method(console, "log", () => {});
+  await run(undefined, undefined, false, output, client);
+  assert.deepEqual(JSON.parse(await readFile(join(output, "printability-8-32.json"), "utf8")), { without_hole: unmeasured, finished: unmeasured });
+  assert.ok(logs.mock.calls.some((call) => /thin walls unmeasured/.test(String(call.arguments[0]))));
 }));

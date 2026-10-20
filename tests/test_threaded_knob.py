@@ -20,7 +20,7 @@ spec = importlib.util.spec_from_file_location("threadedknob", ROOT / "examples/1
 recipe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(recipe)
 
-MODEL_PAYLOAD = {"should_texture": False, "target_formats": ["stl"]}
+MODEL_PAYLOAD = {"ai_model": "meshy-7.1", "should_texture": False, "target_formats": ["stl"]}
 REPORT = {"status": "healthy", "metrics": {"is_watertight": True, "non_manifold_edges": 0}, "thin_walls": {"thin_area_ratio": 0.04}}
 
 
@@ -93,6 +93,15 @@ class ThreadedKnobTests(unittest.TestCase):
         state_text = (self.output / "run.json").read_text()
         self.assertEqual(json.loads(state_text), {"version": 1, "image": str(recipe.SAMPLE_IMAGE), "screw": "8-32", "model_task_id": "model-id", "creating": None})
         self.assertNotIn("https", state_text)
+
+    def test_a_check_that_cannot_measure_thin_walls_still_saves_both_reports(self):
+        unmeasured = {**REPORT, "thin_walls": {"thin_area_ratio": None}}
+        self.client.wait.side_effect = lambda endpoint, task_id, label="": (
+            {**task(endpoint, task_id), "printability": unmeasured} if endpoint == "print/analyze" else task(endpoint, task_id))
+        with patch("builtins.print") as print_output:
+            recipe.run(output=self.output, client=self.client)
+        self.assertEqual(json.loads((self.output / "printability-8-32.json").read_text()), {"without_hole": unmeasured, "finished": unmeasured})
+        self.assertTrue(any("thin walls unmeasured" in str(call.args[0]) for call in print_output.call_args_list))
 
     def test_knob_is_sized_and_threaded_for_each_screw(self):
         expected = {"8-32": (1.804, 2.233, 0.794), "M4": (1.771, 2.150, 0.700)}

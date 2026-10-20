@@ -31,7 +31,7 @@ To get there, you'll:
 7. See Meshy check the knob for printing, at no cost.
 8. Open the knob in your slicer and print a test.
 
-- **Start with:** One PNG or JPEG image of a knob, and the screw size. The sunburst knob shown above is included.
+- **Start with:** One PNG, JPEG or WebP image of a knob, up to 20 MB, and the screw size. The sunburst knob shown above is included.
 - **Receive:** The print file `knob-8-32.stl` or `knob-M4.stl`, Meshy's original mesh `model.stl`, the printability reports, and a preview image of the mesh.
 - **Allow:** about a minute for the whole run, plus time for first-time setup.
 - **Budget:** about 20 Meshy credits for the default example, all for the mesh. The thread and the printability check are free.
@@ -158,7 +158,7 @@ The result is saved as `knob-8-32.stl` or `knob-M4.stl`, in millimetres. Expect 
 
 This step takes about 30 seconds and costs nothing. The recipe sends the knob to Meshy's printability check twice, once without the hole and once with it.
 
-Meshy measures each file at its real size, for a filament printer. It sums up what it finds in one status: healthy, warning or error. A warning means small problems, like a few non-manifold edges, that a slicer usually repairs when it opens the file.
+Meshy measures each file at its real size, for a filament printer. It sums up what it finds in one status: healthy, warning or error, or unknown if it can't analyze the file. A warning means small problems, like a few holes or degenerate faces (triangles with almost no area), that a slicer usually repairs when it opens the file.
 
 | Meshy reports | What it means | What you want to see |
 |---|---|---|
@@ -171,7 +171,7 @@ Why check twice? The ridges of a screw thread are only about 0.2 mm wide at thei
 
 The check without the hole tells you whether the knob itself has thin spots. The check with the hole confirms that the cut left a closed, printable file.
 
-Expect both checks to report healthy. The finished file can still read as an error from the thread alone, though. The status turns to error once thin walls reach 5% of the surface, and a knob with less surface gives the same thread a larger share.
+Expect both checks to report healthy. The finished file can still read as an error from the thread alone, though. The status turns to error once thin walls cover more than 5% of the surface, and a knob with less surface gives the same thread a larger share.
 
 That error isn't a reason to change the knob. Those thin walls are the narrow tips of the thread's ridges, and they print and hold a screw. A knob is ready to print when the check without the hole is healthy and the only issue in the finished file is thin walls.
 
@@ -216,7 +216,7 @@ What comes next depends on what you want:
 
 ## Try your own idea
 
-Choose a PNG or JPEG that passes the checks in [Step 2](#step-2-check-the-image): one knob, seen from slightly above, with bold, shallow decoration and a plain stem that curves into the cap. Attach it to your agent or tell it where the file is, then paste this prompt.
+Choose a PNG, JPEG or WebP image, up to 20 MB, that passes the checks in [Step 2](#step-2-check-the-image): one knob, seen from slightly above, with bold, shallow decoration and a plain stem that curves into the cap. Attach it to your agent or tell it where the file is, then paste this prompt.
 
 ```text
 Use my image for cookbook 12. Ask me whether my screw is 8-32 or M4. Archive any previous output first. Check the image and tell me about anything that could give a poor mesh or a knob that prints badly before spending credits. Explain the expected credit cost and wait for my approval before starting a new generation.
@@ -283,7 +283,7 @@ The script saves the image path, the screw and the model task ID in `output/run.
     python main.py --resume
     npm start -- --resume
 
-Resume reuses the saved model task: it downloads the mesh again, cuts the thread and runs both checks, all of which are free. Only a run that has not created its model task yet spends credits. Resume before the model task expires: Meshy keeps a finished task for three days on plans other than Enterprise.
+Resume reuses the saved model task: it downloads the mesh again, cuts the thread and runs both checks, all of which are free. Only a run that has not created its model task yet spends credits. Resume before the model task's `expires_at`: outside Enterprise, Meshy keeps API results for at most three days.
 
 The thread is cut locally, so a resume may change the screw. This writes `knob-M4.stl` and `printability-M4.json` next to the 8-32 files and spends no credits:
 
@@ -307,6 +307,7 @@ model_id = client.create(
     "image-to-3d",
     {
         "image_url": image_url,
+        "ai_model": "meshy-7.1",
         "should_texture": False,
         "target_formats": ["stl"],
     },
@@ -355,7 +356,7 @@ check_id = client.create(
 report = client.wait("print/analyze", check_id, label="check")["printability"]
 ```
 
-   The endpoint accepts STL by `https` URL, but rejects an STL data URI with `400 Only data:model/gltf-binary or data:model/gltf+json URLs are accepted on the model_url branch` (checked October 12, 2026), so `glb_data_uri` writes a minimal GLB: positions and triangle indices only, with height along the Y axis as glTF expects. The STL has height along Z, and a GLB written that way is measured lying on its side. The check rounds the print size to whole millimetres, so the size it reports can differ from the file's by a fraction of a millimetre.
+   The endpoint accepts STL by `https` URL, but rejects an STL data URI with `400 Only data:model/gltf-binary or data:model/gltf+json URLs are accepted on the model_url branch`, as [its docs](https://docs.meshy.ai/en/api/analyze-printability#create-an-analyze-printability-task) say, so `glb_data_uri` writes a minimal GLB: positions and triangle indices only, with height along the Y axis as glTF expects. The STL has height along Z, and a GLB written that way is measured lying on its side. The check rounds the print size to whole millimetres, so the size it reports can differ from the file's by a fraction of a millimetre.
 
 ## What you get
 
@@ -369,7 +370,7 @@ These are measurements of the two recorded sample runs, one per language, on Oct
 | `printability-8-32.json`, `printability-M4.json` | Both checks `healthy`, watertight, 0 holes, 0 non-manifold edges, 0 degenerate faces (triangles with almost no area); thin walls 0% without the hole and 4.1–4.3% with either thread |
 | `model-thumbnail.png` | 512 × 512 side view of the mesh |
 
-The model stage generated in 29–34 seconds, the thread cut took about a second, and each check took 12–13 seconds of processing; each language's run finished in 68–71 seconds from start to files on disk, and a resume with the other screw in 33–35 seconds. Before these runs, the same code was tested offline on 30 other knob meshes that Image to 3D built with Meshy 7.1, the API's default model in October 2026: 11 had one small cluster of broken edges (1–8 edges with only one triangle, 2–16 edges shared by more than two), which `close_gaps` repaired in every case by replacing 5 to 66 triangles. On a 38 mm knob an 8-32 thread alone reads as about 4–5.6% thin walls, depending on the design, and the check reports `error` at about 5% (4.9% was healthy, 5.0% an error), so a finished knob can read as an error while its copy without the hole is healthy.
+The model stage generated in 29–34 seconds, the thread cut took about a second, and each check took 12–13 seconds of processing; each language's run finished in 68–71 seconds from start to files on disk, and a resume with the other screw in 33–35 seconds. Before these runs, the same code was tested offline on 30 other knob meshes that Image to 3D built with Meshy 7.1, the API's default model in October 2026: 11 had one small cluster of broken edges (1–8 edges with only one triangle, 2–16 edges shared by more than two), which `close_gaps` repaired in every case by replacing 5 to 66 triangles. On a 38 mm knob an 8-32 thread alone reads as about 4–5.6% thin walls, depending on the design, and the check reports `error` above 5% of the surface (4.90% was healthy and 5.02% an error), so a finished knob can read as an error while its copy without the hole is healthy.
 
 ## Parameters worth changing
 
@@ -379,10 +380,10 @@ The model stage generated in 29–34 seconds, the thread cut took about a second
 | [`target_formats`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `["stl"]` | The recipe reads the STL and writes its own. It could read a GLB instead; an STL is Z-up, a GLB Y-up |
 | [`geometry_resolution`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | omitted (`standard`) | `"2k"` builds a denser mesh for fine decoration, for 5 more credits |
 | [`printer_type`](https://docs.meshy.ai/en/api/analyze-printability#create-an-analyze-printability-task) | `"fdm"` | Sets the minimum wall: 1.0 mm for `fdm` (filament), 0.8 mm for `sla` (resin), 2.0 mm for `full_color` |
-| [`intended_print_height_mm`](https://docs.meshy.ai/en/api/analyze-printability#create-an-analyze-printability-task) | the knob's height | GLB input only, 1 to 1000. `intended_print_longest_side_mm` works with every format; send one of the two |
+| [`intended_print_height_mm`](https://docs.meshy.ai/en/api/analyze-printability#create-an-analyze-printability-task) | the knob's height | GLB input only, 1 to 1000. `intended_print_longest_side_mm` works with every format. Send at most one; without either, a GLB is checked at 150 mm tall. Both are rounded to whole millimetres |
 | [`SCREWS`](python/main.py) | `8-32`: 4.166 mm, 25.4/32 mm pitch; `M4`: 4.0 mm, 0.7 mm pitch | Add any 60-degree screw by its outside diameter and pitch, for example `"M3": (3.0, 0.5)` |
 | [`CLEARANCE_MM`](python/main.py) | `0.15` | Added to every radius of the hole. 0.15 mm took a real 8-32 screw in a PLA print from a Bambu Lab P1S; raise it if the screw binds. Resin prints usually need less |
 | [`CAP_DIAMETER_MM`](python/main.py) | `38.0` | The width of the cap; the knob is scaled evenly to it |
 | [`HOLE_DEPTH_MM`, `COUNTERBORE_MM`](python/main.py) | `12.0`; 5.2 × 1.0 mm | Depth of the thread, and the diameter and depth of the step at the opening |
 
-`ai_model` is omitted on the model stage, so it follows the API's current default; the printability endpoint has no model selection. The [Meshy CLI](https://github.com/meshy-dev/meshy-cli), a command-line tool, and the [Meshy MCP server](https://github.com/meshy-dev/meshy-mcp-server), which gives coding agents Meshy tools, can make the same Image to 3D request, but on October 12, 2026 neither could send this recipe's printability check: the CLI uploads a local STL as an STL data URI, which the endpoint rejects, and the MCP server's check accepts neither a local file nor a printer type and print size.
+`ai_model` is pinned to `meshy-7.1` on the model stage, the model the sample results were recorded with and the API's current default, because the mesh repair and the thread cut were tested on its meshes. The printability endpoint has no model selection. The [Meshy CLI](https://github.com/meshy-dev/meshy-cli), a command-line tool, and the [Meshy MCP server](https://github.com/meshy-dev/meshy-mcp-server), which gives coding agents Meshy tools, can make the same Image to 3D request and run the printability check with a printer type and print size. Neither can check the STL this recipe writes on your computer, though: the CLI sends a local file only as a GLB or glTF, and the MCP server takes a public URL or a GLB data URI.

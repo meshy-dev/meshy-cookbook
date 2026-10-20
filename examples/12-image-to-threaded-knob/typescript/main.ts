@@ -247,6 +247,7 @@ export async function run(screw?: string, image?: string, resume = false, output
     try {
       modelId = await client.create("image-to-3d", {
         image_url: imageUrl,
+        ai_model: "meshy-7.1",
         should_texture: false,
         target_formats: ["stl"],
       });
@@ -294,9 +295,11 @@ export async function run(screw?: string, image?: string, resume = false, output
     });
     const report = (await client.wait("print/analyze", checkId, "check")).printability as Printability;
     reports[name] = report;
+    const ratio = report.thin_walls?.thin_area_ratio; // null when Meshy couldn't measure the walls
+    const thin = ratio == null ? "unmeasured" : `${(ratio * 100).toFixed(1)}%`;
     console.log(
       `Printability ${name.replace("_", " ")}: ${report.status}, watertight ${report.metrics.is_watertight ? "yes" : "no"}, `
-      + `${report.metrics.non_manifold_edges} non-manifold edges, thin walls ${(report.thin_walls!.thin_area_ratio * 100).toFixed(1)}%`,
+      + `${report.metrics.non_manifold_edges} non-manifold edges, thin walls ${thin}`,
     );
   }
   await writeFile(join(output, `printability-${state.screw}.json`), `${JSON.stringify(reports, null, 2)}\n`);

@@ -25,8 +25,9 @@ outputs:
 endpoints:
 - image-to-3d
 - print/analyze
-model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
-  model. The printability check has no model selection.
+model_policy: ai_model is pinned to meshy-7.1 on the image-to-3d stage, the model the
+  sample results were recorded with and the API's current default. The printability
+  check has no model selection.
 languages:
   python:
     runtime: Python 3.10+

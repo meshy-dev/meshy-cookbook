@@ -212,6 +212,7 @@ def run(screw: str | None = None, image: str | None = None, resume: bool = False
                 "image-to-3d",
                 {
                     "image_url": image_url,
+                    "ai_model": "meshy-7.1",
                     "should_texture": False,
                     "target_formats": ["stl"],
                 },
@@ -257,9 +258,11 @@ def run(screw: str | None = None, image: str | None = None, resume: bool = False
         )
         report = client.wait("print/analyze", check_id, label="check")["printability"]
         reports[name] = report
+        ratio = report["thin_walls"]["thin_area_ratio"]  # null when Meshy couldn't measure the walls
+        thin = "unmeasured" if ratio is None else f"{ratio:.1%}"
         print(
             f"Printability {name.replace('_', ' ')}: {report['status']}, watertight {'yes' if report['metrics']['is_watertight'] else 'no'}, "
-            f"{report['metrics']['non_manifold_edges']} non-manifold edges, thin walls {report['thin_walls']['thin_area_ratio']:.1%}",
+            f"{report['metrics']['non_manifold_edges']} non-manifold edges, thin walls {thin}",
             flush=True,
         )
     (output / f"printability-{state['screw']}.json").write_text(json.dumps(reports, indent=2) + "\n")
@@ -271,6 +274,6 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--resume", action="store_true", help="Continue output/run.json without repeating the model task")
     parser.add_argument("screw", nargs="?", help="Screw thread to cut: 8-32 (US) or M4 (metric)")
-    parser.add_argument("image", nargs="?", help="PNG or JPEG of one knob for the model stage")
+    parser.add_argument("image", nargs="?", help="PNG, JPEG or WebP of one knob for the model stage")
     args = parser.parse_args()
     run(args.screw, args.image, args.resume)
