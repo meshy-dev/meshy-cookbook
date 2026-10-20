@@ -16,6 +16,7 @@ selected language's `main` file, and the shared client it imports.
 | One humanoid character image → rigged character with idle, jump and attack clips in one file, as GLB and FBX | `examples/09-image-to-animated-character` |
 | One image → untextured mesh, a free printability check, then parts laid out on the build plate as 3MF and GLB | `examples/10-image-to-printable-parts` |
 | One image → textured model → multi-color 3MF for a multi-filament printer, realistic or cartoon colors | `examples/11-image-to-multi-color-print` |
+| One knob image → mesh → STL in millimetres with an 8-32 or M4 screw thread cut into the stem, checked for printing | `examples/12-image-to-threaded-knob` |
 
 - A live run spends Meshy credits; each README states the amount. Tell the user the cost
   and wait for their approval before running, unless they already gave it.
@@ -26,7 +27,8 @@ selected language's `main` file, and the shared client it imports.
 - Custom inputs are positional arguments: an image path, a description, or photo paths;
   cookbooks 02 and 08 also take a face count after the image, cookbook 06 takes a style prompt
   first, then an optional image, cookbook 09 takes action ids first, then an optional image,
-  cookbook 10 takes only an image, and cookbook 11 takes a color style (realistic or cartoon) after the image. Leave the sample defaults in the code.
+  cookbook 10 takes only an image, cookbook 11 takes a color style (realistic or cartoon) after the image,
+  and cookbook 12 takes a screw (8-32 or M4) first, then an optional image. Leave the sample defaults in the code.
 - To adapt a recipe into a project, copy `shared/<language>/meshy.*` next to the pipeline
   and keep the payloads literal.
 

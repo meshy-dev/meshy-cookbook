@@ -24,7 +24,7 @@
         "files": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/path"}}
       }
     },
-    "outputs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["glb", "usdz", "fbx", "obj", "3mf"]}},
+    "outputs": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["glb", "usdz", "fbx", "obj", "3mf", "stl"]}},
     "endpoints": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": ["image-to-3d", "text-to-image", "multi-image-to-3d", "rigging", "retexture", "text-to-3d", "remesh", "animations", "print/analyze", "print/split", "print/multi-color"]}},
     "model_policy": {"type": "string", "minLength": 1},
     "languages": {

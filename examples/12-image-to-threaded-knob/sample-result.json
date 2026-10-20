@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-threaded-knob",
+  "historical_run": {
+    "documented_on": "2026-10-12",
+    "source": "README.md",
+    "credits": 20,
+    "model": "Not reported: the image-to-3d task response includes no model field. These October 12 runs omitted ai_model, so the model stage followed the API default, meshy-7.1 (the docs' latest). The recipe now pins meshy-7.1. The printability check has no model selection.",
+    "note": "Two live runs, one per language, on October 12, 2026, from fresh copies of the repository, started 5 s apart. Each consumed 20 credits (image-to-3d with should_texture false, STL only), read from consumed_credits; every print-analyze task consumed 0. Model stage 29.2-33.9 s generation with no queue; the thread cut ran locally in about a second; each printability check 12-13 s generation, about 16 s wall; 67.7-70.7 s wall from start to files on disk. Each run was then resumed with the M4 screw, which reused the model task and took 32.9-34.5 s for no credits. All eight checks reported healthy, watertight, 0 holes, 0 non-manifold edges and 0 degenerate faces; thin_area_ratio was 0 without the hole and 0.041-0.043 with either thread."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-10-12",
+    "method": "Local file byte count and SHA-256; binary STL triangle records parsed and merged into shared vertices with numpy, checked as a solid with manifold3d 3.5.4; thread radii measured from horizontal slices of the finished file along +X, pitch and handedness from the radius profile at 0 and 90 degrees.",
+    "note": "Python run artifacts (pictured). model.stl is Meshy's mesh as delivered, Z-up with its longest side 1,902.92 units and no stated unit; it was manifold, so no gaps were closed. knob-8-32.stl and knob-M4.stl are the recipe's print files in millimetres: 38.00 x 38.00 x 31.12 mm, base on Z = 0, one manifold solid of genus 0. The 8-32 hole measures 1.795-2.232 mm in radius (modelled 1.804-2.233) with a 0.794 mm pitch; the M4 hole 1.763-2.148 mm (modelled 1.771-2.150) with a 0.700 mm pitch; both right-handed, 12 mm deep, with a 5.2 mm counterbore 1 mm deep, and at least 4.0 mm of plastic around the hole. The TypeScript run's model.stl had 122,642 triangles (6,132,184 bytes) and gave a 32.73 mm tall knob: knob-8-32.stl 208,746 triangles (10,437,384 bytes), knob-M4.stl 220,074 triangles (11,003,784 bytes). Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "model.stl", "format": "stl", "bytes": 6285084, "sha256": "5b95b3dc5166fb7438bbf9fad65cc1b0f983cedc2687ee3c84c25fcea7f02a7c", "triangles": 125700, "vertices": 62852, "meshes": 1, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0},
+      {"filename": "knob-8-32.stl", "format": "stl", "bytes": 10590584, "sha256": "415dc6fdf7fc9518184af58e7145848a56b036824b3b18151d27f3d85d911714", "triangles": 211810, "vertices": 105907, "meshes": 1, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0},
+      {"filename": "knob-M4.stl", "format": "stl", "bytes": 11156984, "sha256": "90aea7da4e19ecd900ca8bad1656cfb692881ae61c902d1be18720b88ea377b2", "triangles": 223138, "vertices": 111571, "meshes": 1, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0}
+    ]
+  }
+}

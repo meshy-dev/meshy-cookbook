@@ -1,0 +1,7 @@
+# Sample knob image
+
+`sunburst-knob.png` is a product picture of a round Art Deco cabinet knob in polished brass, with twelve raised wedge-shaped rays around a plain round boss on its cap and a plain stem that flares into the cap. Meshy staff generated it with the Meshy image-to-image API (`nano-banana-2`) on 2026-10-10, as one of ten matching knob designs for the Meshy developer blog post on 3D printed cabinet knobs; task `01a12683-e8c0-72c0-8c48-b527324223fd`, made from a text-to-image concept task with `input_task_id`. It is copied unmodified (SHA-256 `f7640cf2f5f7702c770af1921931dd7c00007ba698d14692f61b838ba0887bc8`). It is a 1024 × 1024 PNG on a plain light gray background. It is Meshy-owned; use it freely to try the cookbook. The README calls it the sunburst knob.
+
+Prompt, opening: Same knob body, same polished brass, same three-quarter camera view from slightly above, same plain light grey background: keep the identical plain cylindrical stem with its smooth concave flare into the cap underside, and the same smooth rounded cap edge. Replace all decoration on the top face with a bold Art Deco sunburst centred on the axis: a plain raised round boss in the middle, and exactly 12 raised wedge-shaped rays radiating from the boss to near the cap edge, placed like the 12 hour marks of a clock.
+
+It suits a printed-knob recipe because its decoration is bold and low, with features wide enough for a 0.4 mm printer nozzle, and its stem flares into the cap, so the underside prints without support.

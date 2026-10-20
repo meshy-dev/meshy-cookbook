@@ -38,7 +38,7 @@ From the repository root, with Python 3.10+ and Node.js 22+:
 ```sh
 python3 -m venv .venv
 source .venv/bin/activate
-python -m pip install -r requirements-dev.txt -r examples/01-image-to-3d-character/python/requirements.txt
+python -m pip install -r requirements-dev.txt -r examples/01-image-to-3d-character/python/requirements.txt -r examples/12-image-to-threaded-knob/python/requirements.txt
 npm ci
 python scripts/publish.py validate
 python -m unittest discover -s tests -p 'test_*.py'
