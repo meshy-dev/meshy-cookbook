@@ -7,7 +7,7 @@ import { dirname, join } from "node:path";
 import { afterEach, test } from "node:test";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
-import { Meshy, MeshyAPIError, MeshyTaskError, MeshyTimeoutError, type Task } from "../shared/typescript/meshy.js";
+import { Meshy, MeshyAPIError, MeshyTaskError, MeshyTimeoutError, retryAfterMs, type Task } from "../shared/typescript/meshy.js";
 import { run } from "../examples/03-text-to-hero-prop/typescript/main.js";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -266,3 +266,40 @@ test("invalid CLI inputs fail before a client can be opened", async () => direct
     assert.doesNotMatch(result.stderr, /MESHY_API_KEY is not set/);
   }
 }));
+
+test("create and polling follow Retry-After, and wait defaults to an hour", async () => {
+  const client = new Meshy("offline-test", "/nonexistent/.env");
+  const replies = [
+    new Response("busy", { status: 429, headers: { "Retry-After": "0" } }),
+    new Response(JSON.stringify({ result: "task-id" }), { status: 202 }),
+    new Response(JSON.stringify({ ...task("image-to-3d", "x"), status: "IN_PROGRESS" }), { status: 200, headers: { "Retry-After": "0" } }),
+    new Response(JSON.stringify(task("image-to-3d", "x")), { status: 200 }),
+  ];
+  globalThis.fetch = (async () => replies.shift()!) as typeof fetch;
+  const started = Date.now();
+  const log = console.log;
+  console.log = () => {};
+  try {
+    assert.equal(await client.create("image-to-3d", {}), "task-id"); // without the header this retry would wait 1 s
+    assert.equal((await client.wait("image-to-3d", "x")).status, "SUCCEEDED"); // and this poll 5 s
+  } finally {
+    console.log = log;
+  }
+  assert.ok(Date.now() - started < 900, `took ${Date.now() - started} ms`);
+  assert.equal(retryAfterMs(new Response(null, { headers: { "Retry-After": "3" } }), 5000), 3000);
+  assert.equal(retryAfterMs(new Response(null), 5000), 5000);
+  assert.equal(retryAfterMs(new Response(null, { headers: { "Retry-After": "Wed, 21 Oct 2026 07:28:00 GMT" } }), 5000), 5000);
+  // Still in progress at 30 minutes (the old default) but timed out at 60.
+  const now = Date.now;
+  const clock = [0, 1_800_001, 3_600_001];
+  Date.now = () => clock.shift() ?? 3_600_001;
+  (client as unknown as { pollMs: number }).pollMs = 0;
+  client.get = async () => ({ ...task("image-to-3d", "x"), status: "IN_PROGRESS" as const });
+  console.log = () => {};
+  try {
+    await assert.rejects(client.wait("image-to-3d", "x"), /after 3600 s/);
+  } finally {
+    Date.now = now;
+    console.log = log;
+  }
+});

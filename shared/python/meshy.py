@@ -19,6 +19,14 @@ VERSIONS = {"text-to-3d": "v2"}  # every other endpoint is served under v1
 POLL_SECONDS = 5
 
 
+def retry_after(response, default: float) -> float:
+    """Seconds from Meshy's Retry-After header, or `default` when it is missing (docs.meshy.ai/en/api/rate-limits)."""
+    try:
+        return max(0.0, float(response.headers.get("Retry-After", "")))
+    except ValueError:
+        return default
+
+
 class MeshyAPIError(Exception):
     """Non-2xx response from the Meshy API. Carries `status` and `body`."""
 
@@ -67,6 +75,7 @@ class Meshy:
             )
         self.session = requests.Session()
         self.session.headers["Authorization"] = f"Bearer {self.api_key}"
+        self.poll_seconds: float = POLL_SECONDS  # updated from Retry-After on each poll
 
     @staticmethod
     def url(endpoint: str) -> str:
@@ -74,14 +83,14 @@ class Meshy:
         return f"{BASE_URL}/{VERSIONS.get(endpoint, 'v1')}/{endpoint}"
 
     def create(self, endpoint: str, payload: dict) -> str:
-        """POST `payload` to /<endpoint>; print and return the task id. Retries 429 three times."""
+        """POST `payload` to /<endpoint>; print and return the task id. Retries 429 three times, waiting as long as Retry-After asks."""
         # A slow answer still creates a paid task, so wait long before giving up.
         post = lambda: self.session.post(self.url(endpoint), json=payload, timeout=180)
         response = post()
         for attempt in range(3):
             if response.status_code != 429:
                 break
-            time.sleep(2**attempt)
+            time.sleep(retry_after(response, 2**attempt))
             response = post()
         if not response.ok:
             raise MeshyAPIError(response.status_code, response.text)
@@ -92,14 +101,17 @@ class Meshy:
     def get(self, endpoint: str, task_id: str) -> dict:
         """GET /<endpoint>/<task_id> and return the task object."""
         response = self.session.get(f"{self.url(endpoint)}/{task_id}", timeout=60)
+        self.poll_seconds = retry_after(response, POLL_SECONDS)
         if not response.ok:
             raise MeshyAPIError(response.status_code, response.text)
         return response.json()
 
     def wait(
-        self, endpoint: str, task_id: str, label: str = "", timeout: float = 1800
+        self, endpoint: str, task_id: str, label: str = "", timeout: float = 3600
     ) -> dict:
-        """Poll every 5 s, printing progress (prefixed by `label`), until SUCCEEDED.
+        """Poll at Meshy's Retry-After interval (5 s without one), printing progress (prefixed by `label`), until SUCCEEDED.
+
+        The 60-minute default follows Meshy's advice to wait at least that long before giving up on a task.
 
         A network error, 429, or 5xx while polling is retried three times, so a blip
         mid-generation does not lose the task. Raises on FAILED/CANCELED/timeout.
@@ -125,7 +137,7 @@ class Meshy:
                     f"  {prefix}poll failed, retrying ({type(error).__name__})",
                     flush=True,
                 )
-                time.sleep(POLL_SECONDS)
+                time.sleep(self.poll_seconds if isinstance(error, MeshyAPIError) else POLL_SECONDS)
                 continue
             state = f"  {prefix}{task['status']:<11} {task.get('progress', 0):>3}%"
             if state != last:
@@ -137,7 +149,7 @@ class Meshy:
                 raise MeshyTaskError(task)
             if time.monotonic() >= deadline:
                 raise MeshyTimeoutError(task, timeout)
-            time.sleep(POLL_SECONDS)
+            time.sleep(self.poll_seconds)
 
     def download(self, url: str, dest: Path) -> Path:
         """Stream to a temporary file, then replace `dest` only after success."""

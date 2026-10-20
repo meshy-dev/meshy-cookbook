@@ -1,6 +1,7 @@
 """Offline reliability checks. No Meshy requests or credits are used."""
 
 import importlib.util
+import inspect
 import json
 from pathlib import Path
 import runpy
@@ -167,6 +168,30 @@ class ClientTests(unittest.TestCase):
         self.client.get = MagicMock(side_effect=[requests.ConnectionError(), MeshyAPIError(503, "busy"), done])
         self.assertEqual(self.client.wait("image-to-3d", "model-id"), done)
         self.assertEqual(sleep.call_count, 2)
+
+    @patch("shared.python.meshy.time.sleep")
+    def test_create_waits_as_long_as_retry_after_asks(self, sleep):
+        busy = MagicMock(status_code=429, ok=False, headers={"Retry-After": "7"}, text="busy")
+        created = MagicMock(status_code=202, ok=True, headers={})
+        created.json.return_value = {"result": "task-id"}
+        self.client.session.post = MagicMock(side_effect=[busy, created])
+        with patch("builtins.print"):
+            self.assertEqual(self.client.create("image-to-3d", {}), "task-id")
+        sleep.assert_called_once_with(7.0)
+
+    @patch("shared.python.meshy.time.sleep")
+    def test_polling_follows_retry_after_and_falls_back_to_five_seconds(self, sleep):
+        def response(status, retry):
+            r = MagicMock(status_code=200, ok=True, headers={"Retry-After": retry} if retry else {})
+            r.json.return_value = {"id": "x", "status": status, "progress": 50}
+            return r
+        self.client.session.get = MagicMock(side_effect=[response("IN_PROGRESS", "2"), response("IN_PROGRESS", None), response("SUCCEEDED", "2")])
+        with patch("builtins.print"):
+            self.client.wait("image-to-3d", "x")
+        self.assertEqual([c.args[0] for c in sleep.call_args_list], [2.0, 5])
+
+    def test_wait_defaults_to_the_documented_hour(self):
+        self.assertEqual(inspect.signature(Meshy.wait).parameters["timeout"].default, 3600)
 
     def test_terminal_and_auth_errors_do_not_retry(self):
         for status in ("FAILED", "CANCELED"):
