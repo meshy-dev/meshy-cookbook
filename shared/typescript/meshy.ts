@@ -13,6 +13,13 @@ import { setTimeout as sleep } from "node:timers/promises";
 const BASE_URL = "https://api.meshy.ai/openapi";
 const VERSIONS: Record<string, string> = { "text-to-3d": "v2" }; // every other endpoint is served under v1
 const POLL_MS = 5_000;
+
+/** Milliseconds from Meshy's Retry-After header, or `fallbackMs` when it is missing (docs.meshy.ai/en/api/rate-limits). */
+export function retryAfterMs(res: Response, fallbackMs: number): number {
+  const header = res.headers.get("retry-after");
+  const seconds = header === null ? Number.NaN : Number(header);
+  return Number.isFinite(seconds) && seconds >= 0 ? seconds * 1000 : fallbackMs;
+}
 const DOWNLOAD_IDLE_MS = 120_000;
 const MIME: Record<string, string> = {
   ".png": "image/png",
@@ -95,6 +102,7 @@ export class MeshyTimeoutError extends Error {
 /** Thin client over POST /<endpoint>, GET /<endpoint>/:id, and result downloads. */
 export class Meshy {
   private readonly headers: Record<string, string>;
+  private pollMs = POLL_MS; // updated from Retry-After on each poll
 
   /** Use `apiKey`, or MESHY_API_KEY from the environment or ./.env. */
   constructor(apiKey?: string, envFile = ".env") {
@@ -114,14 +122,14 @@ export class Meshy {
     return `${BASE_URL}/${VERSIONS[endpoint] ?? "v1"}/${endpoint}`;
   }
 
-  /** POST `payload` to /<endpoint>; print and return the task id. Retries 429 three times. */
+  /** POST `payload` to /<endpoint>; print and return the task id. Retries 429 three times, waiting as long as Retry-After asks. */
   async create(endpoint: string, payload: Record<string, unknown>): Promise<string> {
     // A slow answer still creates a paid task, so wait long before giving up.
     const post = () =>
       fetch(Meshy.url(endpoint), { method: "POST", headers: this.headers, body: JSON.stringify(payload), signal: AbortSignal.timeout(180_000) });
     let res = await post();
     for (let attempt = 0; attempt < 3 && res.status === 429; attempt++) {
-      await sleep(1000 * 2 ** attempt);
+      await sleep(retryAfterMs(res, 1000 * 2 ** attempt));
       res = await post();
     }
     if (!res.ok) throw new MeshyAPIError(res.status, await res.text());
@@ -133,16 +141,18 @@ export class Meshy {
   /** GET /<endpoint>/<taskId> and return the task object. */
   async get(endpoint: string, taskId: string): Promise<Task> {
     const res = await fetch(`${Meshy.url(endpoint)}/${taskId}`, { headers: this.headers, signal: AbortSignal.timeout(60_000) });
+    this.pollMs = retryAfterMs(res, POLL_MS);
     if (!res.ok) throw new MeshyAPIError(res.status, await res.text());
     return (await res.json()) as Task;
   }
 
   /**
-   * Poll every 5 s, printing progress (prefixed by `label`), until SUCCEEDED.
+   * Poll at Meshy's Retry-After interval (5 s without one), printing progress (prefixed by `label`), until SUCCEEDED.
+   * The 60-minute default follows Meshy's advice to wait at least that long before giving up on a task.
    * A network error, 429, or 5xx while polling is retried three times, so a blip
    * mid-generation does not lose the task. Throws on FAILED/CANCELED/timeout.
    */
-  async wait(endpoint: string, taskId: string, label = "", timeoutMs = 1_800_000): Promise<Task> {
+  async wait(endpoint: string, taskId: string, label = "", timeoutMs = 3_600_000): Promise<Task> {
     const deadline = Date.now() + timeoutMs;
     const prefix = label ? `${label} ` : "";
     let last = "";
@@ -156,7 +166,7 @@ export class Meshy {
         const transient = !(error instanceof MeshyAPIError) || error.status === 429 || error.status >= 500;
         if (!transient || ++failures > 3) throw error;
         console.log(`  ${prefix}poll failed, retrying (${(error as Error).name})`);
-        await sleep(POLL_MS);
+        await sleep(error instanceof MeshyAPIError ? this.pollMs : POLL_MS);
         continue;
       }
       const state = `  ${prefix}${task.status.padEnd(11)} ${String(task.progress).padStart(3)}%`;
@@ -167,7 +177,7 @@ export class Meshy {
       if (task.status === "SUCCEEDED") return task;
       if (task.status === "FAILED" || task.status === "CANCELED") throw new MeshyTaskError(task);
       if (Date.now() >= deadline) throw new MeshyTimeoutError(task, timeoutMs);
-      await sleep(POLL_MS);
+      await sleep(this.pollMs);
     }
   }
 
