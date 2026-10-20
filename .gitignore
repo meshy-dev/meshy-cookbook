@@ -17,3 +17,6 @@ COOKBOOK_STANDARDS.md
 
 # macOS
 .DS_Store
+
+# The compressed model the three.js page loads (made by npm run optimize)
+examples/*/web/public/models/

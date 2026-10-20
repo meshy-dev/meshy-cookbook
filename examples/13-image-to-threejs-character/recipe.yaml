@@ -1,0 +1,98 @@
+schema_version: 1
+slug: image-to-threejs-character
+order: 13
+title: Play an animated 3D character in a three.js game
+description: Turn one humanoid character image into a rigged GLB with idle, run and
+  attack clips, shrink it for the web, and play it in a three.js page.
+author:
+  name: Meshy
+  url: https://www.meshy.ai/
+tags:
+- character
+- animation
+- rigging
+- image-to-3d
+- three.js
+- web
+readme: README.md
+input:
+  type: image
+  description: One image of a standing humanoid character, plus the action ids of an
+    idle, a run and an attack.
+  files:
+  - input/concept-art.png
+  - input/SOURCES.md
+outputs:
+- glb
+endpoints:
+- image-to-3d
+- rigging
+- animations
+model_policy: The image-to-3d stage omits ai_model, so it follows the current latest
+  model. The rigging and animation endpoints have no model selection.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+web:
+  runtime: Node.js 22.12+ and a desktop browser
+  files:
+  - web/package.json
+  - web/index.html
+  - web/main.js
+  - web/optimize.mjs
+  - web/vite.config.js
+estimates:
+  credits: 44
+  time_seconds:
+    min: 137
+    max: 141
+  basis: Two live runs on October 19, 2026, one per language, from a fresh copy of
+    the repository. The model stage took 105–112 seconds, rigging 10–11 seconds and
+    the animation stage 8 seconds; 137–141 seconds from start to files on disk. Shrinking
+    the file for the web is local and took under 2 seconds. Observed range, not a
+    service guarantee.
+last_verified: '2026-10-19'
+verification_note: Live Python and TypeScript runs on October 19, 2026, from a fresh
+  copy of the repository. Each cost 30 credits for the model, 5 for the rig and 9
+  for the three actions, read from consumed_credits. Neither run needed a resume.
+  Both downloads were compressed with web/optimize.mjs and the Python one was played
+  in the web/ page in Chrome.
+previews:
+- path: input/concept-art.png
+  alt: Included armored character concept art
+  role: input
+- path: assets/result.png
+  alt: Textured armored character in an A-pose
+  role: result
+- path: assets/threejs-page.gif
+  alt: The character in the three.js page, standing idle, running to the right and
+    attacking, with a second copy idling behind it
+  role: animation
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json
+site:
+  slug: animate-character-in-threejs
+  description: Play a rigged character in a three.js page, run and attack with the
+    keyboard, and shrink the file for the web.
+  topics:
+  - Animation
+  - Web
+  short_name: Image to three.js character

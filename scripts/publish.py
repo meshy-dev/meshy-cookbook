@@ -60,6 +60,9 @@ class Recipe:
     metadata: dict
     files: set[Path]
     links: dict[Path, list[tuple[str, Path]]]
+    # The `web` files: in the download ZIP, not in the site export. The site serves
+    # only Markdown, code, data and images from www.meshy.ai, never a page's HTML or JS.
+    bundle: set[Path]
 
 
 def public_path(path: Path, root: Path) -> Path:
@@ -250,6 +253,12 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
                     raise ValidationError(f"{path}: shared clients must be in shared/{language}/")
                 files.add(listed_file(root, root, value))
         files.update(listed_file(root, directory, value) for value in recipe_files)
+        bundle = set()
+        if "web" in metadata:
+            web = metadata["web"]["files"]
+            if not {"web/package.json", "web/index.html"}.issubset(web) or not all(value.startswith("web/") for value in web):
+                raise ValidationError(f"{path}: web files must be in web/ and include package.json and index.html")
+            bundle = {listed_file(root, directory, value) for value in web}
         for source in files:
             if source.suffix == ".py":
                 try:
@@ -266,10 +275,10 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
             raise ValidationError(f"{sample_path}: slug/date must match recipe metadata")
         links = {source: check_markdown(root, source) for source in sorted(files) if source.suffix == ".md"}
         check_python_snippets(directory / metadata["readme"], directory / metadata["languages"]["python"]["entrypoint"])
-        recipes.append(Recipe(directory, metadata, files, links))
+        recipes.append(Recipe(directory, metadata, files, links, bundle))
     # Inputs and previews referenced by Markdown must be listed, so they cannot be
     # silently omitted from an otherwise successful export.
-    published = {path for recipe in recipes for path in recipe.files}
+    published = {path for recipe in recipes for path in recipe.files | recipe.bundle}
     for recipe in recipes:
         for source, links in recipe.links.items():
             for destination, target in links:
@@ -346,6 +355,8 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes(data)
                 members[source.relative_to(root).as_posix()] = data
+            for source in sorted(recipe.bundle):
+                members[source.relative_to(root).as_posix()] = source.read_bytes()
             links = []
             for source, destinations in sorted(recipe.links.items()):
                 for original, target in destinations:

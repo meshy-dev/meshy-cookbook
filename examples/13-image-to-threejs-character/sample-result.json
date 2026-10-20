@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-threejs-character",
+  "historical_run": {
+    "documented_on": "2026-10-19",
+    "source": "README.md",
+    "credits": 44,
+    "model": "Not reported: none of the image-to-3d, rigging or animation task responses includes a model field. ai_model was omitted on the model stage, which followed the API default; the rigging and animation endpoints have no model selection.",
+    "note": "Two live runs, one per language, on October 19, 2026, from a fresh copy of the repository, started at the same time. Each consumed 30 credits (image-to-3d, a-pose, remeshed to 15,000, textured without PBR) + 5 credits (rigging, height_meters 1.8) + 9 credits (animations, action_ids [0, 657, 4]), read from consumed_credits. Model stage 104.8-111.8 s from start to finish, rigging 10.2-10.5 s, animation 8.2-8.4 s, no queue time; 133.2-136.2 s from the first task's creation to the last task's finish and 137-141 s wall from start to files on disk. Neither run needed a resume. web/optimize.mjs then compressed each download locally in under 2 seconds."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-10-19",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; joint names from skins[0].joints; clip names and durations from animations[] and their sampler inputs; texture format and size decoded with gltf-transform and sharp; Hips translation range per clip from the animation samplers; loaded in three.js 0.186.1 in Chrome; Blender 5.2 headless import of both files.",
+    "note": "Python run artifacts (pictured). animated-character.glb is the download; character.glb is the same file after web/optimize.mjs, with the 2048 px JPEG base color texture re-encoded as a 1024 px WebP and the geometry and clips meshopt-compressed. The TypeScript run produced a 3,772,992-byte download with 15,591 triangles and 24,757 vertices, compressed to 682,268 bytes. All files hold one 24-joint skin and three clips named Idle (4.0 s), run_fast_10_inplace (0.8 s) and Attack (2.8 s), in the order of action_ids; the clip names are the library key values. The run clip keeps the hips within 2.5 cm forward and back, so it plays in place. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "animated-character.glb", "format": "glb", "bytes": 3828528, "sha256": "106576692630df862e4a1428cfdba46c3434567544844549ee7b5b7266cc6153", "triangles": 15456, "vertices": 20905, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 3},
+      {"filename": "character.glb", "format": "glb", "bytes": 587052, "sha256": "d91691ef98cb9f573f77dbc3c673f371cd4f35a6653f1dfd6d77e96eaaa2b930", "triangles": 15456, "vertices": 20905, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 3}
+    ]
+  }
+}
