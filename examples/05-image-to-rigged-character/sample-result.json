@@ -2,20 +2,20 @@
   "schema_version": 1,
   "slug": "image-to-rigged-character",
   "historical_run": {
-    "documented_on": "2026-09-26",
+    "documented_on": "2026-10-19",
     "source": "README.md",
     "credits": 35,
     "model": "Not reported: neither the image-to-3d nor the rigging task response included a model field. ai_model was omitted, so the model stage used the API default.",
-    "note": "Two live runs, one per language, on September 25-26, 2026. Each consumed 30 credits (image-to-3d) + 5 credits (rigging), read from consumed_credits. Model stage 126-136 s from creation to finish; rigging 36-37 s. The Python run's rigging POST exceeded the client's former 60 s read timeout although the task was created; its ID was recovered from GET /openapi/v1/rigging and the run resumed. The TypeScript run lost DNS while polling the model and was resumed. Neither resume created a duplicate task."
+    "note": "Two live runs, one per language, on October 19, 2026, from a fresh copy of the repository, on Meshy's new rigging engine. Each consumed 30 credits (image-to-3d) + 5 credits (rigging), read from consumed_credits. Model stage 93.9-176.9 s from start to finish, rigging 14.1-16.1 s, no queue time; 114.2-195.9 s from the first task's creation to the last task's finish and 118-203 s wall from start to files on disk. Neither run needed a resume."
   },
   "artifact_inspection": {
-    "inspected_on": "2026-09-26",
-    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; joint names from skins[0].joints.",
-    "note": "Python run artifacts (pictured). The TypeScript run produced 30,756 triangles, 34,158 vertices and the same 24-joint skeleton. All rigged files have 24 joints and one embedded base-color image. Walking loop 1.07 s, running loop 0.67 s. Model files are not published by this repository.",
+    "inspected_on": "2026-10-19",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; joint names from skins[0].joints; material texture slots, formats and sizes decoded with gltf-transform and sharp; FBX texture references read from the binary.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced 30,909 triangles, 48,053 vertices, the same 24-joint skeleton and a 12,992,100-byte rigged GLB. Every GLB embeds three textures: a 2048 px base color JPEG, a metallic-roughness JPEG and a normal map PNG, with TANGENT attributes. The FBX files (4,635,644 and 4,347,692 bytes) reference only the base color texture. Walking loop 1.07 s, running loop 0.67 s. Model files are not published by this repository.",
     "artifacts": [
-      {"filename": "rigged-character.glb", "format": "glb", "bytes": 7000544, "sha256": "aa423e393ab4294e08becc638008fa4e199332cf3929a1c8f23898fce5f8b598", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1},
-      {"filename": "walking.glb", "format": "glb", "bytes": 7013316, "sha256": "7df7a7a9cea50c838246a99537d9a09ede73eb5497ba28e8e90f6afa7f14c152", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1},
-      {"filename": "running.glb", "format": "glb", "bytes": 7008704, "sha256": "3e4653d3a5d8d79dbab2b66290eec56c69b64efccbc9d5f12c0947dae35daa30", "triangles": 30878, "vertices": 36376, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 1, "animations": 1}
+      {"filename": "rigged-character.glb", "format": "glb", "bytes": 12278424, "sha256": "f0054bea8bb93b39dd6d4aed7b49f3f3933c68c9f86ecc8a82819ed0a1e32f22", "triangles": 30670, "vertices": 35584, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 1, "animations": 1},
+      {"filename": "walking.glb", "format": "glb", "bytes": 12259128, "sha256": "51e08a1deddcf8dc22606ac962af552803c2382c4f2209ac73774c646e7b6eea", "triangles": 30670, "vertices": 35584, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 1, "animations": 1},
+      {"filename": "running.glb", "format": "glb", "bytes": 12248532, "sha256": "4be3549b8a095bcabd8226a55f3506ae607bda4a48e399d5570dccf9f61b9ba2", "triangles": 30670, "vertices": 35584, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 1, "animations": 1}
     ]
   }
 }
