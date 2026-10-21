@@ -5,9 +5,10 @@ title: Turn a character image into 3D-printable parts
 description: Build the armored character as an untextured mesh, check it for printing
   at no cost, then split it into parts laid out on the build plate, as a 3MF for your
   slicer and a GLB.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - 3d-printing
 - auto-split

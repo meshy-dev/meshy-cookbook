@@ -4,9 +4,10 @@ order: 4
 title: Create a 3D product model from multiple photos
 description: Turn one to four views, front first, into a textured GLB and USDZ with
   estimated real-world scale.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - product
 - multi-image-to-3d

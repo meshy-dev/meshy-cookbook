@@ -4,9 +4,10 @@ order: 8
 title: Simplify a dense model to the face count you choose
 description: Build the sea chest from cookbook 03 as a dense textured model, then
   remesh it into a 20,000-face quad mesh with its textures, as GLB and FBX.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - remesh
 - quad

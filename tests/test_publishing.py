@@ -27,6 +27,7 @@ class PublishingTests(unittest.TestCase):
         self.root = Path(self.temporary.name).resolve() / "repo"
         self.root.mkdir()
         shutil.copytree(self.source / "schemas", self.root / "schemas")
+        shutil.copyfile(self.source / "authors.yaml", self.root / "authors.yaml")
         for recipe in self.recipes:
             for path in recipe.files | recipe.bundle:
                 target = self.root / path.relative_to(self.source)
@@ -59,6 +60,30 @@ class PublishingTests(unittest.TestCase):
         self.change_metadata(lambda data: data.update(last_verified="not-a-date"))
         with self.assertRaisesRegex(publish.ValidationError, "last_verified"):
             publish.load_recipes(self.root)
+        self.change_metadata(lambda data: data.update(last_verified="2026-09-21", contributor="partner"))
+        with self.assertRaisesRegex(publish.ValidationError, "contributor"):
+            publish.load_recipes(self.root)
+
+    def test_authors_need_an_entry_in_authors_yaml(self):
+        self.change_metadata(lambda data: data.update(authors=["someone-new"]))
+        with self.assertRaisesRegex(publish.ValidationError, "'someone-new' needs an entry in authors.yaml"):
+            publish.load_recipes(self.root)
+        (self.root / "authors.yaml").write_text("someone-new:\n  name: Someone New\n  website: https://example.com/\n")
+        with self.assertRaisesRegex(publish.ValidationError, "avatar"):
+            publish.load_recipes(self.root)
+
+    def test_community_recipes_may_ship_one_language(self):
+        readme = self.directory / "README.md"
+        readme.write_text(readme.read_text().replace(" · [TypeScript](typescript/main.ts)", ""))
+        self.change_metadata(lambda data: data["languages"].pop("typescript"))
+        with self.assertRaisesRegex(publish.ValidationError, "recipe.yaml"):
+            publish.load_recipes(self.root)
+        self.change_metadata(lambda data: data.update(contributor="community"))
+        catalog = publish.build(self.root, self.output)
+        self.assertEqual(list(catalog["recipes"][0]["languages"]), ["python"])
+        self.assertEqual(catalog["authors"]["serafin-meshy"]["name"], "Serafin Sanchez")
+        with zipfile.ZipFile(self.output / catalog["recipes"][0]["download"]) as bundle:
+            self.assertIn("written in Python", bundle.read("AGENTS.md").decode())
 
     def test_site_metadata_is_required_and_exported(self):
         catalog = publish.build(self.root, self.output)

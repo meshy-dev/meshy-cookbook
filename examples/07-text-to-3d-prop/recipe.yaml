@@ -4,9 +4,10 @@ order: 7
 title: Generate a 3D model from a description in two stages
 description: Describe a retro toy rocket, let Meshy build the untextured preview mesh,
   then refine it into a textured GLB with PBR maps.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - text-to-3d
 - pbr

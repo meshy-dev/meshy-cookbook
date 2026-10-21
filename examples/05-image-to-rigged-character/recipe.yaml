@@ -4,9 +4,10 @@ order: 5
 title: Rig a 3D character with walk and run animations
 description: Turn one humanoid character image into a rigged GLB and FBX with walking
   and running clips.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - character
 - rigging

@@ -2,6 +2,36 @@
 
 A recipe should help someone produce a specific 3D asset or complete a useful workflow. Explain when to use it, show an actual result, and provide code that runs from a fresh clone.
 
+## Community recipes
+
+Anyone can add a recipe. Community recipes appear under the **Community** tab of the [Meshy Cookbook](https://www.meshy.ai/developers/cookbook/), with your name and GitHub avatar on the recipe page.
+
+1. **Propose it first.** Open an issue with the [recipe proposal form](https://github.com/meshy-dev/meshy-cookbook/issues/new?template=recipe-proposal.yml): what the reader makes, the input, the Meshy endpoints, and the approximate credits. A maintainer replies before you build, so two people don't write the same recipe.
+2. **Write it in Python or TypeScript.** Recipes by the Meshy team ship both; a community recipe needs one. Start from an existing recipe of the same kind and make every Meshy call through the client in `shared/`.
+3. **Run it yourself.** The sample result, previews and measurements come from your own live run, which needs a Meshy plan with API access and spends your credits. Record them as the [tutorial checklist](#tutorial-checklist) describes.
+4. **Credit yourself.** In `recipe.yaml`:
+
+   ```yaml
+   authors:
+   - your-github-username
+   contributor: community
+   date: '2026-11-02'  # the day you open the pull request; the maintainer who merges sets it to the merge date
+   ```
+
+   Then add yourself to [authors.yaml](authors.yaml) in the same pull request:
+
+   ```yaml
+   your-github-username:
+     name: Your Name
+     website: https://github.com/your-github-username
+     avatar: https://avatars.githubusercontent.com/your-github-username
+   ```
+
+   Each co-author needs a username in `authors` and an entry in `authors.yaml`. `website` can be any https page about you.
+5. **Open one pull request** and pass the [local checks](#local-checks). Before merging, a maintainer reads the code and runs the recipe live. The code may read `MESHY_API_KEY` only from the environment or `.env`, call Meshy only through the shared client, and send nothing to any other service. Merging publishes the recipe on meshy.ai with the next site update.
+
+Contributions are released under this repository's [MIT License](LICENSE).
+
 ## Repository structure
 
 - `examples/<recipe>/README.md` is the canonical tutorial, readable on GitHub and published by the cookbook site.
@@ -9,7 +39,7 @@ A recipe should help someone produce a specific 3D asset or complete a useful wo
 - `sample-result.json` records a representative result and where its measurements came from. Separate historical observations from newly inspected files or newly executed runs.
 - `input/` contains small sample inputs and `SOURCES.md` with attribution, licensing, and any generation prompts.
 - `assets/` contains curated previews with provenance. Keep runtime output under the ignored language-specific `output/` directories.
-- `python/` and `typescript/` contain runnable implementations with equivalent literal request payloads, dependency files, and `.env.example`.
+- `python/` and `typescript/` contain runnable implementations with equivalent literal request payloads, dependency files, and `.env.example`. A community recipe may have only one of them.
 - `shared/` contains the small HTTP, polling, and download clients. Keep workflow decisions in each example.
 
 Use an existing recipe as the starting point. Give a new recipe a unique slug and meaningful title; folder numbering only suggests a reading order. Fill in its `site` block too (page URL, description, topics, and a short search name): the cookbook site builds the recipe's page and catalog entry from it. Follow the metadata schema and export contract in [scripts/README.md](scripts/README.md).
@@ -18,10 +48,10 @@ Use an existing recipe as the starting point. Give a new recipe a unique slug an
 
 1. Open with the intended result and an input-to-output preview. State whether the example is textured, rigged, optimized, or ready for a particular downstream use.
 2. State required runtimes, API access, estimated credits, expected duration, and output formats. Link to current API pricing. Label measured timings and output statistics as observations rather than guarantees.
-3. Include complete clone, install, environment, and run commands for both languages, followed by positional arguments for custom inputs.
+3. Include complete clone, install, environment, and run commands for each language the recipe ships, followed by positional arguments for custom inputs.
 4. Explain the workflow, relevant parameters, limitations, and how to inspect the files. Link to API reference pages for the full parameter definitions.
 5. Keep executable Python snippets consistent with the runner. The publisher checks their statements against the Python source. Show the full source through language links or site code tabs.
-6. Add an author, last verified date, recorded model information, and evidence for sample measurements. Updating prose or inspecting an old output does not count as a new live API verification.
+6. Add your GitHub username under `authors` with an entry in `authors.yaml`, the `contributor` and first-published `date`, the last verified date, recorded model information, and evidence for sample measurements. Updating prose or inspecting an old output does not count as a new live API verification.
 7. Include provenance for inputs and previews. Identify synthetic sample images visibly. Use real photographs only when redistribution is permitted.
 8. Explain recovery for workflows with multiple paid stages. Never imply that restarting a script cancels or resumes a remote task unless the code actually does so.
 

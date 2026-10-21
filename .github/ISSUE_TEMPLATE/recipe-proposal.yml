@@ -1,0 +1,45 @@
+name: Recipe proposal
+description: Propose a community recipe before you build it.
+title: "Recipe proposal: "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for proposing a recipe. A maintainer replies before you start, so two people don't write the same one. See [Community recipes](https://github.com/meshy-dev/meshy-cookbook/blob/main/CONTRIBUTING.md#community-recipes) for what a recipe needs.
+  - type: textarea
+    id: outcome
+    attributes:
+      label: What does the reader make?
+      description: The file or result they end up with, and what they can do with it.
+      placeholder: A rigged, animated fox GLB that plays in a Godot scene.
+    validations:
+      required: true
+  - type: textarea
+    id: input
+    attributes:
+      label: What do they start from?
+      description: The sample input your recipe includes (an image, a text prompt, photos).
+    validations:
+      required: true
+  - type: input
+    id: endpoints
+    attributes:
+      label: Meshy endpoints
+      placeholder: image-to-3d, rigging, animations
+    validations:
+      required: true
+  - type: input
+    id: credits
+    attributes:
+      label: Approximate credits per run
+      placeholder: "35"
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options:
+        - Python
+        - TypeScript
+        - Both
+    validations:
+      required: true

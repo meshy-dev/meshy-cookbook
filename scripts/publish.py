@@ -206,11 +206,25 @@ def check_python_snippets(readme: Path, entrypoint: Path) -> None:
         raise ValidationError(f"Python syntax error in {readme} or {entrypoint}: {error}") from error
 
 
+def load_authors(root: Path = ROOT) -> dict:
+    """authors.yaml maps the GitHub usernames recipes list as authors to their name, website and avatar."""
+    path = root / "authors.yaml"
+    try:
+        authors = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueLoader)
+    except FileNotFoundError as error:
+        raise ValidationError(f"{path}: missing; every recipe author needs an entry") from error
+    except yaml.YAMLError as error:
+        raise ValidationError(f"{path}: invalid YAML: {error}") from error
+    validate_schema(authors, root, "authors.schema.json", path)
+    return authors
+
+
 def load_recipes(root: Path = ROOT) -> list[Recipe]:
     root = root.resolve()
     paths = sorted((root / "examples").glob("*/recipe.yaml"))
     if not paths:
         raise ValidationError("No examples/*/recipe.yaml files found")
+    authors = load_authors(root)
     recipes = []
     slugs, orders, site_slugs, topic_pages = set(), set(), set(), {}
     for path in paths:
@@ -224,6 +238,14 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
             raise ValidationError(f"{path}: recipe slug and order must each be unique")
         slugs.add(metadata["slug"])
         orders.add(metadata["order"])
+        for author in metadata["authors"]:
+            if author not in authors:
+                raise ValidationError(f"{path}: author {author!r} needs an entry in authors.yaml")
+        # Meshy recipes ship Python and TypeScript; a community recipe may ship either one (the schema requires at least one).
+        languages = set(metadata["languages"])
+        missing = sorted({"python", "typescript"} - languages)
+        if metadata["contributor"] == "meshy" and missing:
+            raise ValidationError(f"{path}: Meshy recipes ship both languages; add {', '.join(missing)} or set contributor: community")
         # The website builds each recipe page at recipes/<site.slug>/ and each topic page
         # at topic/<topic, lowercased, non-alphanumerics as "-">/ from this block.
         if metadata["site"]["slug"] in site_slugs:
@@ -274,7 +296,8 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
         if sample["slug"] != metadata["slug"] or sample["historical_run"]["documented_on"] != metadata["last_verified"]:
             raise ValidationError(f"{sample_path}: slug/date must match recipe metadata")
         links = {source: check_markdown(root, source) for source in sorted(files) if source.suffix == ".md"}
-        check_python_snippets(directory / metadata["readme"], directory / metadata["languages"]["python"]["entrypoint"])
+        if "python" in languages:
+            check_python_snippets(directory / metadata["readme"], directory / metadata["languages"]["python"]["entrypoint"])
         recipes.append(Recipe(directory, metadata, files, links, bundle))
     # Inputs and previews referenced by Markdown must be listed, so they cannot be
     # silently omitted from an otherwise successful export.
@@ -340,8 +363,11 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
     if output.exists() and any(output.iterdir()) and not marker.is_file():
         raise ValidationError(f"Refusing to replace unrecognized nonempty output directory: {output}")
     recipes = load_recipes(root)
+    authors = load_authors(root)
     provenance = source_provenance(root, require_clean)
-    catalog = {"schema_version": SCHEMA_VERSION, "source": provenance, "recipes": []}
+    # The site resolves each recipe's `authors` usernames through this map for its byline.
+    catalog = {"schema_version": SCHEMA_VERSION, "source": provenance, "recipes": [],
+               "authors": {name: authors[name] for recipe in recipes for name in recipe.metadata["authors"]}}
     output.parent.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix=".cookbook-export-", dir=output.parent))
     try:
@@ -357,6 +383,7 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                 members[source.relative_to(root).as_posix()] = data
             for source in sorted(recipe.bundle):
                 members[source.relative_to(root).as_posix()] = source.read_bytes()
+            languages = [{"python": "Python", "typescript": "TypeScript"}[language] for language in recipe.metadata["languages"]]
             links = []
             for source, destinations in sorted(recipe.links.items()):
                 for original, target in destinations:
@@ -378,7 +405,7 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                 f"# {recipe.metadata['title']}\n\n"
                 f"Open [{recipe.metadata['title']}]({recipe.directory.relative_to(root).as_posix()}/README.md) for setup and usage.\n\n"
                 f"Run commands from the extracted folder, keeping `examples/` and `shared/` together. "
-                f"Dependencies and `.env.example` are included for both languages. Live generation spends Meshy credits.\n\n"
+                f"Dependencies and `.env.example` are included for {'both languages' if len(languages) > 1 else languages[0]}. Live generation spends Meshy credits.\n\n"
                 "Skip the tutorial's clone step when using this extracted download.\n\n"
                 f"Source: {REPOSITORY}\n\n"
                 "Links to other recipes lead to the full repository; this download includes only the selected recipe.\n"
@@ -393,8 +420,9 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                 "Tell the user the cost and wait for approval unless already given.\n\n"
                 "Read MESHY_API_KEY from the environment or a local .env. Never write it into code, "
                 "ask for it in chat, or put API calls in browser code. Keep the sample defaults and "
-                "pass custom inputs as positional arguments. Use the user's project language, or Python by default. "
-                "When adapting the recipe, copy the full shared client and retain its error handling.\n"
+                "pass custom inputs as positional arguments. "
+                + ("Use the user's project language, or Python by default. " if len(languages) > 1 else f"The example is written in {languages[0]}. ")
+                + "When adapting the recipe, copy the full shared client and retain its error handling.\n"
             ).encode("utf-8")
             for optional in ["LICENSE", "LICENSE.md"]:
                 if (root / optional).is_file():
