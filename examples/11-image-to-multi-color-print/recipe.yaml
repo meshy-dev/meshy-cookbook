@@ -5,9 +5,10 @@ title: Turn one image into a multi-color 3D print file
 description: Build the sea chest as a textured model from one image, then convert it
   into a four-color 3MF that a multi-filament printer prints in color, in a realistic
   or a cartoon style.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - 3d-printing
 - multi-color

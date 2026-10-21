@@ -4,9 +4,10 @@ order: 2
 title: Generate low-poly props with Smart Topology
 description: Generate an untextured low-poly prop at a chosen face count from one
   concept image.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - low-poly
 - smart-topology

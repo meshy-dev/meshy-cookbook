@@ -4,9 +4,10 @@ order: 6
 title: Restyle a model with a text prompt
 description: Rebuild the gray low-poly oak from cookbook 02 and give it an autumn
   look from a short text style prompt, as a textured GLB with PBR maps.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - retexture
 - texturing

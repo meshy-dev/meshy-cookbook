@@ -5,9 +5,10 @@ title: Turn one image into a 3D-printable cabinet knob with a screw thread
 description: Build the sunburst knob as a mesh from one image, size it to a 38 mm
   cap, cut a threaded hole for an 8-32 or M4 cabinet-knob screw into its stem, and
   check the STL for printing.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-10-20'
 tags:
 - 3d-printing
 - stl

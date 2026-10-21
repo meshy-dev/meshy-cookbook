@@ -4,9 +4,10 @@ order: 3
 title: Create a textured 3D prop from a text prompt
 description: Generate a concept image from a description, then create a dense hero
   prop GLB with 4K textures.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - text-to-image
 - image-to-3d

@@ -4,9 +4,10 @@ order: 1
 title: Generate a 3D character from concept art
 description: Turn one concept image into a dense, textured character GLB with PBR
   maps.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-09-28'
 tags:
 - character
 - image-to-3d

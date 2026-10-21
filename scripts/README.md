@@ -29,8 +29,21 @@ can be replaced. Inside this repository, the destination must be `dist/` or belo
 Each `examples/*/recipe.yaml` follows the [recipe schema](../schemas/recipe.schema.json).
 `slug` is the permanent page identity; `order` controls display order independently
 of the numbered source folder. The metadata lists inputs, output formats, endpoints,
-requested model policy, languages and runtimes, author, tags, historical credit/time
+requested model policy, languages and runtimes, tags, historical credit/time
 estimates, last live verification date, previews, and the sample-result record.
+
+Attribution follows the registry format the OpenAI and Anthropic cookbooks use:
+
+- `authors`: GitHub usernames. Each one needs an entry in the root
+  [authors.yaml](../authors.yaml) with `name`, `website` and `avatar`
+  ([authors schema](../schemas/authors.schema.json)).
+- `contributor`: `meshy` for recipes the Meshy team wrote, `community` for everyone
+  else. The site files recipes under its All, Meshy and Community tabs by it.
+- `date`: the day the recipe was first published (merged to `main`). The site sorts by
+  it. It stays fixed when the recipe is updated; `last_verified` records later live runs.
+
+`languages` lists `python`, `typescript` or both. Meshy recipes ship both; a
+community recipe may ship one.
 
 The `site` block is how the recipe appears on the cookbook site, which builds the
 recipe page, its catalog row, and its topic pages from it:
@@ -100,6 +113,8 @@ root. `catalog.json` contains:
 - `recipes`: metadata sorted by `order`, with `source_directory`, `markdown`,
   `download`, `files`, and `resolved_links` added. Each file records its original
   repository path, exported path, and content SHA-256.
+- `authors`: the `authors.yaml` entries for every username the recipes list, keyed
+  by username.
 
 The site should render the exported README and read language-tab code directly
 from the exported entrypoint files. Metadata-relative paths can be resolved through

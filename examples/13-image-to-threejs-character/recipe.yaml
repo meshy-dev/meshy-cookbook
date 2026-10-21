@@ -4,9 +4,10 @@ order: 13
 title: Play an animated 3D character in a three.js game
 description: Turn one humanoid character image into a rigged GLB with idle, run and
   attack clips, shrink it for the web, and play it in a three.js page.
-author:
-  name: Meshy
-  url: https://www.meshy.ai/
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-10-20'
 tags:
 - character
 - animation

@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=./schemas/authors.schema.json
+
+# Maps each GitHub username listed under `authors` in a recipe.yaml to the name,
+# website and avatar the cookbook site shows on that recipe's page.
+
+serafin-meshy:
+  name: Serafin Sanchez
+  website: https://github.com/serafin-meshy
+  avatar: https://avatars.githubusercontent.com/serafin-meshy
