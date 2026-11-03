@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "slug": "image-to-style-matched-prop",
+  "historical_run": {
+    "documented_on": "2026-11-03",
+    "source": "README.md",
+    "credits": 27,
+    "model": "Requested, not all reported: the image-to-image task echoes ai_model gpt-image-2-5-sunburst; the image-to-3d and retexture task responses include no model field. The mesh stage requested model_type smart-topology with ai_model meshy-t2.5 and the texture stage ai_model meshy-n1; the retexture task reports art_style realistic regardless.",
+    "note": "Two live runs, one per language, on November 3, 2026, back to back from a fresh copy of the repository. Each consumed 12 credits (image-to-image, gpt-image-2-5-sunburst, the cottage as reference) + 5 credits (image-to-3d, Smart Topology meshy-t2.5, 5,000-face target, untextured) + 10 credits (retexture, meshy-n1, the downloaded concept as image_style_url, enable_pbr false), read from consumed_credits. No queue time in any task. Concept 30.4-30.5 s from start to finish, mesh 8.2-10.8 s, N1 texture 99.1-111.2 s; 141.7-157.0 s from the first task's creation to the last task's finish and 144-160 s wall from start to files on disk. Three earlier prep runs of the same payloads on November 2-3 had N1 texture stages of 18.8-20.2 s, and three more Python runs on November 3 with other descriptions (the well, buoy and rowboat pictured in the README) took 68.6-78.9 s wall with N1 at 17.1-19.9 s, 27 credits each, 4,946-5,051 triangles. Neither verification run needed a resume."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-11-03",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors and mesh/material/image/skin/animation arrays; primitive attributes, POSITION extents, the embedded image's PNG header and the material factors. The gray mesh was downloaded from the image-to-3d task with a free GET and inspected the same way.",
+    "note": "Python run artifacts (pictured). The TypeScript run produced 5,072 triangles, 4,765 vertices and a 2,517,832-byte GLB. Both GLBs carry POSITION, NORMAL and TEXCOORD_0, one double-sided material with metallicFactor 0.0 and roughnessFactor 1.0, and one embedded 2048 x 2048 PNG base color texture (2.3-2.5 MB), and stand 2.0 m tall. N1 kept each gray mesh's triangle count (4,905 and 5,072) and split vertices along the new UV seams; the gray meshes have POSITION only and stand 0.95 m tall. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "prop.glb", "format": "glb", "bytes": 2730496, "sha256": "c2c7cc3c06573bc47467f581ba048d0b1d214333483d33c3844e3aa48e07d46f", "triangles": 4905, "vertices": 4795, "meshes": 1, "materials": 1, "embedded_images": 1, "skins": 0, "animations": 0}
+    ]
+  }
+}

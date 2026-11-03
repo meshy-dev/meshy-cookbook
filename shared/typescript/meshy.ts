@@ -61,7 +61,7 @@ export interface Task {
   thumbnail_url: string; // 3D tasks
   thumbnail_urls?: Record<"front" | "right" | "back" | "left", string>; // 3D tasks, when multi_view_thumbnails was requested
   texture_urls?: { base_color: string; metallic: string; roughness: string; normal: string }[]; // textured 3D tasks; the PBR maps when enable_pbr was requested
-  image_urls: string[]; // text-to-image tasks
+  image_urls: string[]; // text-to-image and image-to-image tasks
   result?: RiggingResult | AnimationResult; // rigging and animation tasks
   part_count?: number; // print-split tasks
   printability?: Printability | null; // print-analyze tasks; null until SUCCEEDED

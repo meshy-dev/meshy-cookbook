@@ -1,0 +1,101 @@
+schema_version: 1
+slug: image-to-style-matched-prop
+order: 14
+title: Make low-poly props that match your concept art
+description: Turn one piece of concept art into a set of matching 5,000-face low-poly
+  props, one per one-line description, each textured with Meshy N1 as one GLB.
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-11-03'
+tags:
+- low-poly
+- retexture
+- texturing
+- smart-topology
+- image-to-image
+- image-to-3d
+readme: README.md
+input:
+  type: image
+  description: One piece of concept art whose style the prop follows, plus a one-line
+    description of the prop.
+  files:
+  - input/seaside-cottage.png
+  - input/SOURCES.md
+outputs:
+- glb
+endpoints:
+- image-to-image
+- image-to-3d
+- retexture
+model_policy: Every stage pins the model the sample results were recorded with. The
+  concept stage uses gpt-image-2-5-sunburst, the mesh stage the Smart Topology model
+  meshy-t2.5, and the texture stage meshy-n1, which has to be named because latest
+  on Retexture is Meshy 7.
+languages:
+  python:
+    runtime: Python 3.10+
+    entrypoint: python/main.py
+    files:
+    - python/main.py
+    - python/requirements.txt
+    - python/.env.example
+    shared:
+    - shared/python/meshy.py
+  typescript:
+    runtime: Node.js 22+
+    entrypoint: typescript/main.ts
+    files:
+    - typescript/main.ts
+    - typescript/package.json
+    - typescript/tsconfig.json
+    - typescript/.env.example
+    shared:
+    - shared/typescript/meshy.ts
+estimates:
+  credits: 27
+  time_seconds:
+    min: 69
+    max: 160
+  basis: Five live runs on November 3, 2026, from fresh copies of the repository, each
+    27 credits. The two verification runs, one per language with the default sample,
+    took 144–160 seconds from start to files on disk, with the Meshy N1 texture stage
+    at 99–111 seconds. Three more Python runs with other descriptions (the well, the
+    buoy and the rowboat in the README) took 69–79 seconds, with N1 at 17–20 seconds.
+    The concept stage took 30–39 seconds and the mesh stage 8–14 seconds throughout.
+    Observed range, not a service guarantee.
+last_verified: '2026-11-03'
+verification_note: Live Python and TypeScript runs on November 3, 2026, from a fresh
+  copy of the repository. Each cost 12 credits for the concept image, 5 for the mesh
+  and 10 for the Meshy N1 texture, read from consumed_credits. Neither run needed a
+  resume.
+previews:
+- path: input/seaside-cottage.png
+  alt: Included concept art, a round cottage with an orange tiled roof
+  role: input
+- path: assets/concept.png
+  alt: Generated concept of a wooden signpost with two orange arrows, in the cottage's
+    style
+  role: concept
+- path: assets/result.png
+  alt: The low-poly signpost textured with Meshy N1
+  role: result
+- path: assets/wireframe.png
+  alt: The signpost's 4,905-triangle gray mesh with every edge drawn
+  role: wireframe
+assets:
+- assets/SOURCES.md
+- assets/well.png
+- assets/buoy.png
+- assets/rowboat.png
+- assets/from-cottage.png
+sample_result: sample-result.json
+site:
+  slug: match-props-to-concept-art
+  description: Turn one piece of concept art into a set of matching low-poly game props,
+    textured with Meshy N1.
+  topics:
+  - Retexture
+  - Low-poly
+  short_name: Image to style-matched prop

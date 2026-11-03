@@ -54,7 +54,7 @@ class PublishingTests(unittest.TestCase):
 
     def test_validation_needs_no_runtime_output(self):
         self.assertFalse(list(self.root.glob("examples/*/*/output")))
-        self.assertEqual(len(publish.load_recipes(self.root)), 13)
+        self.assertEqual(len(publish.load_recipes(self.root)), 14)
 
     def test_metadata_requires_valid_types_and_dates(self):
         self.change_metadata(lambda data: data.update(last_verified="not-a-date"))
