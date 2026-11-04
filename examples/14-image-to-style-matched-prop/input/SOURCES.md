@@ -1,0 +1,5 @@
+# Sample concept art
+
+`seaside-cottage.png` is a round cottage with an orange tiled roof, cream walls and a blue door, in a soft clay-like game art style, on a plain white background. It is a render of a model from Meshy's launch materials for the Meshy N1 texture model: the cottage from "Sky Lighthouse", the seaside platformer world in the N1 launch video. The model is a 751,152-triangle Meshy mesh with one N1 base color texture. Meshy staff rendered it in Blender 5.2 on 2026-11-03 (Cycles, 96 samples, Standard view transform): a three-quarter front view from 35° above, a soft area key light and a plain white background. It is a 1024 × 1024 PNG with no transparent pixels (SHA-256 `bfe0de10b6ae3d2b84dea01cec6973b15a1b56f4265570183a7b64cd47b3f6f0`). It is Meshy-owned; use it freely to try the cookbook. The README calls it the cottage.
+
+It suits a style reference because it shows one subject on a plain background, in bold blocks of color with painted shading, which is what the recipe carries over to a new prop. The recipe never builds the cottage itself: it draws a different prop, the signpost, in the cottage's style.
