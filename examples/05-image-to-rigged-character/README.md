@@ -17,13 +17,13 @@ To get there, you'll:
 1. Give your coding agent the recipe and store your Meshy API key. No credits are spent.
 2. Check that the character image is one the rigger can work with.
 3. Start the run and approve the credit cost.
-4. Wait about two minutes while Meshy builds a 3D model in a pose made for rigging.
+4. Wait about two to three minutes while Meshy builds a 3D model in a pose made for rigging.
 5. Wait under a minute while Meshy adds the skeleton and the two animations.
 6. Open the result and watch it walk.
 
 - **Start with:** One PNG or JPEG of a standing humanoid character. The armored character shown above is included.
 - **Receive:** A rigged model (`rigged-character.glb` and `rigged-character.fbx`), two animated copies (`walking.glb`, `running.glb`), and a preview image.
-- **Allow:** about three to four minutes for generation, plus time for first-time setup.
+- **Allow:** about two to three and a half minutes for generation, plus time for first-time setup.
 - **Budget:** about 35 Meshy credits for the default example: 30 to build the model and 5 to rig it.
 
 These are recorded sample costs and timings, not guarantees. Your generated result will vary. [Check current API pricing](https://docs.meshy.ai/en/api/pricing) before you run it.
@@ -78,11 +78,11 @@ Paste this prompt. The agent quotes the cost and waits for your approval before 
 Run cookbook 05, the rigged character recipe, with the included armored character and the default settings. Tell me the expected credit cost and wait for my approval before generating. While it runs, tell me when each stage finishes. When everything is done, show me where the files were saved.
 ```
 
-Expect a quote of about 30 credits to build the model and 5 to rig it. Once you approve, the recipe runs both stages back to back and the agent reports progress. The whole run takes three to four minutes, so keep the terminal open and read ahead to see what is happening.
+Expect a quote of about 30 credits to build the model and 5 to rig it. Once you approve, the recipe runs both stages back to back and the agent reports progress. The whole run takes two to three and a half minutes, so keep the terminal open and read ahead to see what is happening.
 
 ## Step 4: Meshy builds the model
 
-This stage takes about two minutes. Meshy reads the image and builds a complete mesh from it, including the back and sides the picture does not show, then generates its textures: a base color texture plus PBR maps, short for physically based rendering, which tell a viewer how the armor reflects light.
+This stage takes about two to three minutes. Meshy reads the image and builds a complete mesh from it, including the back and sides the picture does not show, then generates its textures: a base color texture plus PBR maps, short for physically based rendering, which tell a viewer how the armor reflects light.
 
 Two settings make this model different from a plain character model, and both exist for the rigger's sake:
 
@@ -108,7 +108,7 @@ This stage takes under a minute. Meshy takes the model it just built and:
 |---|
 | ![Front view of the 24-joint skeleton inside the character's mesh](assets/skeleton.svg) |
 
-One limit to know: the rigged files keep only the base color texture. The PBR maps generated in Step 4 are not carried into them, so the rigged armor loses some of its metal shine.
+The three GLB files keep every texture from Step 4: the base color texture and the PBR maps. One limit to know: `rigged-character.fbx` keeps only the base color texture, so in Unity or Unreal the armor loses some of its metal shine.
 
 ## Step 6: Watch it walk
 
@@ -119,7 +119,7 @@ When the agent reports that everything is done, the output folder inside the rec
 | `walking.glb` | The character with the walking loop applied. Start here. |
 | `running.glb` | The character with the running loop applied. |
 | `rigged-character.glb` | The character with its skeleton, standing still, ready for animations of your own. |
-| `rigged-character.fbx` | The same, in the format Unity and Unreal prefer. |
+| `rigged-character.fbx` | The same mesh and skeleton with only the base color texture, in the format Unity and Unreal prefer. |
 | `character-thumbnail.png` | The preview from Step 4, before rigging. |
 
 You don't need to install anything to take a first look. Open the [API console logs](https://www.meshy.ai/api-console/logs) in your Meshy account: every generation made with your key is listed there, and you can rotate and inspect the rigged model in the browser. To watch the walk on your own computer, open Blender and choose **File → Import → glTF 2.0**, then pick `walking.glb`. Press the space bar to play. Or ask your agent:
@@ -159,7 +159,7 @@ Save a copy of your first result before generating another version. Changing the
 **Endpoints:** `POST /openapi/v1/image-to-3d` → `GET /openapi/v1/image-to-3d/:id`, then `POST /openapi/v1/rigging` → `GET /openapi/v1/rigging/:id`\
 **Languages:** Python 3.10+ · TypeScript (Node 22+)\
 **Source:** [Python](python/main.py) · [TypeScript](typescript/main.ts)\
-**Last verified run measurements:** September 26, 2026 · [Sample result](sample-result.json)
+**Last verified run measurements:** October 19, 2026 · [Sample result](sample-result.json)
 
 The rigging endpoint adds a humanoid skeleton and skin weights to a model Meshy already made, and returns walking and running clips with it. This recipe builds that model with `image-to-3d` using settings the rigger needs, then chains the two with `input_task_id`. See the [character recipe](../01-image-to-3d-character/) for the same image without rigging.
 
@@ -262,7 +262,7 @@ client.download(result["basic_animations"]["walking_glb_url"], output / "walking
 client.download(result["basic_animations"]["running_glb_url"], output / "running.glb")
 ```
 
-   The rigged files carry one texture, the base color. The metallic, roughness and normal maps from step 1 are not included in the rigger's output.
+   The three GLBs carry the base color texture plus the metallic-roughness and normal maps from step 1. The FBX carries only the base color texture.
 
 ## What you get
 
@@ -270,9 +270,10 @@ These are measurements of the two recorded sample runs, one per language. The Py
 
 | File | Contents |
 |---|---|
-| `rigged-character.glb` / `.fbx` | 30,756–30,878 triangles, 24 joints, one base-color texture, about 7.0 MB |
-| `walking.glb` | The same character with a 1.07-second walking loop |
-| `running.glb` | The same character with a 0.67-second running loop |
+| `rigged-character.glb` | 30,670–30,909 triangles, 24 joints, three textures (a 2,048 px base color JPEG, a metallic-roughness JPEG and a normal map PNG), 12.3–13.0 MB |
+| `rigged-character.fbx` | The same mesh and skeleton with the base color texture only, 4.3–4.6 MB |
+| `walking.glb` | The same character and textures with a 1.07-second walking loop |
+| `running.glb` | The same character and textures with a 0.67-second running loop |
 
 The skeleton uses conventional humanoid names such as `Hips`, `LeftUpLeg`, `Spine` and `Head`, which engine retargeting tools can map automatically. The rigger also returns FBX and armature-only GLB versions of both clips under `result.basic_animations`; add downloads for them if your pipeline needs them.
 
@@ -284,7 +285,7 @@ The skeleton uses conventional humanoid names such as `Hips`, `LeftUpLeg`, `Spin
 | [`should_remesh`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `true` | Required for `target_polycount` to apply, which keeps the model under the rigger’s 300,000-face limit |
 | [`target_polycount`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `30000` | A common budget for a real-time character. Anything from 100 to 300,000 is accepted |
 | [`should_texture`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `true` | The rigger expects a textured model |
-| [`enable_pbr`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `true` | Kept for the unrigged model. Only the base color reaches the rigged files |
+| [`enable_pbr`](https://docs.meshy.ai/en/api/image-to-3d#create-an-image-to-3d-task) | `true` | The rigged GLBs keep these maps; the FBX keeps only the base color |
 | [`input_task_id`](https://docs.meshy.ai/en/api/rigging#create-a-rigging-task) (rigging) | the image-to-3d task ID | Chains the two tasks inside Meshy. To rig a GLB you already have, send `model_url` with a public URL or a GLB data URI instead |
 | [`height_meters`](https://docs.meshy.ai/en/api/rigging#create-a-rigging-task) | `1.8` | Character height in meters. The API default is 1.7 |
 
