@@ -82,18 +82,28 @@ A photo or a busy scene will not work, because it has no single drawn style for 
 
 ## Step 3: See how the prop description is built
 
-The description is the one input you write, and it only says what the prop is. It follows one pattern: name the object, then describe each part with its shape and its color.
+The description is one line that says what the prop is. In Step 5, Meshy's image model reads it together with the cottage and draws a picture of the prop in the cottage's style. The mesh and the texture are both made from that picture. Meshy N1 never reads the description; it takes its colors from the picture alone. This walkthrough includes this description:
+
+> A wooden signpost with two chunky orange arrow signs pointing left and right, a thick light brown wooden post with a rounded top, a few tufts of green grass around its foot, and a square cream stone base
+
+It names the object, then describes its parts from top to bottom, each with a shape and a color:
 
 | The description says | What it does |
 |---|---|
-| A wooden signpost | Names one object, so the concept shows one prop. |
-| with two chunky orange arrow signs pointing left and right | The main part, with its shape and its color. Big areas of one bold color are what Meshy N1 carries over most cleanly. |
-| a thick light brown wooden post with a rounded top | The next part. "Chunky" and "thick" keep the parts large enough to hold their shape at 5,000 triangles. |
-| a few tufts of green grass around its foot, and a square cream stone base | The last parts, down to the ground, so the prop stands on something. |
+| A wooden signpost | Names one object, so the picture shows one prop. |
+| with two chunky orange arrow signs pointing left and right | The biggest part, with its shape and its color. "Chunky" keeps the signs thick enough to hold their shape in a 5,000-triangle mesh. |
+| a thick light brown wooden post with a rounded top | The next part down. "Thick" does the same for the post. Each part gets one plain color, which is what Meshy N1 carries over most cleanly. |
+| a few tufts of green grass around its foot, and a square cream stone base | The bottom, so the prop has a base to stand on. |
 
-The recipe adds the rest of the instructions itself: one whole object, seen from the front and a little to the side, in the same art style, palette and brushwork as the reference image, on a plain white background, with no text.
+The description says nothing about style, view or background, because the recipe adds those every time: the whole object, seen from the front and a little to the side, in the same art style, palette and brushwork as the cottage, on a plain white background, with no text.
 
-Leave out glass, glowing parts and thin strands such as rope or fringe. A 5,000-triangle mesh cannot hold thin strands, and a single color texture cannot make glass clear or a lamp glow. Lettering on the object comes out garbled, so keep signs blank. For this walkthrough, keep the included description. [Try your own idea](#try-your-own-idea) reuses the same pattern for your own prop.
+Leave these out of a description:
+
+- **Thin strands, such as rope or fringe.** A 5,000-triangle mesh has too few triangles to hold them.
+- **Glass or glowing parts.** The texture only sets colors, so glass can't look see-through and a lamp can't glow.
+- **Words or letters.** They come out garbled, so keep signs blank.
+
+For this walkthrough, keep the included description. [Try your own idea](#try-your-own-idea) reuses the same pattern for your own prop.
 
 ## Step 4: Start the run and approve the cost
 
