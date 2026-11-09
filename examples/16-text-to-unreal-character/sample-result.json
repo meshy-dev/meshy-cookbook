@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "slug": "text-to-unreal-character",
+  "historical_run": {
+    "documented_on": "2026-11-08",
+    "source": "README.md",
+    "credits": 29,
+    "model": "text-to-image gpt-image-2-5-flare with pose_mode a-pose and aspect_ratio 3:4; image-to-3d model_type smart-topology, ai_model meshy-t2.5, target_polycount 30000, texture_model meshy-7, enable_pbr true, texture_resolution 2k, pose_mode a-pose; rigging height_meters 1.8. Settings as sent by the recipe's commands; the task responses report the image model but not the image-to-3d settings.",
+    "note": "Two live runs on macOS on November 8, 2026. The pictured run used the Meshy CLI 0.8.3 with an API key in the environment, the three commands run directly in a terminal. Text-to-image task 01a1bc9a-86e3-720e-a7fe-6a0bd3f73b8b: 9 credits, 19.6 s from creation to finish. Image-to-3d task 01a1bc9b-f818-7278-8d77-57666e1cb69f, from the image through input_task_id: 15 credits, 55.4 s. Rigging task 01a1bc9f-8ff3-70fd-a4c7-efec92746db0, from the model through input_task_id: 5 credits, 14.1 s. Credits read from each task's consumed_credits; no queue time in any task. The same day the same image was also run through image-to-3d with model_type standard (meshy-7.1), should_remesh true and target_polycount 30000 (task 01a1bc9b-fbcf-76f1-8f23-03e8387fed19, 30 credits, 127 s, 31,093 triangles in one part with 29 non-manifold edges) and rigged (task 01a1bc9f-9d56-700c-9d05-4a66a516f7d4, 5 credits, 17 s). Both rigs walked and ran without fused limbs when rendered in Blender 5.2.1. The rigged files were then imported into Unreal Engine 5.8.2 on macOS with UnrealEditor-Cmd -run=pythonscript and no rendering, into a Third Person template project. rigged_character.fbx with Interchange's default options: one skeletal mesh, its skeleton (25 bones, Meshy's 24 under a root bone named Armature), a physics asset, a material instance of FBXLegacyPhongSurfaceMaterial (base color on DiffuseColorMap, normal on NormalMap, roughness on ShininessMap, the metallic texture imported but not assigned), four textures and a one-frame rest-pose animation; bounds 121.6 x 35.2 x 180.0 cm with the feet at z = 0, against 180.5 cm for SKM_Manny_Simple. rigged_character.glb with the default options: one skeletal mesh with 24 bones and a glTF material with base color, metallic-roughness and normal textures, but 1.8 cm tall. walking_fbx.fbx and running_fbx.fbx with Import Only Animations and the character's skeleton: one animation each on that skeleton, 1.033 s and 0.633 s. Automatically generated IK Rigs found 11 retarget chains on the Meshy skeleton with root Hips, fuzzy chain mapping matched all 11 to SKM_Manny_Simple's chains, and IKRetargetBatchOperation retargeted MF_Unarmed_Jog_Fwd onto the Meshy skeleton as a 1.767 s animation. A second run the same day sent the README's Step 3 and Step 4 prompts as written to Claude Code 2.1.309 (claude -p, model claude-opus-5-5) in the Third Person project folder, with the meshy-3d-agent skills installed in the project, no MCP servers, and the Meshy CLI 0.8.3 signed in through the browser with no API key. The agent quoted 9 credits, waited for the approval, submitted text-to-image task 01a1bec6-5388-77b6-ba3e-a4ea18a3125d once with --async and saved the image with -o on the wait: 9 credits, 17.1 s, the image on disk 34 s after the approval. The image passed the README's checks on the first try. For Step 4 it quoted 20 credits, waited for the approval, and ran image-to-3d task 01a1bec7-628f-76c2-be06-b509e5e016a4 (15 credits, 64.6 s) and rigging task 01a1bec8-6dd9-72e8-b862-0a92712e1caa (5 credits, 14.7 s), each created once with --async; it moved -o and --all-assets from the rigging create to the rigging wait, because an async create returns before the files exist. The rigged files were on disk 108 s after the approval. Its rigged_character.glb had 30,315 triangles skinned to the same 24 joints under an Armature node scaled to 0.01, with the same material and three textures; the armature-only GLBs held a 288-triangle stand-in mesh. Its FBX files, imported into the same Unreal project the same way, gave the same results: one skeletal mesh 180.0 cm tall with 25 bones and the same FBX legacy Phong material, the walk and run as 1.033 s and 0.633 s animations on its skeleton, 11 matched chains, and a 1.767 s retargeted MF_Unarmed_Jog_Fwd. The editor's import and Retarget Animations windows and how the animations look were not checked in either run. On November 9, 2026, the README's Step 6 placement prompt was sent as written to Claude Code 2.1.309 (claude -p, model claude-opus-5-5) with only Unreal MCP tools allowed, against the same Unreal Engine 5.8.2 project open in the editor with Unreal MCP on port 8010. It placed /Game/Meshy/Mechanic/rigged_character as a SkeletalMeshActor at (200, 0, 210) cm, 2 m in front of the PlayerStart at (0, 0, 302) on the floor at 210 cm, first at yaw 180, which its line traces showed was side-on, then at yaw 90, facing the PlayerStart, and set it to loop /Game/Meshy/Mechanic/walking_fbx. It took 1,008 s and 46 turns, checking the feet and facing with line traces because it could not view its viewport captures; it changed no assets and saved nothing. An earlier attempt the same day took 258 s and placed the character the same way, but found no walking_fbx asset, because the headless walk import had not been saved; walking_fbx and running_fbx were then imported onto rigged_character_Skeleton through Unreal MCP's SkeletalMeshTools.import_file, renamed and saved, and the extra meshes that import makes were deleted. Another run the same day had the agent import the character and both clips with SkeletalMeshTools.import_file: its material put the roughness texture on Metallic, left Roughness empty and did not import the metallic texture, each clip import added a duplicate skeletal mesh, and the agent's later save attempt opened the editor's save dialog, which blocked Unreal MCP until it was closed."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-11-08",
+    "method": "Local file byte count and SHA-256; GLB JSON meshes, accessors, skins, nodes, materials, images and animations; image-to-3d texture PNG dimensions; mesh statistics of the unrigged model.glb from a local script.",
+    "note": "The rigging task's files, saved with -o and --all-assets into a folder, and the image-to-3d task's model.glb saved with -o. rigged_character.glb holds one mesh of 31,472 triangles skinned to 24 joints, under an Armature node scaled to 0.01; one material with base color and metallic-roughness textures and a normal texture; three embedded images; one one-frame animation. The walking and running GLBs hold the same mesh and skin with one animation each. The unrigged model.glb (8,687,664 bytes, SHA-256 b852923ad57377687b05dabc525d60308322aa35c8d7852d130ee808980b2e14) has 31,472 triangles in 20 separate parts with no non-manifold edges, and its four texture maps (base color, metallic, roughness, normal) are 2,048 x 2,048 px. Model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "rigged_character.fbx",
+        "format": "fbx",
+        "bytes": 10029276,
+        "sha256": "9d32b58f8c13b5ab2ac40f29d1b72dbdd847c3e10469836325e910915865fb81"
+      },
+      {
+        "filename": "rigged_character.glb",
+        "format": "glb",
+        "bytes": 9347032,
+        "sha256": "f362c500afb37d66a864c4f53d2770465746de96560b2349d6eb7bf39fb29772",
+        "triangles": 31472,
+        "meshes": 1,
+        "materials": 1,
+        "embedded_images": 3,
+        "skins": 1,
+        "animations": 1
+      },
+      {
+        "filename": "walking_fbx.fbx",
+        "format": "fbx",
+        "bytes": 10065372,
+        "sha256": "40aeab81a7649ea3494d8e8ae0d42a6455f7e9f2acde18758c25046c04305e73"
+      },
+      {
+        "filename": "running_fbx.fbx",
+        "format": "fbx",
+        "bytes": 10048396,
+        "sha256": "627767477e2a50fc8f0e819ffa01a5d1b2c9950f6e3e8912ac6bce96e61450ec"
+      },
+      {
+        "filename": "walking_glb.glb",
+        "format": "glb",
+        "bytes": 9327096,
+        "sha256": "b427fb0885fd377f30fae0f4bb69434b4a095d10e6251343d78eaeb1de7450a2",
+        "triangles": 31472,
+        "skins": 1,
+        "animations": 1
+      },
+      {
+        "filename": "running_glb.glb",
+        "format": "glb",
+        "bytes": 9316472,
+        "sha256": "0c8541b8aac4a3c3265a550dd7bb9f6073e997d9e1e2d9c2bfe6ddb13d30261c",
+        "triangles": 31472,
+        "skins": 1,
+        "animations": 1
+      },
+      {
+        "filename": "walking_armature_glb.glb",
+        "format": "glb",
+        "bytes": 90356,
+        "sha256": "6b72270248ed7243f46c63e1ce36a00ec9279e475797b74a26d20971c2af89e7"
+      },
+      {
+        "filename": "running_armature_glb.glb",
+        "format": "glb",
+        "bytes": 79724,
+        "sha256": "dde28cf28c5c8432696636b6a314e87276803f89e78f819a8226c31eeba6fffd"
+      }
+    ]
+  }
+}
