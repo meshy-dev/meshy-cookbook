@@ -1,0 +1,58 @@
+{
+  "name": "meshy-cookbook",
+  "owner": {
+    "name": "Meshy",
+    "url": "https://github.com/meshy-dev"
+  },
+  "description": "Meshy agent skills from the Meshy Cookbook. meshy-prompting: one prompt-writing skill per Meshy prompt field, built from live A/B tests; install each skill on its own. Versions are pinned by each plugin's .claude-plugin/plugin.json; entries intentionally carry no version field.",
+  "plugins": [
+    {
+      "name": "meshy-text-to-3d-prompt",
+      "source": "./plugins/meshy-prompting",
+      "skills": [
+        "./skills/meshy-text-to-3d-prompt"
+      ],
+      "description": "Shape-only prompts for the Meshy Text to 3D preview, with the parameters that replace pose, face-count and topology words.",
+      "author": {
+        "name": "Meshy",
+        "url": "https://github.com/meshy-dev"
+      }
+    },
+    {
+      "name": "meshy-image-prompt",
+      "source": "./plugins/meshy-prompting",
+      "skills": [
+        "./skills/meshy-image-prompt"
+      ],
+      "description": "Text to Image prompts that convert cleanly to 3D, pose_mode versus pose words, multi-view, and the three-call rig-ready character pipeline.",
+      "author": {
+        "name": "Meshy",
+        "url": "https://github.com/meshy-dev"
+      }
+    },
+    {
+      "name": "meshy-texture-prompt",
+      "source": "./plugins/meshy-prompting",
+      "skills": [
+        "./skills/meshy-texture-prompt"
+      ],
+      "description": "Part-by-part texture and retexture prompts: specific hues, damage words that shift colors, ambiguous part names, enable_pbr.",
+      "author": {
+        "name": "Meshy",
+        "url": "https://github.com/meshy-dev"
+      }
+    },
+    {
+      "name": "meshy-edit-prompt",
+      "source": "./plugins/meshy-prompting",
+      "skills": [
+        "./skills/meshy-edit-prompt"
+      ],
+      "description": "Meshy Edit prompts: name the part and its side, what the lasso controls, what to say for a removal, and how Meshy rewrites the prompt.",
+      "author": {
+        "name": "Meshy",
+        "url": "https://github.com/meshy-dev"
+      }
+    }
+  ]
+}

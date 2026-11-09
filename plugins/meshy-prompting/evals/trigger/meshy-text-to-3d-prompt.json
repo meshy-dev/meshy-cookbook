@@ -1,0 +1,90 @@
+[
+  {
+    "query": "I'm calling POST /openapi/v2/text-to-3d from a Node script for a tabletop game asset pipeline. the prompt I have is 'wooden treasure chest, rusty iron bands, gold coins spilling out, on a sandy beach' and results keep coming back as a weird blob of coins and sand. can you rewrite the prompt and tell me what params to set? needs to stay under 30k faces",
+    "should_trigger": true
+  },
+  {
+    "query": "what should I type into Meshy to get a chunky stylized mushroom house with a round door, a chimney and one little window? every time I try it adds vines and a fence I didn't ask for",
+    "should_trigger": true
+  },
+  {
+    "query": "my meshy text to 3d preview of 'dwarf blacksmith with a thick braided beard and leather apron' came out with the beard like a rope around his neck and the arms fused to the body. what went wrong with the prompt and how do I fix it",
+    "should_trigger": true
+  },
+  {
+    "query": "Working on a Unity prototype. Need a Meshy prompt for a sci-fi supply crate: hexagonal, two side handles, a recessed panel on top, faceted low-poly look, must stay under 5k tris. Should I put 'low-poly' in the prompt or is there a setting for that?",
+    "should_trigger": true
+  },
+  {
+    "query": "Draft me 5 Meshy text-to-3D prompts for a set of fantasy weapons (greatsword, warhammer, longbow, dagger, wizard staff) that I'll batch through the API tonight. They all go in the same game so keep the style consistent.",
+    "should_trigger": true
+  },
+  {
+    "query": "we're building a feature where users type a one-line idea and we generate a 3D model with Meshy behind the scenes. I need the system prompt for the LLM that turns the idea into a good text-to-3d prompt plus a parameters JSON. what should it say?",
+    "should_trigger": true
+  },
+  {
+    "query": "is this a decent meshy prompt? 'A highly detailed photorealistic ancient greek amphora with painted scenes of warriors, terracotta and black glaze, dramatic lighting, 8k' \u2014 the mesh that came back looks kind of plain and smooth",
+    "should_trigger": true
+  },
+  {
+    "query": "about to kick off a text to 3d task through the meshy mcp for 'gothic cathedral facade with two towers and a rose window'. before i burn the 20 credits can you tighten the prompt and tell me whether that even makes sense as one model",
+    "should_trigger": true
+  },
+  {
+    "query": "making a 3d printable chess set in meshy, starting with the knight: horse head on a round base, carved mane, about 60mm tall. how do I phrase the prompt so the base stays flat and the thin mane bits don't fail?",
+    "should_trigger": true
+  },
+  {
+    "query": "my boss wants a model of our company mascot (a cartoon otter holding a surfboard) done in Meshy, fully textured. do the colors go in the first prompt or somewhere later? just want to get the first step right",
+    "should_trigger": true
+  },
+  {
+    "query": "I want a stylized knight character (big pauldrons, long cape, heavy boots, two-handed sword) that I can rig and animate in Unity. I have a Meshy Pro account and use the API. What exactly should I generate and with what prompt?",
+    "should_trigger": true
+  },
+  {
+    "query": "need a meshy prompt for a goblin shaman character i'm going to rig later, holding a staff, stylized. what do i type?",
+    "should_trigger": true
+  },
+  {
+    "query": "I already have a refined Meshy model of a viking longship. the hull texture came out plasticky and the sail is grey instead of the deep red I asked for. what should my retexture prompt say?",
+    "should_trigger": false
+  },
+  {
+    "query": "I want to make an A-pose elf ranger in Meshy that I can rig for a Godot game. Write me the Text to Image prompt so the image-to-3d conversion comes out clean and riggable",
+    "should_trigger": false
+  },
+  {
+    "query": "In Meshy Edit I lassoed the sword on my knight and wrote 'make it bigger' and it made the whole character chunkier instead. how should I word the edit prompt?",
+    "should_trigger": false
+  },
+  {
+    "query": "Run this exact prompt through the Meshy MCP text-to-3d with ai_model meshy-6-lite and download the GLB to ~/assets/fox.glb: 'A red fox sitting upright, bushy tail curled around the paws, pointed ears, stylized proportions, single standalone object'. Don't change the prompt, just run it.",
+    "should_trigger": false
+  },
+  {
+    "query": "my meshy text-to-3d polling loop in python keeps getting 429s after about 30 tasks. how do I add exponential backoff and respect the rate limit headers?",
+    "should_trigger": false
+  },
+  {
+    "query": "write me a Blender python script that generates a procedural low-poly treasure chest mesh with a bevel modifier and exports it as glb",
+    "should_trigger": false
+  },
+  {
+    "query": "Give me a Midjourney prompt for a moody poster of a knight's helmet, cinematic lighting, 16:9, for the cover of our game's steam page",
+    "should_trigger": false
+  },
+  {
+    "query": "My Meshy model is 1.2 million faces and rigging refuses it. Can you run remesh on task 0198a7c2 to bring it down to 30k and then rig it with the walking animation?",
+    "should_trigger": false
+  },
+  {
+    "query": "how many credits does a meshy text to 3d preview + refine cost on meshy-7.1 vs meshy-6-lite, and does the API bill differently than the web app? budgeting for about 500 models",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm writing a cookbook recipe about batching text-to-3d tasks in Python for the meshy-cookbook repo. Can you review the README intro paragraph for clarity before I commit it?",
+    "should_trigger": false
+  }
+]

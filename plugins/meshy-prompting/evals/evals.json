@@ -1,0 +1,65 @@
+{
+  "skill_name": "meshy-prompting",
+  "evals": [
+    {
+      "id": 0,
+      "name": "treasure-chest-lowpoly",
+      "prompt": "I'm using the Meshy API (text-to-3d) to make a 3D model of a rusty old pirate treasure chest with gold coins spilling out of it, sitting on a sandy beach, for a mobile game. It needs to be low poly, under 8,000 triangles. Write me the prompt and the JSON request body for the preview task.",
+      "expected_output": "A prompt (and parameters) that follows the matching skill's formula; see assertions",
+      "assertions": [
+        "The preview prompt contains no material, color or damage words (wood, iron, gold, rust, sand color); it describes shape only",
+        "The request body enforces the face budget with parameters: target_polycount at or under 8000 together with either model_type smart-topology plus ai_model meshy-t2.5 (or meshy-t2), or should_remesh true",
+        "The answer does not state a wrong prompt character limit (the limit is 800) and does not recommend the deprecated model_type lowpoly",
+        "The answer reduces the beach scene to one object (the chest with its coins) and says so explicitly",
+        "Rust, gold and sand are moved to texture ideas for the refine step rather than dropped silently",
+        "The prompt ends with 'single standalone object' and is under 800 characters"
+      ],
+      "files": []
+    },
+    {
+      "id": 1,
+      "name": "riggable-knight",
+      "prompt": "I want a stylized knight character (big pauldrons, long cape, heavy boots, two-handed sword) that I can rig and animate in Unity. I have a Meshy Pro account and use the API. What exactly should I generate, in what order, with what prompt and settings? Keep it to what I need to send.",
+      "expected_output": "A prompt (and parameters) that follows the matching skill's formula; see assertions",
+      "assertions": [
+        "The pipeline is Text to Image with pose_mode a-pose, then Image to 3D, then Rigging; the character is not generated with a Text to 3D preview",
+        "The Image to 3D request uses Smart Topology (model_type smart-topology, ai_model meshy-t2.5) with a target_polycount at or under 30000, textured (texture_model meshy-7 with enable_pbr true, or the default texture) and pose_mode a-pose; if it offers the standard model instead it sets should_remesh true with a target_polycount, and the answer names Rigging's 380,000-triangle limit",
+        "The Rigging request uses the Image to 3D (textured) task id as input_task_id",
+        "The image prompt includes full body, front view, centered, even studio lighting, plain white background, single character, no props, no text, and contains no pose words that conflict with pose_mode",
+        "Credit costs are given per step (9 + 15 + 5 = 29) or as a total",
+        "The answer warns that a long cape or long clothing is weighted to the legs or otherwise addresses the cape for rigging"
+      ],
+      "files": []
+    },
+    {
+      "id": 2,
+      "name": "grey-apron-fix",
+      "prompt": "I refined my Meshy dwarf blacksmith preview with texture_prompt \"Stylized hand painted. Apron, belt and boots: dark brown leather with scuffs and small burn marks on the apron. Red tunic. Grey beard. make the apron a bit longer\" and the apron came out charcoal grey, the belt and boots are fine. The metal buckle looks like plastic too. Rewrite the texture prompt and tell me what else to change in the request.",
+      "expected_output": "A prompt (and parameters) that follows the matching skill's formula; see assertions",
+      "assertions": [
+        "The rewritten prompt gives the apron its own slot with a specific hue name (for example saddle-brown, chestnut, cognac), not bare 'brown' or 'dark brown'",
+        "The shape instruction 'make the apron a bit longer' is removed and the answer says texturing cannot change geometry",
+        "The answer recommends enable_pbr true for the metal buckle",
+        "The answer attributes the charcoal apron to the burn-mark wording shifting a generic color, or keeps burn marks off the generic-colored slot",
+        "The rewritten prompt is under 800 characters, starts with a style sentence, and ends with wear and finish",
+        "Every part named in the rewritten prompt was in the user's model (no invented parts beyond apron, belt, boots, tunic, beard, buckle, skin, hair)"
+      ],
+      "files": []
+    },
+    {
+      "id": 3,
+      "name": "edit-raven-side",
+      "prompt": "In Meshy Edit I lassoed my knight model's left shoulder plate and typed \"raven on shoulder\" but the raven showed up on the other shoulder, and when I tried \"make it bigger and gold\" on the sword nothing much changed. What prompts should I use for both edits, and anything else I'm doing wrong?",
+      "expected_output": "A prompt (and parameters) that follows the matching skill's formula; see assertions",
+      "assertions": [
+        "The raven prompt names the left shoulder explicitly (part and side)",
+        "The sword prompt names the sword or blade rather than 'it' and gives concrete shape details",
+        "The answer says 'gold' does nothing because Meshy Edit changes geometry only and sends the color to texturing",
+        "The answer advises rotating the model so nothing sits behind the part and that the lasso size sets how much changes",
+        "The answer does not recommend adding 'keep everything else unchanged'",
+        "The answer mentions the untextured Meshy 6 or 7.1 model requirement or recommends running the edit 2 to 3 times and checking every side"
+      ],
+      "files": []
+    }
+  ]
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "query": "I need a game character (hooded elf ranger with a bow on her back) that I can rig in Meshy and drop into Unreal with the walk and run animations. I know the text to 3d route gives weird poses. what's the image prompt and the settings?",
+    "should_trigger": true
+  },
+  {
+    "query": "write me a meshy text to image prompt for a steampunk toy robot that i'll convert with image to 3d. it has a wind-up key on the back which keeps ending up on the wrong side after conversion",
+    "should_trigger": true
+  },
+  {
+    "query": "my image-to-3d result has a dark shadow smeared under the character's feet and the back of the head is a blob. the source image came from meshy text to image with the prompt 'cool cyberpunk samurai, neon lights, dramatic rim light'. how do I fix the image prompt?",
+    "should_trigger": true
+  },
+  {
+    "query": "for a character I'm going to rig: should I use pose_mode a-pose or just write 'standing in an A-pose' in the meshy image prompt? and can I also say she's holding a staff? using nano-banana-pro",
+    "should_trigger": true
+  },
+  {
+    "query": "I have a photo of my dog asleep on the couch and want a 3D figurine of him from Meshy. I know I need to clean the photo up first with image to image. what prompt do I give it so the image to 3d step works?",
+    "should_trigger": true
+  },
+  {
+    "query": "we're generating sneaker concept images through Meshy's text-to-image API then turning them into 3D for an AR try-on demo. my teammate's prompts are like 'nike style sneaker on a runway, motion blur, lens flare'. help me rewrite them so they convert properly",
+    "should_trigger": true
+  },
+  {
+    "query": "aspect ratio question: for a tall standing character going to image-to-3d in meshy should I use 3:4 or 1:1, and does generate_multi_view work together with that?",
+    "should_trigger": true
+  },
+  {
+    "query": "Need a Meshy image prompt for a kneeling knight statue (one knee down, sword point on the ground, both hands on the hilt) that I'll convert to 3D and print. not for rigging, I just want the pose exactly right",
+    "should_trigger": true
+  },
+  {
+    "query": "building a slack bot: user says 'make me a character', we call meshy text-to-image, then image-to-3d, then rigging. write the LLM meta prompt that produces the image prompt and the params json for the first call",
+    "should_trigger": true
+  },
+  {
+    "query": "my multi-image to 3d run from three meshy multiview images came out with the backpack straps on the wrong side. should I have generated the views differently?",
+    "should_trigger": true
+  },
+  {
+    "query": "what's the best way to phrase a Meshy text-to-3D prompt for a stone gargoyle statue so it doesn't add extra wings and a pedestal I don't want? mesh only for now, no texture",
+    "should_trigger": false
+  },
+  {
+    "query": "the texture on my image-to-3d owl came out muddy. I want to retexture it as hand-painted game style with amber eyes and slate-grey feathers. what's the texture prompt?",
+    "should_trigger": false
+  },
+  {
+    "query": "my knight model from image-to-3d is fine except the shield, I want to swap it for a round buckler using Meshy Edit. how do I phrase that?",
+    "should_trigger": false
+  },
+  {
+    "query": "Take ~/Desktop/dragon_concept.png, run it through Meshy image to 3d with texture on and remesh to 30k faces, then rig it. Use the Meshy MCP and tell me the cost first.",
+    "should_trigger": false
+  },
+  {
+    "query": "write me a Meshy text to image prompt for a cinematic hero banner of a dragon flying over a burning city for our game's landing page, 16:9. it's just for the website, not for 3D",
+    "should_trigger": false
+  },
+  {
+    "query": "I exported my rigged meshy character as FBX and imported it into Unity with a humanoid avatar but the animations aren't retargeting. how do I set up the avatar definition?",
+    "should_trigger": false
+  },
+  {
+    "query": "my python call to /openapi/v1/image-to-3d returns 400 'invalid image_url' when I pass a base64 data URI. how do I encode the png correctly for the API?",
+    "should_trigger": false
+  },
+  {
+    "query": "give me a Midjourney prompt for a character turnaround sheet (front, side, back) of a pirate captain so my concept artist has a reference",
+    "should_trigger": false
+  },
+  {
+    "query": "I shot about 40 photos of a garden sculpture with my phone. what's the best free photogrammetry tool to turn them into a mesh I can clean up in Blender?",
+    "should_trigger": false
+  },
+  {
+    "query": "write the cookbook recipe README section explaining how the image-to-3d endpoint's should_remesh and target_polycount params interact, for the meshy-cookbook repo",
+    "should_trigger": false
+  }
+]
