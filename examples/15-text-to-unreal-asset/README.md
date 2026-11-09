@@ -176,6 +176,10 @@ Check two things:
 - **It stands on the floor.** The GLB's origin, the point the editor moves the model by, is in the middle of the model, and the import keeps it there. Our agent placed the dock with the `snap_to_ground` option of `SceneTools.add_to_scene_from_asset`, which sets its base on the floor. If your dock is half sunk into the floor, ask the agent to lift it until its base touches the floor; that's about 58 cm.
 - **It's the right size.** The dock is about 1.9 m wide and 1.15 m tall, next to a character 1.8 m tall. To check, double-click the static mesh: the Static Mesh Editor's viewport shows **Approx Size** in centimeters as width × depth × height, `190x160x115` in our run.
 
+| The Static Mesh Editor for the imported dock: Approx Size reads 190x160x115, and Nanite is on |
+|---|
+| ![The Static Mesh Editor's preview of the charging dock, with its stats listing Nanite Enabled, 476,470 Nanite triangles, Approx Size 190x160x115 and one collision primitive](assets/static-mesh-editor.jpg) |
+
 The agent doesn't save the level. When the dock is where you want it, choose **File > Save Current Level**.
 
 ## Try your own idea

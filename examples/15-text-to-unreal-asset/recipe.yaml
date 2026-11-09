@@ -71,6 +71,7 @@ assets:
 - assets/SOURCES.md
 - assets/first-try.png
 - assets/in-unreal.jpg
+- assets/static-mesh-editor.jpg
 sample_result: sample-result.json
 site:
   slug: place-3d-asset-in-unreal
