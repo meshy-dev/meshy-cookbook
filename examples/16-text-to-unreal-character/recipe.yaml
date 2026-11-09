@@ -1,0 +1,104 @@
+schema_version: 1
+slug: text-to-unreal-character
+order: 16
+title: Make a rigged game character for Unreal with your coding agent
+description: Describe a character, and your coding agent makes it with the Meshy CLI
+  as an A-pose concept image, a 30,000-triangle Smart Topology model with PBR textures
+  and a rig with walk and run clips; you import the FBX files into Unreal Engine 5.8
+  and retarget the mannequin's animations onto it. No code.
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-11-10'
+tags:
+- unreal-engine
+- game-engine
+- mcp
+- coding-agent
+- meshy-cli
+- text-to-image
+- image-to-3d
+- smart-topology
+- rigging
+readme: README.md
+input:
+  type: text
+  description: A character description, written into the image prompt. The recipe
+    includes a scrapyard mechanic.
+  files: []
+outputs:
+- fbx
+- glb
+endpoints:
+- text-to-image
+- image-to-3d
+- rigging
+model_policy: Every stage pins its model. The text-to-image stage uses gpt-image-2-5-flare
+  with pose_mode a-pose; the image-to-3d stage uses model_type smart-topology with
+  ai_model meshy-t2.5 and texture_model meshy-7; the rigging endpoint has no model
+  selection.
+agent:
+  runtime: Node.js 22.12+, Meshy CLI 0.8.3+, a paid Meshy plan (Pro or above), Unreal
+    Engine 5.8, a coding agent with terminal access, and Unreal MCP for the optional
+    placement
+  files:
+  - agent/README.md
+  - agent/prompts.md
+estimates:
+  credits: 29
+  time_seconds:
+    min: 89
+    max: 142
+  basis: Two live runs on macOS on November 8, 2026, with the Meshy CLI 0.8.3, each
+    charged 9, 15 and 5 credits, read from consumed_credits. The first ran the three
+    commands directly; its tasks took 20, 55 and 14 seconds, 89 in all. The second
+    ran the Step 3 and Step 4 prompts in Claude Code; its tasks took 17, 65 and 15 seconds,
+    and the files were on disk 34 and 108 seconds after the two approvals, 142 in all.
+    Covers Meshy processing and downloads, not checking the image or importing into
+    Unreal. Observed range, not a service guarantee.
+last_verified: '2026-11-08'
+verification_note: Two live runs on macOS on November 8, 2026, with the Meshy CLI 0.8.3.
+  The first ran the recipe's three commands directly in a terminal with an API key
+  in the environment. The second sent the README's Step 3 and Step 4 prompts as written
+  to Claude Code 2.1.309 (claude -p, model claude-opus-5-5) in a Third Person project
+  folder with the meshy-3d-agent skills installed and no MCP servers, signed in to
+  the CLI through the browser with no API key. The agent quoted 9 and then 20 credits
+  and waited for each approval, submitted each task once with --async, waited on the
+  same task IDs, and moved -o and --all-assets from the rigging create to its wait.
+  Both runs' FBX files were imported into Unreal Engine 5.8.2 on macOS with the editor's
+  Python API (UnrealEditor-Cmd -run=pythonscript, no rendering), using Interchange's
+  default options for the character and Import Only Animations with the character's
+  skeleton for the walk and run, and the mannequin's MF_Unarmed_Jog_Fwd was retargeted
+  onto each with automatically generated IK Rig and IK Retargeter assets through the
+  same API. The editor's import and Retarget Animations windows and how the animations
+  look were not checked in those runs. On November 9, 2026, the Step 6 placement prompt
+  ran as written in Claude Code 2.1.309 (model claude-opus-5-5) with Unreal MCP in
+  Unreal Engine 5.8.2 on macOS and placed the character, facing the PlayerStart and
+  looping walking_fbx, without saving. Windows was not tested.
+previews:
+- path: assets/concept.jpg
+  alt: A stylized scrapyard mechanic in an A-pose, with goggles on his forehead, an
+    orange work vest, fingerless gloves, a tool belt and heavy boots
+  role: concept
+- path: assets/model.png
+  alt: The textured 3D model of the mechanic in an A-pose
+  role: result
+- path: assets/walking.jpg
+  alt: The rigged mechanic mid-stride in the walk clip
+  role: animation
+- path: assets/in-unreal.jpg
+  alt: The mechanic placed in the Third Person level in Unreal Engine, mid-stride in
+    its walk
+  role: result
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json
+site:
+  slug: game-character-for-unreal
+  description: Describe a character, and your coding agent makes it with the Meshy CLI
+    at a triangle budget, rigged with walk and run clips, ready to import into Unreal
+    Engine and retarget the mannequin's animations onto.
+  topics:
+  - Game engines
+  - Rigging
+  short_name: Rigged character for Unreal

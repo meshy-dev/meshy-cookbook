@@ -20,6 +20,7 @@ selected language's `main` file, and the shared client it imports.
 | One humanoid character image → GLB with idle, run and attack clips, compressed for the web and played in a three.js page | `examples/13-image-to-threejs-character` |
 | Concept art plus a one-line prop description → a 5,000-face low-poly prop GLB painted in the art's style with Meshy N1 | `examples/14-image-to-style-matched-prop` |
 | A one-line asset description → a textured GLB made with the Meshy CLI and placed in an Unreal Engine 5.8 level through Unreal MCP, with no code | `examples/15-text-to-unreal-asset` |
+| A character description → A-pose concept image → 30,000-triangle Smart Topology model → rigged FBX with walk and run, imported into Unreal Engine 5.8, with no code | `examples/16-text-to-unreal-character` |
 
 - A live run spends Meshy credits; each README states the amount. Tell the user the cost
   and wait for their approval before running, unless they already gave it.
@@ -37,6 +38,10 @@ selected language's `main` file, and the shared client it imports.
 - Cookbook 15 has no code or `MESHY_API_KEY`. Follow its README: the Meshy CLI, signed in
   through the browser, makes the asset through the meshy-3d-agent skills, and Unreal MCP
   places it. Its prompts and MCP client configurations are in its `agent/` folder.
+- Cookbook 16 has no code or `MESHY_API_KEY` either. Its prompts have the agent run three
+  Meshy CLI commands (text-to-image, image-to-3d, rigging), each starting from the task
+  before it; the user imports the FBX files into Unreal, and an optional prompt has the agent
+  place the character in the level through Unreal MCP. Its prompts are in its `agent/` folder.
 - To adapt a recipe into a project, copy `shared/<language>/meshy.*` next to the pipeline
   and keep the payloads literal.
 
