@@ -1,0 +1,82 @@
+schema_version: 1
+slug: text-to-unreal-asset
+order: 15
+title: Make a 3D asset and place it in Unreal with your coding agent
+description: Describe a game asset in one line, and your coding agent makes it as a
+  textured GLB with the Meshy CLI, then places it in an Unreal Engine level through
+  Unreal MCP once you drag the file in. No code.
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-11-10'
+tags:
+- unreal-engine
+- game-engine
+- mcp
+- coding-agent
+- meshy-cli
+- text-to-3d
+readme: README.md
+input:
+  type: text
+  description: A one-line description of a game asset, written into the prompt. The
+    recipe includes a robot charging dock.
+  files: []
+outputs:
+- glb
+endpoints:
+- text-to-3d
+model_policy: The Meshy CLI's make sends the text-to-3d preview with no ai_model, so
+  it follows the API's current default, and the refine task textures that preview.
+  Neither task reports a model name.
+agent:
+  runtime: Node.js 22.12+, Meshy CLI 0.8.3+, a paid Meshy plan (Pro or above), Unreal
+    Engine 5.8, and a coding agent with terminal access
+  files:
+  - agent/README.md
+  - agent/prompts.md
+  - agent/mcp/claude-code.json
+  - agent/mcp/cursor.json
+  - agent/mcp/codex.md
+estimates:
+  credits: 30
+  time_seconds:
+    min: 93
+    max: 107
+  basis: Four live runs on macOS on November 8, 2026, 30 credits each (20 for the
+    preview mesh and 10 for the texture, read from consumed_credits). Two ran meshy
+    make with the Meshy CLI 0.8.3 directly, 96 and 107 seconds from the command's start
+    to the GLB on disk; two ran the README's Step 4 prompt in Claude Code with the meshy-3d-agent
+    skills, 98 and 93 seconds from approval to the GLB on disk. Covers generation only;
+    importing and placing the asset in Unreal is not timed here. Observed range, not
+    a service guarantee.
+last_verified: '2026-11-08'
+verification_note: Four live runs on macOS on November 8, 2026, signed in to the Meshy
+  CLI 0.8.3 through the browser with no API key. Two ran meshy make directly, one with
+  the README's description and one with the first-try description in Step 3. Two ran
+  the Step 1 and Step 4 prompts in Claude Code with the meshy-3d-agent skills installed
+  in the project folder. The first of those had no Unreal editor running and stopped
+  before importing. The second ran end to end against Unreal Engine 5.8.2 in a new
+  Third Person project with Unreal MCP and All Toolsets on and Auto Start Server set,
+  after the Step 2 check prompt; the agent's import tool refused the GLB, the GLB was
+  imported with Interchange's default options from the editor's Python API in place
+  of the drag-and-drop, and the agent placed it on the floor with Unreal MCP. Windows
+  was not tested.
+previews:
+- path: assets/result.png
+  alt: A robot charging dock with a steel pad, yellow and black hazard stripes, an orange
+    tower, green battery cells and black cables
+  role: result
+assets:
+- assets/SOURCES.md
+- assets/first-try.png
+- assets/in-unreal.jpg
+sample_result: sample-result.json
+site:
+  slug: place-3d-asset-in-unreal
+  description: Describe a game asset, and your coding agent makes it with the Meshy
+    CLI and places it in your Unreal level through Unreal MCP.
+  topics:
+  - Game engines
+  - Text to 3D
+  short_name: Text to Unreal asset

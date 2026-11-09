@@ -40,6 +40,7 @@ Contributions are released under this repository's [MIT License](LICENSE).
 - `input/` contains small sample inputs and `SOURCES.md` with attribution, licensing, and any generation prompts.
 - `assets/` contains curated previews with provenance. Keep runtime output under the ignored language-specific `output/` directories.
 - `python/` and `typescript/` contain runnable implementations with equivalent literal request payloads, dependency files, and `.env.example`. A community recipe may have only one of them.
+- `agent/` holds the prompts and MCP client configurations of an agent recipe, one a coding agent carries out with the Meshy CLI and no code, such as [cookbook 15](examples/15-text-to-unreal-asset/). An agent recipe has no `python/` or `typescript/`; see the `agent` block in [scripts/README.md](scripts/README.md).
 - `shared/` contains the small HTTP, polling, and download clients. Keep workflow decisions in each example.
 
 Use an existing recipe as the starting point. Give a new recipe a unique slug and meaningful title; folder numbering only suggests a reading order. Fill in its `site` block too (page URL, description, topics, and a short search name): the cookbook site builds the recipe's page and catalog entry from it. Follow the metadata schema and export contract in [scripts/README.md](scripts/README.md).
@@ -48,7 +49,7 @@ Use an existing recipe as the starting point. Give a new recipe a unique slug an
 
 1. Open with the intended result and an input-to-output preview. State whether the example is textured, rigged, optimized, or ready for a particular downstream use.
 2. State required runtimes, API access, estimated credits, expected duration, and output formats. Link to current API pricing. Label measured timings and output statistics as observations rather than guarantees.
-3. Include complete clone, install, environment, and run commands for each language the recipe ships, followed by positional arguments for custom inputs.
+3. Include complete clone, install, environment, and run commands for each language the recipe ships, followed by positional arguments for custom inputs. An agent recipe gives the CLI commands its prompts run instead.
 4. Explain the workflow, relevant parameters, limitations, and how to inspect the files. Link to API reference pages for the full parameter definitions.
 5. Keep executable Python snippets consistent with the runner. The publisher checks their statements against the Python source. Show the full source through language links or site code tabs.
 6. Add your GitHub username under `authors` with an entry in `authors.yaml`, the `contributor` and first-published `date`, the last verified date, recorded model information, and evidence for sample measurements. Updating prose or inspecting an old output does not count as a new live API verification.

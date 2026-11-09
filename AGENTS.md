@@ -19,6 +19,7 @@ selected language's `main` file, and the shared client it imports.
 | One knob image → mesh → STL in millimetres with an 8-32 or M4 screw thread cut into the stem, checked for printing | `examples/12-image-to-threaded-knob` |
 | One humanoid character image → GLB with idle, run and attack clips, compressed for the web and played in a three.js page | `examples/13-image-to-threejs-character` |
 | Concept art plus a one-line prop description → a 5,000-face low-poly prop GLB painted in the art's style with Meshy N1 | `examples/14-image-to-style-matched-prop` |
+| A one-line asset description → a textured GLB made with the Meshy CLI and placed in an Unreal Engine 5.8 level through Unreal MCP, with no code | `examples/15-text-to-unreal-asset` |
 
 - A live run spends Meshy credits; each README states the amount. Tell the user the cost
   and wait for their approval before running, unless they already gave it.
@@ -33,6 +34,9 @@ selected language's `main` file, and the shared client it imports.
   cookbook 12 takes a screw (8-32 or M4) first, then an optional image, cookbook 13 takes three action ids
   (idle, run, attack) first, then an optional image, and cookbook 14 takes a prop description first,
   then an optional concept art image. Leave the sample defaults in the code.
+- Cookbook 15 has no code or `MESHY_API_KEY`. Follow its README: the Meshy CLI, signed in
+  through the browser, makes the asset through the meshy-3d-agent skills, and Unreal MCP
+  places it. Its prompts and MCP client configurations are in its `agent/` folder.
 - To adapt a recipe into a project, copy `shared/<language>/meshy.*` next to the pipeline
   and keep the payloads literal.
 

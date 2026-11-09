@@ -54,7 +54,7 @@ class PublishingTests(unittest.TestCase):
 
     def test_validation_needs_no_runtime_output(self):
         self.assertFalse(list(self.root.glob("examples/*/*/output")))
-        self.assertEqual(len(publish.load_recipes(self.root)), 14)
+        self.assertEqual(len(publish.load_recipes(self.root)), 15)
 
     def test_metadata_requires_valid_types_and_dates(self):
         self.change_metadata(lambda data: data.update(last_verified="not-a-date"))
@@ -84,6 +84,27 @@ class PublishingTests(unittest.TestCase):
         self.assertEqual(catalog["authors"]["serafin-meshy"]["name"], "Serafin Sanchez")
         with zipfile.ZipFile(self.output / catalog["recipes"][0]["download"]) as bundle:
             self.assertIn("written in Python", bundle.read("AGENTS.md").decode())
+
+    def test_agent_recipes_ship_prompts_and_configs_without_code(self):
+        catalog = publish.build(self.root, self.output)
+        entry = next(recipe for recipe in catalog["recipes"] if "agent" in recipe and "python" not in recipe["languages"])
+        # The site reads `languages` for its code tabs, so an agent recipe exports an empty map, not a missing key.
+        self.assertEqual(entry["languages"], {})
+        agent_files = [file for file in entry["files"] if "/agent/" in file["source_path"]]
+        self.assertEqual(len(agent_files), len(entry["agent"]["files"]))
+        self.assertTrue(all((self.output / file["export_path"]).is_file() for file in agent_files))
+        with zipfile.ZipFile(self.output / entry["download"]) as bundle:
+            names = bundle.namelist()
+            self.assertTrue(all(file["source_path"] in names for file in agent_files))
+            self.assertFalse(any(name.startswith("shared/") for name in names))
+            self.assertNotIn("package.json", names)
+            self.assertIn("has no code to run", bundle.read("AGENTS.md").decode())
+        self.change_metadata(lambda data: data.pop("languages"))
+        with self.assertRaisesRegex(publish.ValidationError, r"list languages \(python, typescript\) or, .* an agent block"):
+            publish.load_recipes(self.root)
+        self.change_metadata(lambda data: data.update(agent={"runtime": "Node.js 22.12+", "files": ["README.md"]}))
+        with self.assertRaisesRegex(publish.ValidationError, "agent files must be in agent/"):
+            publish.load_recipes(self.root)
 
     def test_site_metadata_is_required_and_exported(self):
         catalog = publish.build(self.root, self.output)

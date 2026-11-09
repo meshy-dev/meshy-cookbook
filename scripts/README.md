@@ -45,6 +45,13 @@ Attribution follows the registry format the OpenAI and Anthropic cookbooks use:
 `languages` lists `python`, `typescript` or both. Meshy recipes ship both; a
 community recipe may ship one.
 
+An agent recipe has no code: a coding agent carries it out with prompts, CLI
+commands and MCP client configurations. It has no `languages` and lists those files
+under an `agent` block instead (`runtime`, the tools it needs, and `files`, all
+under `agent/`). The agent files are exported with the recipe, so they must be
+Markdown, JSON, YAML or text, and they go into its download ZIP. A recipe needs
+`languages`, `agent` or both.
+
 The `site` block is how the recipe appears on the cookbook site, which builds the
 recipe page, its catalog row, and its topic pages from it:
 
@@ -96,6 +103,7 @@ dist/
 │   ├── sample-result.json
 │   ├── python/…
 │   ├── typescript/…
+│   ├── agent/…                 # an agent recipe's prompts and client configs
 │   ├── input/…                 # when the recipe has file inputs
 │   └── assets/…
 ├── shared/python/meshy.py
@@ -112,7 +120,8 @@ root. `catalog.json` contains:
   rejects it. Untracked files count as dirty; ignored runtime output does not.
 - `recipes`: metadata sorted by `order`, with `source_directory`, `markdown`,
   `download`, `files`, and `resolved_links` added. Each file records its original
-  repository path, exported path, and content SHA-256.
+  repository path, exported path, and content SHA-256. An agent recipe gets an
+  empty `languages` map, so a site reading `languages` finds no code tabs.
 - `authors`: the `authors.yaml` entries for every username the recipes list, keyed
   by username.
 
@@ -157,6 +166,8 @@ minimal `package.json` declaring ES modules for the shared TypeScript client.
 Repository license files are included when present; a generated `AGENTS.md`
 contains instructions scoped to the selected recipe. Links to other
 recipes are rewritten to their GitHub source URLs inside bundled Markdown.
+An agent recipe's ZIP holds its README, `agent/` files, previews and metadata,
+with no shared client or `package.json`.
 
 Bundles use an explicit file allowlist, fixed timestamps, and sorted entries.
 They exclude live environment files, runtime checkpoints, generated model output,
