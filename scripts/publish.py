@@ -233,6 +233,9 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
             metadata = yaml.load(path.read_text(encoding="utf-8"), Loader=UniqueLoader)
         except yaml.YAMLError as error:
             raise ValidationError(f"{path}: invalid YAML: {error}") from error
+        # Checked before the schema, whose anyOf error would print the whole recipe.
+        if isinstance(metadata, dict) and "languages" not in metadata and "agent" not in metadata:
+            raise ValidationError(f"{path}: list languages (python, typescript) or, for a recipe a coding agent carries out without code, an agent block")
         validate_schema(metadata, root, "recipe.schema.json", path)
         if metadata["slug"] in slugs or metadata["order"] in orders:
             raise ValidationError(f"{path}: recipe slug and order must each be unique")
@@ -241,10 +244,11 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
         for author in metadata["authors"]:
             if author not in authors:
                 raise ValidationError(f"{path}: author {author!r} needs an entry in authors.yaml")
-        # Meshy recipes ship Python and TypeScript; a community recipe may ship either one (the schema requires at least one).
-        languages = set(metadata["languages"])
+        # Meshy recipes with code ship Python and TypeScript; a community recipe may ship either one. An agent
+        # recipe (an `agent` block and no `languages`) has no code: a coding agent runs its prompts and CLI commands.
+        languages = set(metadata.get("languages", {}))
         missing = sorted({"python", "typescript"} - languages)
-        if metadata["contributor"] == "meshy" and missing:
+        if metadata["contributor"] == "meshy" and "languages" in metadata and missing:
             raise ValidationError(f"{path}: Meshy recipes ship both languages; add {', '.join(missing)} or set contributor: community")
         # The website builds each recipe page at recipes/<site.slug>/ and each topic page
         # at topic/<topic, lowercased, non-alphanumerics as "-">/ from this block.
@@ -262,7 +266,12 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
         recipe_files = [metadata["readme"], metadata["sample_result"], *metadata["input"]["files"], *metadata["assets"]]
         recipe_files.extend(preview["path"] for preview in metadata["previews"])
         files = {path.resolve()}
-        for language, configuration in metadata["languages"].items():
+        if "agent" in metadata:
+            # Prompts and MCP client configs: exported with the recipe (the site serves Markdown and JSON) and zipped.
+            if not all(value.startswith("agent/") for value in metadata["agent"]["files"]):
+                raise ValidationError(f"{path}: agent files must be in agent/")
+            recipe_files.extend(metadata["agent"]["files"])
+        for language, configuration in metadata.get("languages", {}).items():
             required = {"python": {"python/main.py", "python/requirements.txt", "python/.env.example"},
                         "typescript": {"typescript/main.ts", "typescript/package.json", "typescript/tsconfig.json", "typescript/.env.example"}}[language]
             if not required.issubset(configuration["files"]) or configuration["entrypoint"] not in configuration["files"]:
@@ -383,7 +392,7 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                 members[source.relative_to(root).as_posix()] = data
             for source in sorted(recipe.bundle):
                 members[source.relative_to(root).as_posix()] = source.read_bytes()
-            languages = [{"python": "Python", "typescript": "TypeScript"}[language] for language in recipe.metadata["languages"]]
+            languages = [{"python": "Python", "typescript": "TypeScript"}[language] for language in recipe.metadata.get("languages", {})]
             links = []
             for source, destinations in sorted(recipe.links.items()):
                 for original, target in destinations:
@@ -401,29 +410,52 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                         mapped["repository_url"] = f"{REPOSITORY}/blob/{ref}/{quote(target.relative_to(root).as_posix())}"
                     links.append(mapped)
             # Generated bundle root keeps the repository layout used by imports.
-            members["README.md"] = (
-                f"# {recipe.metadata['title']}\n\n"
-                f"Open [{recipe.metadata['title']}]({recipe.directory.relative_to(root).as_posix()}/README.md) for setup and usage.\n\n"
-                f"Run commands from the extracted folder, keeping `examples/` and `shared/` together. "
-                f"Dependencies and `.env.example` are included for {'both languages' if len(languages) > 1 else languages[0]}. Live generation spends Meshy credits.\n\n"
-                "Skip the tutorial's clone step when using this extracted download.\n\n"
-                f"Source: {REPOSITORY}\n\n"
-                "Links to other recipes lead to the full repository; this download includes only the selected recipe.\n"
-            ).encode("utf-8")
-            members["package.json"] = json_bytes({"private": True, "type": "module"})
+            readme = recipe.directory.relative_to(root).as_posix() + "/README.md"
+            credits = recipe.metadata["estimates"]["credits"]
+            if languages:
+                members["README.md"] = (
+                    f"# {recipe.metadata['title']}\n\n"
+                    f"Open [{recipe.metadata['title']}]({readme}) for setup and usage.\n\n"
+                    f"Run commands from the extracted folder, keeping `examples/` and `shared/` together. "
+                    f"Dependencies and `.env.example` are included for {'both languages' if len(languages) > 1 else languages[0]}. Live generation spends Meshy credits.\n\n"
+                    "Skip the tutorial's clone step when using this extracted download.\n\n"
+                    f"Source: {REPOSITORY}\n\n"
+                    "Links to other recipes lead to the full repository; this download includes only the selected recipe.\n"
+                ).encode("utf-8")
+                members["package.json"] = json_bytes({"private": True, "type": "module"})
+                members["AGENTS.md"] = (
+                    "# Using this Meshy cookbook example\n\n"
+                    f"Read `{readme}`, the selected language's main file, "
+                    "and its shared client before adapting or running the recipe.\n\n"
+                    f"A live run spends approximately {credits} Meshy credits. "
+                    "Tell the user the cost and wait for approval unless already given.\n\n"
+                    "Read MESHY_API_KEY from the environment or a local .env. Never write it into code, "
+                    "ask for it in chat, or put API calls in browser code. Keep the sample defaults and "
+                    "pass custom inputs as positional arguments. "
+                    + ("Use the user's project language, or Python by default. " if len(languages) > 1 else f"The example is written in {languages[0]}. ")
+                    + "When adapting the recipe, copy the full shared client and retain its error handling.\n"
+                ).encode("utf-8")
+            else:
+                # An agent recipe has no code or shared client: the README, its prompts and the files in agent/.
+                members["README.md"] = (
+                    f"# {recipe.metadata['title']}\n\n"
+                    f"Open [{recipe.metadata['title']}]({readme}) for setup and usage.\n\n"
+                    "This recipe has no code. A coding agent carries it out with the prompts in the tutorial; "
+                    f"the files in `{recipe.directory.relative_to(root).as_posix()}/agent/` are the prompts and configuration it uses. "
+                    f"It needs {recipe.metadata['agent']['runtime']}. Live generation spends Meshy credits.\n\n"
+                    f"Source: {REPOSITORY}\n\n"
+                    "Links to other recipes lead to the full repository; this download includes only the selected recipe.\n"
+                ).encode("utf-8")
+                members["AGENTS.md"] = (
+                    "# Using this Meshy cookbook example\n\n"
+                    f"Read `{readme}` and the files in its `agent/` folder before running the recipe. "
+                    "It has no code to run: you carry it out with the commands and prompts the README gives.\n\n"
+                    f"A live run spends approximately {credits} Meshy credits. "
+                    "Tell the user the cost and wait for approval unless already given.\n\n"
+                    "Never ask for a Meshy API key in chat or write one into a file. "
+                    "The Meshy CLI signs in through the browser.\n"
+                ).encode("utf-8")
             members["SOURCE.json"] = json_bytes(provenance)
-            members["AGENTS.md"] = (
-                "# Using this Meshy cookbook example\n\n"
-                f"Read `{recipe.directory.relative_to(root).as_posix()}/README.md`, the selected language's main file, "
-                "and its shared client before adapting or running the recipe.\n\n"
-                f"A live run spends approximately {recipe.metadata['estimates']['credits']} Meshy credits. "
-                "Tell the user the cost and wait for approval unless already given.\n\n"
-                "Read MESHY_API_KEY from the environment or a local .env. Never write it into code, "
-                "ask for it in chat, or put API calls in browser code. Keep the sample defaults and "
-                "pass custom inputs as positional arguments. "
-                + ("Use the user's project language, or Python by default. " if len(languages) > 1 else f"The example is written in {languages[0]}. ")
-                + "When adapting the recipe, copy the full shared client and retain its error handling.\n"
-            ).encode("utf-8")
             for optional in ["LICENSE", "LICENSE.md"]:
                 if (root / optional).is_file():
                     members[optional] = public_path(root / optional, root).read_bytes()
@@ -446,6 +478,8 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
             bundle_path = f"downloads/{slug}.zip"
             write_zip(staging / bundle_path, members)
             entry = dict(recipe.metadata)
+            # The site reads `languages` for its code tabs; an agent recipe gets an empty map, never a missing key.
+            entry.setdefault("languages", {})
             entry["source_directory"] = recipe.directory.relative_to(root).as_posix()
             entry["markdown"] = export_path(root, recipe.directory / recipe.metadata["readme"], recipes)
             entry["download"] = bundle_path

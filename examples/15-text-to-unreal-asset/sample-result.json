@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "slug": "text-to-unreal-asset",
+  "historical_run": {
+    "documented_on": "2026-11-08",
+    "source": "README.md",
+    "credits": 30,
+    "model": "Not reported: neither text-to-3d task response includes a model field. meshy make sent the preview with model_type standard and no ai_model, so it used the API's default, and the refine with enable_pbr true, remove_lighting true and texture_resolution 4k.",
+    "note": "Two live runs of meshy make with the Meshy CLI 0.8.3 on macOS on November 8, 2026, signed in through the browser with no API key, each saved with -o to a folder. The pictured run used the README's description: preview 20 credits and 29.4 s from creation to finish, refine 10 credits and 71.2 s, 106.5 s wall from the command's start to the files on disk. The earlier run used the first-try description from Step 3 (a large round battery gauge): 20 + 10 credits, preview 33.2 s, refine 59.2 s, 96.0 s wall, 522,040 triangles in a 35,932,008-byte GLB. Credits read from each task's consumed_credits. No queue time in any task. The Unreal Engine steps were not part of these two runs. A third run on the same day sent the README's Step 1 prompt, with one added sentence asking for a project-only skills install, and its Step 4 prompt to Claude Code (claude -p, model claude-opus-5-5) in a scratch project folder. The Step 4 prompt then lacked the words \"word for word\", and the agent reworded the description's first clause in its dry run until the approval asked for it word for word; the task records the description exactly. The agent quoted 30 credits from meshy make --dry-run, submitted the preview with make --async, waited with meshy text-to-3d wait, created the refine with --texture-resolution 4k on the preview's ID and saved MeshyAssets/charging-dock.glb with -o: preview 20 credits and 29.3 s, refine 10 credits and 47.4 s, 98 s from approval to the GLB on disk, 436,014 triangles in a 29,388,588-byte GLB. Unreal MCP was configured but not running, so the agent stopped before importing. A fourth run the same day sent the README's Step 1, Step 2 check and Step 4 prompts as written (Step 1 with the same added sentence) to Claude Code 2.1.309 in a new Unreal Engine 5.8.2 Third Person project on macOS, with Unreal MCP and All Toolsets enabled and Auto Start Server on: preview 01a1be51-7b2a-732d-8b12-f8aa329ad071, 20 credits and 27.3 s; refine 01a1be51-f7e4-7192-924a-1ed8c25a7ded, 10 credits and 53.1 s; 93 s from approval to the GLB on disk; 476,470 triangles in a 32,056,396-byte GLB. StaticMeshTools.import_file refused the GLB (its FBX importer reads only fbx and obj), so the GLB was imported with Interchange's default options from the editor's Python API in place of the drag-and-drop: one static mesh, one material instance and three textures, Approx Size 190 x 160 x 115 cm, Nanite on, one convex collision primitive, origin kept at the model's center. The agent placed it with SceneTools.add_to_scene_from_asset and snap_to_ground 300 cm in front of the PlayerStart with its base on the floor, and in Play In Editor the character's capsule was blocked by the dock. The same day, that run's refine task was converted to FBX with meshy convert (task 01a1be80-1240-7415-a513-69d7c9660a44, 1 credit, a 35,217,164-byte FBX with its textures embedded), and the agent imported it with StaticMeshTools.import_file (materials and textures on) and placed it: the static mesh measured the same 190 x 161 x 115 cm with one convex collision primitive, but Nanite was off and the importer built a plain material with the roughness map wired to Metallic, nothing on Roughness and no metallic map."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-11-08",
+    "method": "Local file byte count and SHA-256; GLB JSON accessors, mesh, material, image, skin and animation arrays; primitive attributes, POSITION min and max, and the embedded JPEG headers.",
+    "note": "The pictured run's GLB, written as model.glb by -o into a folder; the README's prompt saves the same file as charging-dock.glb. It carries POSITION, NORMAL and TEXCOORD_0, one double-sided opaque material with a base color texture, a metallic-roughness texture and a normal texture, all embedded as JPEG: 4096 x 4096 base color and normal maps and a 2048 x 2048 metallic-roughness map. It measures 1.903 x 1.152 x 1.466 m (glTF X, Y up, Z) with the origin at the center of its bounds. Model files are not published by this repository.",
+    "artifacts": [
+      {
+        "filename": "model.glb",
+        "format": "glb",
+        "bytes": 41471912,
+        "sha256": "3dcf62bf3771298782c9dd0607d8f85329dd97e96a75a0e53c6c6fcd6dcb66f7",
+        "triangles": 645976,
+        "vertices": 358920,
+        "meshes": 1,
+        "materials": 1,
+        "embedded_images": 3,
+        "skins": 0,
+        "animations": 0
+      }
+    ]
+  }
+}
