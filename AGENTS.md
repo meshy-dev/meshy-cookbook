@@ -19,7 +19,7 @@ selected language's `main` file, and the shared client it imports.
 | One knob image → mesh → STL in millimetres with an 8-32 or M4 screw thread cut into the stem, checked for printing | `examples/12-image-to-threaded-knob` |
 | One humanoid character image → GLB with idle, run and attack clips, compressed for the web and played in a three.js page | `examples/13-image-to-threejs-character` |
 | Concept art plus a one-line prop description → a 5,000-face low-poly prop GLB painted in the art's style with Meshy N1 | `examples/14-image-to-style-matched-prop` |
-| A one-line asset description → a textured GLB made with the Meshy CLI and placed in an Unreal Engine 5.8 level through Unreal MCP, with no code | `examples/15-text-to-unreal-asset` |
+| An asset description → a concept image, then a textured GLB made from it with the Meshy CLI and placed in an Unreal Engine 5.8 level through Unreal MCP, with no code | `examples/15-text-to-unreal-asset` |
 | A character description → A-pose concept image → 30,000-triangle Smart Topology model → rigged FBX with walk and run, imported into Unreal Engine 5.8, with no code | `examples/16-text-to-unreal-character` |
 
 - A live run spends Meshy credits; each README states the amount. Tell the user the cost
