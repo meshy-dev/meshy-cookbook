@@ -8,7 +8,7 @@ Every recipe includes Python and TypeScript implementations. Follow the recipe's
 
 ## Agent skills
 
-[`skills/`](skills/) holds four self-contained skills that write Meshy prompts: Text to 3D, Text to Image for Image to 3D, texture and retexture, and Meshy Edit. Each one is built from live A/B tests.
+[`skills/`](skills/) holds self-contained skills for writing Meshy prompts and working with assets in Unreal Engine. The four prompt-writing skills cover Text to 3D, Text to Image for Image to 3D, texture and retexture, and Meshy Edit, with advice built from live A/B tests. [`meshy-unreal`](skills/meshy-unreal/SKILL.md) creates, adapts, imports and places assets in Unreal 5.9 Preview, with a 5.8 compatibility reference.
 
 Copy any `skills/<name>` directory into your project's `.claude/skills/` (Claude Code), `.cursor/skills/` (Cursor) or `.agents/skills/` (Codex). See the [skills README](skills/README.md) for examples and installation instructions.
 

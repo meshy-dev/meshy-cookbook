@@ -67,7 +67,9 @@ def load_frontmatter(path: Path):
 
 def md_link_targets(text: str) -> list[str]:
     targets = []
-    for match in MD_LINK_RE.finditer(text):
+    # Code examples such as mapping["fn"]("arg") are not Markdown links.
+    prose = re.sub(r"```.*?```|`[^`\n]*`", "", text, flags=re.S)
+    for match in MD_LINK_RE.finditer(prose):
         target = match.group(1).strip()
         if target.startswith("<"):
             end = target.find(">")

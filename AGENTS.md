@@ -49,6 +49,11 @@ selected language's `main` file, and the shared client it imports.
   `meshy-image-prompt` for cookbooks 03, 14 and 16, `meshy-texture-prompt` for cookbook 06.
   Read its `SKILL.md`; it writes the prompt and settings and never calls Meshy.
 
+- For creating, adapting, importing or placing assets in an Unreal project, use
+  `skills/meshy-unreal/SKILL.md`. It supports 5.9 Preview with a 5.8 compatibility reference;
+  use prompt-writing skills alone when only a prompt is requested. The Unreal skill's
+  project checks, paid-operation authorization and save reporting apply to editor work.
+
 ## Maintaining and publishing recipes
 
 - Preserve each README as the canonical tutorial. Keep its `recipe.yaml`, sample-result
