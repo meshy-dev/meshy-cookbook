@@ -2,6 +2,13 @@
 
 ## [Unreleased]
 
+### Added
+
+- `meshy-unreal`: a self-contained Unreal 5.9 Preview skill with 5.8 compatibility guidance,
+  generation and local-edit routes, versioned MeshyTools, installer, revision ledger and
+  opt-in editor smoke test. Imported from the `meshy-3d-agent` Unreal worktree with cookbook
+  frontmatter metadata; the runtime and references retain their existing version and evidence.
+
 ### Changed
 
 - The skills are now part of the Meshy Cookbook, under `skills/`. Install by copying the desired skill directories into your agent's skills directory; the plugin manifests and marketplace wrapper have been removed. The repo checks are `scripts/skills/validate_skills.py`, which now also checks that every `check_prompt.py` copy matches `scripts/skills/check_prompt.py`.

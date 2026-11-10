@@ -91,7 +91,7 @@ The website should build from a reviewed commit and retain the export's source p
 
 ## Agent skills
 
-`skills/` holds four skills that write Meshy prompts. They are not recipes: the publisher ignores them and they are not on the cookbook site.
+`skills/` holds four prompt-writing skills and `meshy-unreal`, an Unreal Engine workflow skill. They are not recipes: the publisher ignores them and they are not on the cookbook site.
 
 Check them with:
 
@@ -101,8 +101,8 @@ python scripts/skills/validate_skills.py
 
 The script runs five checks: skill frontmatter; matching versions across every `SKILL.md` and the latest versioned `skills/CHANGELOG.md` entry; links between `SKILL.md` and its reference files; no paths that leave a skill's directory; and identical `check_prompt.py` copies. A release bumps the version in every `SKILL.md` and `skills/CHANGELOG.md` together.
 
-`scripts/skills/check_prompt.py` is copied into each skill so every skill stays self-contained. Edit that copy, then copy it into `skills/*/scripts/`.
+`scripts/skills/check_prompt.py` is copied into each skill so every skill stays self-contained. Edit that copy, then update the four prompt-writing skills that already bundle it. Do not add it to `meshy-unreal`.
 
 `scripts/skills/evals/trigger/<skill>.json` holds 20 to 22 queries per skill: half should trigger it, half are near misses. Rerun them after changing a skill's `description`. `scripts/skills/evals/evals.json` holds four end-to-end prompts with assertions.
 
-Every rule in a `SKILL.md` points to a run in its `references/evidence.md`. Record what a reader can use: the prompt, the settings, the number of runs and what came out; the credits and time per task when they help someone plan; and the Meshy docs page a limit or default comes from. Leave out task ids, local file paths, web-app request details and test budgets. A run that shows a pricing, billing or output anomaly goes to the Meshy team, not into a skill.
+Every prompt-writing rule in a `SKILL.md` points to a run in its `references/evidence.md`. Record what a reader can use: the prompt, the settings, the number of runs and what came out; the credits and time per task when they help someone plan; and the Meshy docs page a limit or default comes from. Leave out task ids, local file paths, web-app request details and test budgets. A run that shows a pricing, billing or output anomaly goes to the Meshy team, not into a skill.
