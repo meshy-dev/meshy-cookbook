@@ -1,53 +1,22 @@
 #!/usr/bin/env python3
-"""CI validation for the Meshy agent skills in plugins/ (same checks as meshy-3d-agent).
+"""CI validation for the self-contained Meshy agent skills in skills/.
 
-The skills live in plugins/meshy-prompting/ (skills/, CHANGELOG.md and the
-plugin manifests); the marketplace that lists them is .claude-plugin/
-marketplace.json at the repository root. Below, "skills/<dir>" and the plugin
-manifests mean the ones inside the plugin directory.
+Five checks:
+  1. Frontmatter: each SKILL.md has a matching name, semver metadata.version,
+     and a description with a trigger phrase and routing boundary.
+  2. Version sync: every skill version matches the latest versioned entry
+     in skills/CHANGELOG.md.
+  3. Reference bidirectionality: local links resolve and every supporting
+     markdown file is reachable from SKILL.md.
+  4. No links outside a skill's directory, so it is independently installable.
+  5. Every bundled check_prompt.py matches scripts/skills/check_prompt.py.
 
-Six checks:
-  1. Frontmatter: every skills/<dir>/SKILL.md has name == <dir>, a semver
-     metadata.version, and a non-empty description containing both a trigger
-     phrase ("use when ...") and a routing boundary ("... instead", "not for ...").
-  2. Version sync: .claude-plugin/plugin.json, .cursor-plugin/plugin.json,
-     every SKILL.md metadata.version, and the top CHANGELOG.md entry must all
-     agree. Optional version fields in .claude-plugin/marketplace.json (top
-     level or per entry) must agree too.
-  3. Manifest coverage: all three manifests exist, parse, and carry a non-empty
-     "name"; .claude-plugin/marketplace.json must list every skills/<dir>
-     across its entries' skills arrays; an explicit skills list in the claude /
-     cursor plugin.json (if present) must cover the same set.
-
-     There is deliberately no .codex-plugin/plugin.json: Codex's plugin
-     marketplace only accepts a plugin root in a subdirectory carrying its own
-     real skills/ tree (a symlink or a "../skills" manifest path both install
-     with zero skills and still report success), which would mean committing a
-     second copy of every skill. Codex reads .agents/skills instead, so the
-     README's directory install covers it without a manifest.
-  4. Reference bidirectionality: every relative markdown link in a skill's
-     SKILL.md must resolve to an existing file inside the skill directory,
-     and every non-SKILL markdown file in the skill directory (reference.md,
-     references/**, ...) must be reachable from SKILL.md through in-directory
-     markdown links.
-  5. No parent-directory escapes: manifest string values must carry no ".."
-     path segment at all, and no markdown link inside a skill may resolve to a
-     path outside that skill's directory, so every skill directory stays
-     independently installable. A ".." that stays inside the skill (e.g.
-     references/pipelines.md → ../reference.md) is allowed: it travels with the
-     directory.
-  6. Identical prompt checkers: every skills/<dir>/scripts/check_prompt.py
-     matches the master copy, scripts/skills/check_prompt.py.
-
-Exits 0 when all checks pass, 1 otherwise. Emits ::error annotations when
-running inside GitHub Actions.
-
-Local run:  python3 scripts/skills/validate_skills.py   (requires pyyaml)
+Exits 0 when all checks pass, 1 otherwise. Emits ::error annotations in CI.
+Local run: python3 scripts/skills/validate_skills.py (requires pyyaml).
 """
 
 from __future__ import annotations
 
-import json
 import os
 import re
 import sys
@@ -56,14 +25,9 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-PLUGIN = ROOT / "plugins" / "meshy-prompting"
-SKILLS_DIR = PLUGIN / "skills"
-CHANGELOG = PLUGIN / "CHANGELOG.md"
-CLAUDE_PLUGIN = PLUGIN / ".claude-plugin" / "plugin.json"
-MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
-CURSOR_PLUGIN = PLUGIN / ".cursor-plugin" / "plugin.json"
+SKILLS_DIR = ROOT / "skills"
+CHANGELOG = SKILLS_DIR / "CHANGELOG.md"
 CHECKER_MASTER = Path(__file__).resolve().parent / "check_prompt.py"
-MANIFEST_PATHS = [CLAUDE_PLUGIN, MARKETPLACE, CURSOR_PLUGIN]
 
 SEMVER_RE = re.compile(r"^\d+\.\d+\.\d+$")
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n", re.DOTALL)
@@ -89,17 +53,6 @@ def skill_dirs() -> list[Path]:
     return sorted(
         d for d in SKILLS_DIR.iterdir() if d.is_dir() and (d / "SKILL.md").is_file()
     )
-
-
-def load_json(path: Path, errors: list[str]):
-    if not path.is_file():
-        errors.append(f"{rel(path)}: manifest missing")
-        return None
-    try:
-        return json.loads(path.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        errors.append(f"{rel(path)}: invalid JSON: {exc}")
-        return None
 
 
 def load_frontmatter(path: Path):
@@ -138,6 +91,8 @@ def is_external(target: str) -> bool:
 
 def check_frontmatter() -> list[str]:
     errors = []
+    if not skill_dirs():
+        return [f"{rel(SKILLS_DIR)}: no skills found"]
     for directory in skill_dirs():
         path = directory / "SKILL.md"
         fm = load_frontmatter(path)
@@ -178,30 +133,9 @@ def check_frontmatter() -> list[str]:
 # --- Check 2: version sync ---------------------------------------------------
 
 
-def collect_versions(manifests: dict) -> tuple[list[str], dict[str, str]]:
+def collect_versions() -> tuple[list[str], dict[str, str]]:
     errors: list[str] = []
     versions: dict[str, str] = {}
-
-    for path, data in manifests.items():
-        if data is None:
-            continue
-        label = rel(path)
-        if path == MARKETPLACE:
-            if "version" in data:
-                versions[f"{label} (top level)"] = str(data["version"])
-            entries = data.get("plugins")
-            if isinstance(entries, list):
-                for entry in entries:
-                    if isinstance(entry, dict) and "version" in entry:
-                        versions[
-                            f"{label} entry {entry.get('name', '?')}"
-                        ] = str(entry["version"])
-        else:
-            value = data.get("version")
-            if value is None:
-                errors.append(f"{label}: version field missing")
-            else:
-                versions[label] = str(value)
 
     for directory in skill_dirs():
         path = directory / "SKILL.md"
@@ -225,8 +159,8 @@ def collect_versions(manifests: dict) -> tuple[list[str], dict[str, str]]:
     return errors, versions
 
 
-def check_versions(manifests: dict) -> list[str]:
-    errors, versions = collect_versions(manifests)
+def check_versions() -> list[str]:
+    errors, versions = collect_versions()
     for label, value in sorted(versions.items()):
         if not SEMVER_RE.match(value):
             errors.append(f'{label}: "{value}" is not semver x.y.z')
@@ -234,116 +168,11 @@ def check_versions(manifests: dict) -> list[str]:
         detail = "\n    ".join(
             f"{label} = {value}" for label, value in sorted(versions.items())
         )
-        errors.append(f"version mismatch across manifests/skills/CHANGELOG:\n    {detail}")
+        errors.append(f"version mismatch across skills/CHANGELOG:\n    {detail}")
     return errors
 
 
-# --- Check 3: manifest coverage ----------------------------------------------
-
-
-def expand_skills_field(value, where: str, actual: set[str], errors: list[str]) -> set[str]:
-    covered: set[str] = set()
-    if isinstance(value, str):
-        items = [value]
-    elif isinstance(value, list):
-        items = value
-    else:
-        errors.append(f"{where}: skills must be a string or an array of strings")
-        return covered
-    for item in items:
-        if not isinstance(item, str):
-            errors.append(f"{where}: skills entries must be strings")
-            continue
-        normalized = item.strip().lstrip("./").rstrip("/")
-        if normalized == "skills":
-            covered |= actual
-        elif normalized.startswith("skills/"):
-            name = normalized[len("skills/"):]
-            if name in actual:
-                covered.add(name)
-            else:
-                errors.append(
-                    f"{where}: skills entry '{item}' matches no skills/<dir> "
-                    f"containing a SKILL.md"
-                )
-        else:
-            errors.append(f"{where}: skills entry '{item}' is not under skills/")
-    return covered
-
-
-def check_manifest_coverage(manifests: dict, load_errors: list[str]) -> list[str]:
-    errors = list(load_errors)
-    actual = {d.name for d in skill_dirs()}
-
-    for path, data in manifests.items():
-        if data is None:
-            continue
-        name = data.get("name")
-        if not (isinstance(name, str) and name.strip()):
-            errors.append(f"{rel(path)}: name missing or empty")
-
-    marketplace = manifests.get(MARKETPLACE)
-    if marketplace is not None:
-        owner = marketplace.get("owner")
-        if not (
-            isinstance(owner, dict)
-            and isinstance(owner.get("name"), str)
-            and owner["name"].strip()
-        ):
-            errors.append(f"{rel(MARKETPLACE)}: owner.name missing")
-        entries = marketplace.get("plugins")
-        if not isinstance(entries, list) or not entries:
-            errors.append(f"{rel(MARKETPLACE)}: plugins[] missing or empty")
-        else:
-            covered: set[str] = set()
-            for entry in entries:
-                if not isinstance(entry, dict):
-                    errors.append(f"{rel(MARKETPLACE)}: plugin entry is not an object")
-                    continue
-                entry_name = entry.get("name")
-                if not (isinstance(entry_name, str) and entry_name.strip()):
-                    errors.append(f"{rel(MARKETPLACE)}: plugin entry missing name")
-                    entry_name = "?"
-                source = entry.get("source")
-                where = f"{rel(MARKETPLACE)} entry '{entry_name}'"
-                if isinstance(source, str):
-                    resolved = (ROOT / source).resolve()
-                    if not resolved.is_dir():
-                        errors.append(f"{where}: source '{source}' is not a directory")
-                    elif not (resolved / ".claude-plugin" / "plugin.json").is_file():
-                        errors.append(
-                            f"{where}: source '{source}' has no "
-                            f".claude-plugin/plugin.json (required with strict "
-                            f"marketplace entries)"
-                        )
-                elif not isinstance(source, dict):
-                    errors.append(f"{where}: missing source")
-                covered |= expand_skills_field(
-                    entry.get("skills", []), where, actual, errors
-                )
-            if covered != actual:
-                errors.append(
-                    f"{rel(MARKETPLACE)}: entries cover {sorted(covered)} but "
-                    f"skills/ contains {sorted(actual)}"
-                )
-
-    # If the claude/cursor root plugin.json ever gains an explicit skills
-    # list, it must cover every skill directory too (auto-discovery does the
-    # right thing when the field is absent).
-    for path in (CLAUDE_PLUGIN, CURSOR_PLUGIN):
-        data = manifests.get(path)
-        if data is not None and "skills" in data:
-            covered = expand_skills_field(data["skills"], rel(path), actual, errors)
-            if covered != actual:
-                errors.append(
-                    f"{rel(path)}: explicit skills list covers {sorted(covered)} "
-                    f"but skills/ contains {sorted(actual)}"
-                )
-
-    return errors
-
-
-# --- Check 6: identical prompt checkers ---------------------------------------
+# --- Check 5: identical prompt checkers ---------------------------------------
 
 
 def check_checker_copies() -> list[str]:
@@ -358,7 +187,7 @@ def check_checker_copies() -> list[str]:
     return errors
 
 
-# --- Check 4: reference bidirectionality --------------------------------------
+# --- Check 3: reference bidirectionality --------------------------------------
 
 
 def check_references() -> list[str]:
@@ -378,7 +207,7 @@ def check_references() -> list[str]:
                 try:
                     resolved.relative_to(root)
                 except ValueError:
-                    continue  # escapes the skill dir; check 5 reports '..' cases
+                    continue  # escapes the skill dir; check 4 reports escapes
                 if not resolved.exists():
                     errors.append(f"{rel(path)}: linked file '{target}' does not exist")
                 elif resolved in md_files:
@@ -401,35 +230,11 @@ def check_references() -> list[str]:
     return errors
 
 
-# --- Check 5: no parent-directory references ----------------------------------
+# --- Check 4: no links outside the skill directory ----------------------------------
 
 
-def iter_strings(obj, prefix=""):
-    if isinstance(obj, dict):
-        for key, value in obj.items():
-            yield from iter_strings(value, f"{prefix}.{key}" if prefix else key)
-    elif isinstance(obj, list):
-        for index, value in enumerate(obj):
-            yield from iter_strings(value, f"{prefix}[{index}]")
-    elif isinstance(obj, str):
-        yield prefix, obj
-
-
-def has_parent_segment(value: str) -> bool:
-    return ".." in value.replace("\\", "/").split("/")
-
-
-def check_no_parent_refs(manifests: dict) -> list[str]:
+def check_no_parent_refs() -> list[str]:
     errors = []
-    for path, data in manifests.items():
-        if data is None:
-            continue
-        for json_path, value in iter_strings(data):
-            if has_parent_segment(value):
-                errors.append(
-                    f"{rel(path)}: '{json_path}' contains a '..' path segment: "
-                    f"{value!r}"
-                )
     for directory in skill_dirs():
         root = directory.resolve()
         for path in directory.rglob("*.md"):
@@ -437,13 +242,6 @@ def check_no_parent_refs(manifests: dict) -> list[str]:
                 if is_external(target):
                     continue
                 bare = target.split("#", 1)[0]
-                if not has_parent_segment(bare):
-                    continue
-                # A '..' that still lands inside the skill directory is fine —
-                # references/pipelines.md reaching its own skill's
-                # ../reference.md travels with the directory. Only a link that
-                # resolves outside the skill directory breaks independent
-                # installation.
                 if not bare:
                     continue
                 resolved = (path.parent / bare).resolve()
@@ -462,21 +260,12 @@ def check_no_parent_refs(manifests: dict) -> list[str]:
 
 
 def main() -> int:
-    manifests: dict = {}
-    load_errors: list[str] = []
-    for path in MANIFEST_PATHS:
-        manifests[path] = load_json(path, load_errors)
-
     checks = [
-        ("Check 1/6: SKILL.md frontmatter", check_frontmatter()),
-        ("Check 2/6: version sync", check_versions(manifests)),
-        (
-            "Check 3/6: manifest coverage",
-            check_manifest_coverage(manifests, load_errors),
-        ),
-        ("Check 4/6: reference bidirectionality", check_references()),
-        ("Check 5/6: no parent-directory references", check_no_parent_refs(manifests)),
-        ("Check 6/6: identical prompt checkers", check_checker_copies()),
+        ("Check 1/5: SKILL.md frontmatter", check_frontmatter()),
+        ("Check 2/5: version sync", check_versions()),
+        ("Check 3/5: reference bidirectionality", check_references()),
+        ("Check 4/5: no links outside the skill directory", check_no_parent_refs()),
+        ("Check 5/5: identical prompt checkers", check_checker_copies()),
     ]
 
     failed = 0

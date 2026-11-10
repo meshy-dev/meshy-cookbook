@@ -6,10 +6,10 @@ The skills only write prompts and settings; they never call Meshy, so you need n
 
 | Skill | Where the prompt goes | Describes | Leaves out |
 |---|---|---|---|
-| [`meshy-text-to-3d-prompt`](skills/meshy-text-to-3d-prompt/) | Text to 3D prompt (web app); `prompt` on the preview task (API), 800 characters | Shape: silhouette, parts, proportions, large relief | Colors, materials, damage, pose, face count |
-| [`meshy-image-prompt`](skills/meshy-image-prompt/) | Text to Image or Image to Image prompt, when the picture will go into Image to 3D | The whole object as it should be converted: view, materials, lighting, background; A-pose characters for rigging | Props, text, scenes, a pose that conflicts with `pose_mode` |
-| [`meshy-texture-prompt`](skills/meshy-texture-prompt/) | AI Texturing prompt (web app); `texture_prompt` on refine and Image to 3D, `text_style_prompt` on Retexture (API), 800 characters | Surfaces: material, color, pattern and wear per part, finish | Shape changes, lighting, shadows |
-| [`meshy-edit-prompt`](skills/meshy-edit-prompt/) | Meshy Edit prompt box (web app only, after drawing a lasso) | The selected part by name and side, its new shape, what is left after a removal | "it", "keep everything else unchanged", colors and materials |
+| [`meshy-text-to-3d-prompt`](meshy-text-to-3d-prompt/) | Text to 3D prompt (web app); `prompt` on the preview task (API), 800 characters | Shape: silhouette, parts, proportions, large relief | Colors, materials, damage, pose, face count |
+| [`meshy-image-prompt`](meshy-image-prompt/) | Text to Image or Image to Image prompt, when the picture will go into Image to 3D | The whole object as it should be converted: view, materials, lighting, background; A-pose characters for rigging | Props, text, scenes, a pose that conflicts with `pose_mode` |
+| [`meshy-texture-prompt`](meshy-texture-prompt/) | AI Texturing prompt (web app); `texture_prompt` on refine and Image to 3D, `text_style_prompt` on Retexture (API), 800 characters | Surfaces: material, color, pattern and wear per part, finish | Shape changes, lighting, shadows |
+| [`meshy-edit-prompt`](meshy-edit-prompt/) | Meshy Edit prompt box (web app only, after drawing a lasso) | The selected part by name and side, its new shape, what is left after a removal | "it", "keep everything else unchanged", colors and materials |
 
 Two rules apply everywhere: put the subject first (Meshy's prompting guide says the earliest words carry the most weight), and set anything a setting controls with the setting (`pose_mode`, `target_polycount`, `remove_background`, `enable_pbr`).
 
@@ -45,25 +45,25 @@ Most comparisons are one to six runs per prompt; each evidence file says how man
 
 ## Install
 
-Claude Code, as a plugin marketplace:
+From a clone of the cookbook, copy the skill directories you want into your project's agent skills directory:
+
+| Agent | Project directory |
+|---|---|
+| Claude Code | `.claude/skills/` |
+| Cursor | `.cursor/skills/` |
+| Codex | `.agents/skills/` |
+
+For example, from the cookbook root, install the Text to 3D prompt skill for Claude Code:
 
 ```bash
-claude plugin marketplace add meshy-dev/meshy-cookbook
+mkdir -p /path/to/your-project/.claude/skills
+cp -R skills/meshy-text-to-3d-prompt /path/to/your-project/.claude/skills/
 ```
 
-Then install the skills you want, each on its own (one step on Claude Code 2.1.275 or later):
-
-```bash
-/plugin install meshy-text-to-3d-prompt --marketplace meshy-dev/meshy-cookbook
-/plugin install meshy-image-prompt --marketplace meshy-dev/meshy-cookbook
-/plugin install meshy-texture-prompt --marketplace meshy-dev/meshy-cookbook
-/plugin install meshy-edit-prompt --marketplace meshy-dev/meshy-cookbook
-```
-
-Or copy any `skills/<name>` directory into `.claude/skills/` (Claude Code), `.cursor/skills/` (Cursor) or `.agents/skills/` (Codex); every skill is self-contained.
+Copy the whole skill directory, including its references, assets and scripts. Every skill is self-contained; no plugin installation is needed.
 
 ## Sources
 
 The tests ran on 2026-10-07 (Text to 3D, Text to Image, texturing and rigging), 2026-10-14 (Meshy Edit), 2026-10-16 (six more image models), 2026-10-20 (six props) and 2026-11-08 (the rig-ready pipeline on Smart Topology, texture models and props). The skills were checked against the Meshy API docs ([Text to 3D](https://docs.meshy.ai/api/text-to-3d), [Text to Image](https://docs.meshy.ai/api/text-to-image), [Image to 3D](https://docs.meshy.ai/api/image-to-3d), [Models](https://docs.meshy.ai/api/models), [Retexture](https://docs.meshy.ai/api/retexture), [Rigging](https://docs.meshy.ai/api/rigging), [Pricing](https://docs.meshy.ai/api/pricing)) on 2026-11-08 and the [Prompting Best Practices](https://docs.meshy.ai/webapp/guides/prompting) guide.
 
-These skills live in the [Meshy Cookbook](https://github.com/meshy-dev/meshy-cookbook), beside the recipes that run the same tasks in code. Contributing: see the "Agent skills" section of the cookbook's [CONTRIBUTING.md](../../CONTRIBUTING.md#agent-skills).
+These skills live in the [Meshy Cookbook](https://github.com/meshy-dev/meshy-cookbook), beside the recipes that run the same tasks in code. Contributing: see the "Agent skills" section of the cookbook's [CONTRIBUTING.md](../CONTRIBUTING.md#agent-skills).
