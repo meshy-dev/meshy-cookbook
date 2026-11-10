@@ -1,0 +1,82 @@
+[
+  {
+    "query": "I have a Meshy text-to-3d preview of a viking longship (task 0198b3f1) and I'm about to refine it. I want weathered oak planks, iron nails, a red and white striped wool sail and rope rigging. write the texture_prompt and tell me whether to turn on enable_pbr",
+    "should_trigger": true
+  },
+  {
+    "query": "retexture my dwarf: his apron came out charcoal grey but I asked for dark brown leather with burn marks. what's wrong with the prompt and what do I send to the retexture call?",
+    "should_trigger": true
+  },
+  {
+    "query": "need a text_style_prompt for Meshy's retexture API: turn the uploaded GLB of a sneaker (models/sneaker.glb) into a translucent jelly candy look with sprinkles on top",
+    "should_trigger": true
+  },
+  {
+    "query": "make my robot look like it's carved from obsidian with gold trim and glowing cyan seams. it's a meshy model i already generated, how do i phrase that",
+    "should_trigger": true
+  },
+  {
+    "query": "I'm batch-texturing 40 props through the Meshy API for a hand-painted stylized game (think WoW). what's a reusable prompt template so they all match in style and I just swap the part names each time?",
+    "should_trigger": true
+  },
+  {
+    "query": "the metal on my refined meshy knight looks like grey plastic. the prompt was 'iron armor, brass trim'. what do I change, the prompt or a setting?",
+    "should_trigger": true
+  },
+  {
+    "query": "in the web app AI Texturing I typed 'make it taller and give it a wooden handle' on my hammer. nothing changed shape, the handle is sort of wooden though. what should I have typed",
+    "should_trigger": true
+  },
+  {
+    "query": "we let users describe a 'look' in our app and apply it to their Meshy model. I need the LLM meta prompt that converts something vague like 'cozy cottagecore' into a proper texture_prompt with per-part slots",
+    "should_trigger": true
+  },
+  {
+    "query": "I asked for 'top ridge: polished steel' in my helmet texture prompt and the ridge stayed the same iron as everything else. why does meshy ignore some part names and how do I get it painted?",
+    "should_trigger": true
+  },
+  {
+    "query": "retexturing a chair I modelled in Blender using meshy, and the result is smeared across the seams no matter what I write. is it my prompt or something else?",
+    "should_trigger": true
+  },
+  {
+    "query": "write me a meshy text-to-3d prompt for an ornate treasure chest with iron bands and a big padlock. I'll texture it later, just need the mesh prompt first",
+    "should_trigger": false
+  },
+  {
+    "query": "I want the Meshy image-to-3d result textured directly from the image. write the text-to-image prompt for a brass diving helmet so the colors and materials come through in the conversion",
+    "should_trigger": false
+  },
+  {
+    "query": "I want to add a buckle to the belt on my meshy dwarf. what do I lasso and what's the meshy edit prompt?",
+    "should_trigger": false
+  },
+  {
+    "query": "run retexture on meshy task 0198abc with text_style_prompt 'Stylized game-art style. Hull: weathered oak planks. Sail: faded red wool.' and enable_pbr true, then download the FBX to ~/out/. Don't change the prompt.",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I bake a PBR texture set from a high-poly to a low-poly mesh in Blender? I need roughness and metallic maps for Unity's standard shader",
+    "should_trigger": false
+  },
+  {
+    "query": "my retexture task via the API keeps failing with 'model_url not accessible'. I'm using a presigned S3 URL that expires after 5 minutes. what should i do?",
+    "should_trigger": false
+  },
+  {
+    "query": "unwrap the UVs on ~/models/chair.glb with the meshy mcp and send me back the result file",
+    "should_trigger": false
+  },
+  {
+    "query": "write a midjourney prompt for a seamless tileable cobblestone texture, 1024x1024, for my Unity terrain material",
+    "should_trigger": false
+  },
+  {
+    "query": "I'm drafting a developer blog post about retexturing 100 props with Meshy overnight. can you check my intro paragraph for the curse of knowledge before I send it to review?",
+    "should_trigger": false
+  },
+  {
+    "query": "how much does a meshy retexture at 8k cost vs 4k, and do I get the credits refunded if the task fails? trying to budget for a 200-model batch",
+    "should_trigger": false
+  }
+]

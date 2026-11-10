@@ -6,6 +6,16 @@ Example code and guides for creating 3D assets with the [Meshy API](https://docs
 
 Every recipe includes Python and TypeScript implementations. Follow the recipe's README for installation and run commands. Live runs spend Meshy credits; each recipe lists its approximate cost. See [current API pricing](https://docs.meshy.ai/en/api/pricing) for details.
 
+## Agent skills
+
+[`plugins/meshy-prompting`](plugins/meshy-prompting/) holds agent skills that write Meshy prompts: Text to 3D, Text to Image for Image to 3D, texture and retexture, and Meshy Edit. Each one is built from live A/B tests. Install them in Claude Code with:
+
+```bash
+claude plugin marketplace add meshy-dev/meshy-cookbook
+```
+
+Or copy any `plugins/meshy-prompting/skills/<name>` directory into `.claude/skills/` (Claude Code), `.cursor/skills/` (Cursor) or `.agents/skills/` (Codex).
+
 To contribute an example or improve an existing one, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License

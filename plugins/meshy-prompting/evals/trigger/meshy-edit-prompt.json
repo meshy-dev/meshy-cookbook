@@ -1,0 +1,82 @@
+[
+  {
+    "query": "in meshy edit I lassoed the left shoulder of my knight and typed 'raven on shoulder' and the raven showed up on the RIGHT shoulder both times. what am I doing wrong?",
+    "should_trigger": true
+  },
+  {
+    "query": "I want to replace the horned helmet on my meshy knight with a bare human head using Edit Mode. what do I type and what exactly do I select?",
+    "should_trigger": true
+  },
+  {
+    "query": "Using the Edit button on my untextured meshy 7.1 orc, I want to remove the shield. after the edit the hand is a weird stump. how should I phrase the removal?",
+    "should_trigger": true
+  },
+  {
+    "query": "my meshy edit of 'make the blade thicker' on the sword also mangled the leg behind it. is that the prompt or the selection?",
+    "should_trigger": true
+  },
+  {
+    "query": "can I use meshy edit to change the cape on my model from blue to red? I have it selected but nothing happens",
+    "should_trigger": true
+  },
+  {
+    "query": "my model was generated with textures and the Edit button in Meshy says the model isn't supported. what do I need to do before I can swap the sword?",
+    "should_trigger": true
+  },
+  {
+    "query": "write me 3 variations of a meshy edit prompt to swap my dwarf's hammer for a two-handed axe. I'll run each one twice and pick the best",
+    "should_trigger": true
+  },
+  {
+    "query": "I keep adding 'keep everything else exactly the same' to my meshy edit prompts and it still changes the arm next to the selection. is that phrase doing anything?",
+    "should_trigger": true
+  },
+  {
+    "query": "the lasso in meshy edit: should I select just the shield or the whole arm when I want to remove the shield and leave a bare forearm?",
+    "should_trigger": true
+  },
+  {
+    "query": "about to spend 20 credits per try on meshy edit to add a backpack to my character. how do i write it so it lands on the back and doesn't fuse into the cape",
+    "should_trigger": true
+  },
+  {
+    "query": "change the cape on my meshy knight from blue to crimson velvet. it's already textured, what's the retexture prompt?",
+    "should_trigger": false
+  },
+  {
+    "query": "regenerate my knight from scratch but with a raven on the shoulder from the start. what's the text to 3d prompt for that?",
+    "should_trigger": false
+  },
+  {
+    "query": "I want to edit my reference image before image-to-3d: remove the background and put the character in an A-pose. what's the image-to-image prompt for gpt-image-2-5-sunburst?",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I select just the sword blade in Blender edit mode and scale it along one axis without moving the hilt?",
+    "should_trigger": false
+  },
+  {
+    "query": "my meshy model has holes and non-manifold edges. which meshy tool fixes that for printing, and can you run it on task 0198cd4e?",
+    "should_trigger": false
+  },
+  {
+    "query": "Run Meshy remesh on my knight to 20k faces and then rig it. the task id is 0198abc. use the MCP",
+    "should_trigger": false
+  },
+  {
+    "query": "I exported my meshy knight as GLB and want to delete the shield in Blender and close the hole in the forearm. step by step?",
+    "should_trigger": false
+  },
+  {
+    "query": "edit this product photo for me: swap the left shoe for a sandal and keep everything else the same. it's at ~/Desktop/shoes.jpg",
+    "should_trigger": false
+  },
+  {
+    "query": "how do I swap the weapon mesh on my rigged character at runtime in Unity, with a socket on the hand bone?",
+    "should_trigger": false
+  },
+  {
+    "query": "write a cookbook recipe about using meshy's auto split to separate a model into parts, for the meshy-cookbook repo. README first.",
+    "should_trigger": false
+  }
+]
