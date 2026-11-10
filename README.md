@@ -8,13 +8,9 @@ Every recipe includes Python and TypeScript implementations. Follow the recipe's
 
 ## Agent skills
 
-[`plugins/meshy-prompting`](plugins/meshy-prompting/) holds agent skills that write Meshy prompts: Text to 3D, Text to Image for Image to 3D, texture and retexture, and Meshy Edit. Each one is built from live A/B tests. Install them in Claude Code with:
+[`skills/`](skills/) holds four self-contained skills that write Meshy prompts: Text to 3D, Text to Image for Image to 3D, texture and retexture, and Meshy Edit. Each one is built from live A/B tests.
 
-```bash
-claude plugin marketplace add meshy-dev/meshy-cookbook
-```
-
-Or copy any `plugins/meshy-prompting/skills/<name>` directory into `.claude/skills/` (Claude Code), `.cursor/skills/` (Cursor) or `.agents/skills/` (Codex).
+Copy any `skills/<name>` directory into your project's `.claude/skills/` (Claude Code), `.cursor/skills/` (Cursor) or `.agents/skills/` (Codex). See the [skills README](skills/README.md) for examples and installation instructions.
 
 To contribute an example or improve an existing one, see [CONTRIBUTING.md](CONTRIBUTING.md).
 

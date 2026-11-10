@@ -4,7 +4,7 @@
 
 ### Changed
 
-- The skills are now part of the Meshy Cookbook, under `plugins/meshy-prompting/`. Install with `claude plugin marketplace add meshy-dev/meshy-cookbook`. The repo checks are `scripts/skills/validate_skills.py`, which now also checks that every `check_prompt.py` copy matches `scripts/skills/check_prompt.py`.
+- The skills are now part of the Meshy Cookbook, under `skills/`. Install by copying the desired skill directories into your agent's skills directory; the plugin manifests and marketplace wrapper have been removed. The repo checks are `scripts/skills/validate_skills.py`, which now also checks that every `check_prompt.py` copy matches `scripts/skills/check_prompt.py`.
 - `meshy-text-to-3d-prompt`, `meshy-image-prompt` and `meshy-texture-prompt` link to the cookbook recipes that run the same tasks in code or with a coding agent.
 
 ### Removed

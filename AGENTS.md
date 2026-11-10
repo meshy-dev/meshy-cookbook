@@ -45,7 +45,7 @@ selected language's `main` file, and the shared client it imports.
 - To adapt a recipe into a project, copy `shared/<language>/meshy.*` next to the pipeline
   and keep the payloads literal.
 - When the user brings their own description or image prompt, write it with the matching
-  skill in `plugins/meshy-prompting/skills/`: `meshy-text-to-3d-prompt` for cookbook 07,
+  skill in `skills/`: `meshy-text-to-3d-prompt` for cookbook 07,
   `meshy-image-prompt` for cookbooks 03, 14 and 16, `meshy-texture-prompt` for cookbook 06.
   Read its `SKILL.md`; it writes the prompt and settings and never calls Meshy.
 
