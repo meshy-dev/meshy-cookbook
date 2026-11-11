@@ -6,7 +6,7 @@ Turn one character image into a rigged 3D character with three animation clips f
 |---|---|---|
 | ![Armored character concept art](input/concept-art.png) | ![Textured armored character in an A-pose](assets/result.png) | ![The animated character playing the Regular_Jump clip](assets/jump.gif) |
 
-The jump plays from a real result, rendered in Blender: **three clips** in one file, 4.0, 1.9 and 2.8 seconds long. [Preview provenance](assets/SOURCES.md).
+The jump plays from a real result, rendered in Blender: **three clips** in one file, 4.0, 1.8 and 2.8 seconds long. [Preview provenance](assets/SOURCES.md).
 
 ## What you'll make
 
@@ -19,13 +19,13 @@ To get there, you'll:
 1. Give your coding agent the recipe and store your Meshy API key. No credits are spent.
 2. Choose the three actions the character will perform.
 3. Start the run and approve the credit cost.
-4. Wait about three minutes while Meshy builds the model and adds the skeleton.
+4. Wait about two minutes while Meshy builds the model and adds the skeleton.
 5. Wait under a minute while Meshy fits the three clips onto the skeleton.
 6. Open the result and play each clip.
 
 - **Start with:** One PNG or JPEG of a standing humanoid character, plus the ids of one to ten actions from the animation library. The armored character shown above is included, and the recipe picks Idle, Regular Jump and Attack.
 - **Receive:** One animated character in two formats (`animated-character.glb` and `animated-character.fbx`), each holding the three clips, and a preview image.
-- **Allow:** about three to four minutes for generation, plus time for first-time setup.
+- **Allow:** about two and a half minutes for generation, plus time for first-time setup.
 - **Budget:** about 44 Meshy credits for the default example: 30 to build the model, 5 to rig it and 9 for the three clips.
 
 These are recorded sample costs and timings, not guarantees. Your generated result will vary. [Check current API pricing](https://docs.meshy.ai/en/api/pricing) before you run it.
@@ -63,7 +63,7 @@ The recipe uses three actions that cover what a playable character needs first:
 | Action | Library id | Clip in the file | What a game uses it for |
 |---|---|---|---|
 | Idle | `0` | `Idle`, 4.0 seconds | Standing and shifting weight while the player does nothing |
-| Regular Jump | `466` | `Regular_Jump`, 1.9 seconds | Crouch, leave the ground, land |
+| Regular Jump | `466` | `Regular_Jump`, 1.8 seconds | Crouch, leave the ground, land |
 | Attack | `4` | `Attack`, 2.8 seconds | A step forward and a weapon swing |
 
 Browse the [Animation Library](https://docs.meshy.ai/en/api/animation-library) to see a looping preview of every action, sorted by category: walking and running, body movements, daily actions, fighting and dancing. Or ask your agent to search it. Listing the library is free; only applying an action costs credits.
@@ -82,11 +82,11 @@ Paste this prompt. The agent quotes the cost and waits for your approval before 
 Run cookbook 09, the animated character recipe, with the included armored character and the default actions. Tell me the expected credit cost and wait for my approval before generating. While it runs, tell me when each stage finishes. When everything is done, show me where the files were saved.
 ```
 
-Expect a quote of about 30 credits to build the model, 5 to rig it and 9 for the three clips. Once you approve, the recipe runs three stages back to back and the agent reports progress. The whole run takes three to four minutes, so keep the terminal open and read ahead to see what is happening.
+Expect a quote of about 30 credits to build the model, 5 to rig it and 9 for the three clips. Once you approve, the recipe runs three stages back to back and the agent reports progress. The whole run takes about two and a half minutes, so keep the terminal open and read ahead to see what is happening.
 
 ## Step 4: Meshy builds and rigs the character
 
-This stage takes about three minutes and repeats the two stages of the [rigged character recipe](../05-image-to-rigged-character/), which explains each of them in detail.
+This stage takes about two minutes and repeats the two stages of the [rigged character recipe](../05-image-to-rigged-character/), which explains each of them in detail.
 
 - **Build the model.** About two minutes. Meshy reads the image and builds a complete mesh from it, including the back and sides the picture does not show, then generates its textures: a base color texture plus PBR maps, short for physically based rendering, which tell a viewer how the armor reflects light. The recipe asks for an A-pose, with the arms angled down and away from the body, so the rigger can find shoulders, elbows and hands. It also simplifies the mesh to about 30,000 triangles, the flat polygons a mesh is made of, because the rigger refuses meshes over 300,000.
 - **Rig it.** Under a minute. Meshy places a skeleton of 24 joints inside the mesh in a standard humanoid layout, computes the skin weights, and scales the character to 1.8 meters tall so it stands as tall as a person when it lands in a game engine.
@@ -97,7 +97,7 @@ This stage takes about three minutes and repeats the two stages of the [rigged c
 
 As soon as the model is built, the recipe saves this preview as `character-thumbnail.png` in the output folder, and you can open it while the next stages run. Check that the proportions match the drawing and that the arms and legs are distinct from the body: a clear body is what the rigger needs to place the joints, and every clip moves those joints.
 
-One limit to know: the rigged and animated files keep only the base color texture. The PBR maps are not carried into them, so the animated armor loses some of its metal shine.
+One limit to know: the animated files keep only the base color texture. The rigging stage keeps the PBR maps, but the animation stage drops them, so the animated armor loses some of its metal shine.
 
 ## Step 5: Meshy fits the three clips onto the skeleton
 
@@ -130,7 +130,7 @@ Help me play the clips in output/animated-character.glb. If Blender is installed
 
 Watch the elbows, knees and shoulders in each clip. Joints should bend where a person's would, and the armor should travel with the body. Some stretching where armor plates meet is normal for automatic rigging. The jump should leave the ground and land on both feet, and the attack should step forward and swing. This is how the three clips play on the finished character:
 
-| `Idle`, 4.0 seconds | `Regular_Jump`, 1.9 seconds | `Attack`, 2.8 seconds |
+| `Idle`, 4.0 seconds | `Regular_Jump`, 1.8 seconds | `Attack`, 2.8 seconds |
 |---|---|---|
 | ![The animated character playing the Idle clip](assets/idle.gif) | ![The animated character playing the Regular_Jump clip](assets/jump.gif) | ![The animated character playing the Attack clip](assets/attack.gif) |
 
@@ -166,7 +166,7 @@ Save a copy of your first result before generating another version. Every new ru
 **Endpoints:** `POST /openapi/v1/image-to-3d` → `GET /openapi/v1/image-to-3d/:id`, then `POST /openapi/v1/rigging` → `GET /openapi/v1/rigging/:id`, then `POST /openapi/v1/animations` → `GET /openapi/v1/animations/:id`\
 **Languages:** Python 3.10+ · TypeScript (Node 22+)\
 **Source:** [Python](python/main.py) · [TypeScript](typescript/main.ts)\
-**Last verified run measurements:** September 27, 2026 · [Sample result](sample-result.json)
+**Last verified run measurements:** October 19, 2026 · [Sample result](sample-result.json)
 
 The animation endpoint applies preset actions from the animation library to a finished rigging task. With `action_ids` it returns one GLB and one FBX that hold every requested action as a separate clip, in the order given, named by the action's library key. This recipe builds the character and its rig exactly as the [rigged character recipe](../05-image-to-rigged-character/) does, then chains the three tasks with `input_task_id` and `rig_task_id`, so no file leaves Meshy between stages. The free `GET /openapi/v1/animations/library` endpoint lists every accepted id with its name, key, category and preview GIF.
 
@@ -293,11 +293,11 @@ These are measurements of the two recorded sample runs, one per language. The Py
 
 | File | Contents |
 |---|---|
-| `animated-character.glb` | 30,794–30,810 triangles, 32,386–33,975 vertices, 24 joints, one base color texture, three clips, 7.1–7.2 MB |
-| `animated-character.fbx` | The same mesh, skeleton and clips as FBX, 7.4–7.5 MB |
+| `animated-character.glb` | 30,705–30,819 triangles, 37,306–37,488 vertices, 24 joints, one 2,048 px base color JPEG, three clips, 5.2–5.3 MB |
+| `animated-character.fbx` | The same mesh, skeleton and clips as FBX, 5.5 MB |
 | `character-thumbnail.png` | 512 px preview of the model before rigging |
 
-The three clips are named `Idle` (4.0 seconds), `Regular_Jump` (1.9 seconds) and `Attack` (2.8 seconds), in the order of `action_ids`: the names are the library `key` values, so an action called "Regular Jump" in the library becomes a clip called `Regular_Jump`. Blender 5.2 imports the GLB as three actions on the armature, with `Idle` active and one muted NLA track per clip; the FBX carries the same three clips as animation stacks, which Unity and Unreal list as separate clips. The skeleton uses conventional humanoid names such as `Hips`, `LeftUpLeg`, `Spine` and `Head`. The model stage took 125–126 seconds, rigging 38 seconds and the animation stage 27–31 seconds, 205–211 seconds end to end.
+The three clips are named `Idle` (4.0 seconds), `Regular_Jump` (1.8 seconds) and `Attack` (2.8 seconds), in the order of `action_ids`: the names are the library `key` values, so an action called "Regular Jump" in the library becomes a clip called `Regular_Jump`. Blender 5.2 imports the GLB as three actions on the armature, with `Idle` active and one muted NLA track per clip; the FBX carries the same three clips as animation stacks, which Unity and Unreal list as separate clips. The skeleton uses conventional humanoid names such as `Hips`, `LeftUpLeg`, `Spine` and `Head`. The model stage took 95–109 seconds, rigging 14–15 seconds and the animation stage 11–12 seconds, 133–147 seconds end to end.
 
 ## Parameters worth changing
 
