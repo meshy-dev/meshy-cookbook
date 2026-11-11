@@ -120,6 +120,11 @@ meshy rigging create --input-task-id MODEL_ID --height-meters HEIGHT_M --operati
 meshy rigging wait RIG_ID --timeout 600 -o "JOB_DIR/rig/" --all-assets --workspace "WORKSPACE" --format json --no-update-check
 ```
 
+Leave `skeleton_template` at its default, `meshyrig`. Rigging also offers an Unreal mannequin
+skeleton (`ue5_mannequin`), but on UE 5.9 its FBX imported with bones below the pelvis 100 times
+too short: the character looked right at rest and collapsed to a point once animated, and it
+cannot share the template's `SK_Mannequin` skeleton ([validation](validation.md), 2026-11-11).
+
 Inspect the returned asset listing. Import `rigged_character.fbx` with `import_character`, then
 walking/running FBX clips with `import_animation` on its returned skeleton. FBX is the characterized
 Unreal path; do not assume any rigged GLB has correct scale without measuring. Use existing clips

@@ -93,7 +93,7 @@ for reflected `unreal.Array` transform arguments failing JSON response serializa
 It still does not cover textured GLB, character animation, attachment, save/reopen or packaging.
 These observations come from development of the source skill; raw run reports are not bundled here.
 
-## Compatibility and evidence (2026-11-10)
+## Compatibility and evidence (2026-11-11)
 
 This matrix distinguishes historical observations in the original skill from release verification.
 No row is a certification of all agents or hardware. Record build, OS, agent, toolset version,
@@ -103,6 +103,8 @@ scenario, result and date when running the smoke tests above.
 |---|---|
 | macOS arm64, UE 5.9.0 build 60351404, v5, Python commandlet | 2026-11-10: local OBJ import and reimport passed; same mesh path and changed bounds verified. Assets-only, no placement/rendering/save certification. |
 | macOS arm64, UE 5.9.0 build 60351404, v5, normal Metal editor | 2026-11-10: OBJ import, explicit transform placement and reimport passed; actor reference preserved. Save/reopen, textured GLB and animation pending. |
+| macOS arm64, UE 5.9.0 build 60351404, v5, Claude Code (Opus 5.5) with the prompt-writing skills installed, paid | 2026-11-11, fresh Third Person project, one unattended run each: a stylized chest (concept image → Smart Topology Image-to-3D → Resize, 25 credits, 294 s) installed v5, imported a textured GLB with PBR maps and placed it level on the floor; a knight as the player (A-pose image → T2.5 → rig, 29 credits, 281 s) imported the rigged FBX, retargeted `ABP_Unarmed` (20 clips, every `travel_ok` true) and moved 11.7 m in 2 s in PIE with a visible jog. Both loaded `meshy-image-prompt`. Not checked: save/reopen, jump, slopes, foot sliding. The template's foot-placement Control Rig warned about the `Head` bone. |
+| macOS arm64, UE 5.9.0, Rigging `skeleton_template: "ue5_mannequin"` with `include_fingers` | 2026-11-11, same knight model: the rig succeeded (5 credits, 21 s, 66 bones with mannequin names). Imported onto the template's `SK_Mannequin`, Interchange reported "cannot merge bone tree" and `ABP_Unarmed` did not run. Imported with `import_character`, the skeleton's bones below the pelvis kept metre-sized offsets (`spine_01` 0.11 cm): the mesh looked right at rest, and after `retarget_animations` every bone collapsed onto the pelvis in PIE. Use the default `meshyrig`. |
 | UE 5.9.0 Preview, original MeshyTools v4 import/reimport/placement | Prior skill records successful sessions; exact OS/agent was not consistently captured. Re-run for v5 before release. |
 | UE 5.8.2, original v4 imports/reimports | Prior skill records success. v5 regression pass pending; first install requires restart. |
 | macOS 5.9 Preview, Assistant-panel external agent | Prior session performed work but panel then failed to display replies. Session-specific observation; re-test the actual build/adapter. |
