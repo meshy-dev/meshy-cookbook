@@ -10,7 +10,7 @@ metadata:
 # Meshy for Unreal
 
 Targets Unreal Engine 5.9 Preview (5.8 compatibility) through Unreal MCP. Paid Meshy operations
-need Node.js 22.12+, Meshy CLI 0.8.x from 0.8.3, and an eligible Meshy account. Local import and
+need Node.js 22.12+, Meshy CLI 0.8.x from 0.8.5, and an eligible Meshy account. Local import and
 placement need no login. Bundled helpers use Python 3.11+ with its standard library, including
 Unreal's embedded Python.
 
@@ -30,7 +30,7 @@ intended use, target platform, style, approximate size and any budget. Preserve 
 | Existing local GLB/FBX or Unreal asset | Inspect and import, place or edit it; no Meshy account or generation needed |
 | Existing Meshy task | Retrieve its state/files and resume; don't generate a replacement |
 | Supplied image or concept | Image-to-3D; preserve the reference instead of buying a new concept |
-| New object from text | Text-to-3D, or offer a concept first when shape/style needs approval |
+| New object from text | Recommend a concept image, then Image-to-3D from it; Text-to-3D for a quick draft or when the user picks it |
 | Size, pivot, material, color, topology or format change | Edit in Unreal when that satisfies the request; otherwise process the existing source |
 | Character that needs motion | Check rig suitability; rig only when needed, reuse existing animations where compatible |
 | Theme or asset list | Plan around the game loop, reuse existing assets, quote a bounded batch |
@@ -39,6 +39,26 @@ Read [game assets](references/game-assets.md) for platform budgets, generation r
 and the optional Third Person character workflow. Detailed CLI routes are in
 [pipelines](references/pipelines.md); rigging and motion are in [animation](references/animation.md).
 UEFN is a separate editor workflow and is not certified by this skill's Unreal tests.
+
+## Write prompts with the prompt skills
+
+The Meshy prompt-writing skills hold the tested prompt formulas this skill's templates only
+summarize. When one is installed beside this skill, load it before writing the prompt for a
+paid stage:
+
+| Stage | Skill |
+|---|---|
+| Concept or reference image: text-to-image, image-to-image, multi-view, A-pose character | `meshy-image-prompt` |
+| Text-to-3D preview | `meshy-text-to-3d-prompt` |
+| Texture on refine or Image-to-3D, or `--text-style-prompt` on retexture | `meshy-texture-prompt` |
+| One part of an existing Meshy model changed in the web app's Edit tool (no CLI command) | `meshy-edit-prompt` |
+
+They write prompts and settings and never call Meshy. Take the prompt text from them, and their
+settings where neither the user nor this skill has set one. Models, budgets, the quote, the
+ledger and Unreal paths stay as chosen here. Record the prompt exactly as submitted. When the
+matching skill is not installed, use the templates in [game assets](references/game-assets.md)
+and [pipelines](references/pipelines.md). Text-to-motion and tileable surface textures have no
+prompt skill.
 
 ## Establish only the capabilities needed
 

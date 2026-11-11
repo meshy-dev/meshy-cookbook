@@ -103,6 +103,8 @@ The script runs five checks: skill frontmatter; matching versions across every `
 
 `scripts/skills/check_prompt.py` is copied into each skill so every skill stays self-contained. Edit that copy, then update the four prompt-writing skills that already bundle it. Do not add it to `meshy-unreal`.
 
+`meshy-unreal/references/` `setup.md`, `pipelines.md`, `delivery.md`, `troubleshooting.md` and `animation.md` are exact copies of `skills/meshy-3d-generation/references/` in [meshy-3d-agent](https://github.com/meshy-dev/meshy-3d-agent). Keep them unedited: resync by copying the current files, and put Unreal-specific rules in `meshy-unreal/SKILL.md` or its other references. After a resync, compare the CLI version in `SKILL.md` with `setup.md` and check that the copies link only to files the skill has.
+
 `scripts/skills/evals/trigger/<skill>.json` holds 20 to 22 queries per skill: half should trigger it, half are near misses. Rerun them after changing a skill's `description`. `scripts/skills/evals/evals.json` holds four end-to-end prompts with assertions.
 
 Every prompt-writing rule in a `SKILL.md` points to a run in its `references/evidence.md`. Record what a reader can use: the prompt, the settings, the number of runs and what came out; the credits and time per task when they help someone plan; and the Meshy docs page a limit or default comes from. Leave out task ids, local file paths, web-app request details and test budgets. A run that shows a pricing, billing or output anomaly goes to the Meshy team, not into a skill.

@@ -67,7 +67,8 @@ versions.
 **Skills served by the editor.** A folder holding a `SKILL.md` under `<project>/Skills/` is listed
 by `ToolsetRegistry.AgentSkillToolset` to every agent connected to the editor, with no restart.
 When the user wants teammates' agents, or Epic's own assistant, to find this skill, offer to copy
-the whole `meshy-unreal` folder to `<project>/Skills/meshy-unreal/`.
+the whole `meshy-unreal` folder to `<project>/Skills/meshy-unreal/`, and each installed Meshy
+prompt-writing skill folder beside it.
 
 Say this once, on first setup: Epic counts what the plugin sends to the agent's AI provider as
 Licensed Technology under the Unreal Engine EULA, and the user is responsible for the provider

@@ -6,10 +6,14 @@ Contents: inputs · platform budgets · generation · materials/scale · charact
 
 Inspect a supplied image, local file, Meshy task, selected Unreal actor or project asset before
 creating anything. Choose the shortest route in [pipelines](pipelines.md). Import-only and local
-material/transform changes need no Meshy login. A concept image is optional: offer one when the
-user needs to choose a look or the shape is difficult to describe. Don't replace a supplied
-usable concept with a new paid image. Use [asset records](asset-list.md) before any paid stage.
+material/transform changes need no Meshy login. For a new object with no usable image,
+recommend a concept image first and name Text-to-3D as the quicker alternative (*Start from an
+image* in [pipelines](pipelines.md)); a blockout or quick draft can go straight to Text-to-3D.
+Don't replace a supplied usable concept with a new paid image. Use [asset records](asset-list.md)
+before any paid stage.
 
+Write prompts with the installed prompt skills (*Write prompts with the prompt skills* in the
+skill's main file); the templates below are the fallback when they are not installed.
 Descriptions should preserve the user's design. Add object purpose, recognizable shapes,
 materials and the project's style when helpful. Explain limitations without silently changing
 the design: lettering may need a separate decal; emissive appearance needs an Unreal material;
@@ -59,12 +63,14 @@ not just a mesh file that references missing sidecars.
 ### Text to a prop
 
 For Smart Topology, price preview and refine from the current price list. A mesh-only draft
-stops after preview. Set `TRIANGLES` to the chosen target:
+stops after preview. Set `TRIANGLES` to the chosen target. `meshy-text-to-3d-prompt` writes
+`EXACT_PROMPT` and `meshy-texture-prompt` writes `TEXTURE_PROMPT` when installed; without a
+texture prompt, drop `--texture-prompt`:
 
 ```bash
 meshy text-to-3d create --mode preview --prompt "EXACT_PROMPT" --model-type smart-topology --target-polycount TRIANGLES --target-formats glb --operation-id "PREVIEW_OPERATION_ID" --async --format json --no-update-check
 meshy text-to-3d wait PREVIEW_ID --timeout 600 --format json --no-update-check
-meshy text-to-3d create --mode refine --preview-task-id PREVIEW_ID --enable-pbr true --texture-resolution 2k --target-formats glb --operation-id "REFINE_OPERATION_ID" --async --format json --no-update-check
+meshy text-to-3d create --mode refine --preview-task-id PREVIEW_ID --texture-prompt "TEXTURE_PROMPT" --enable-pbr true --texture-resolution 2k --target-formats glb --operation-id "REFINE_OPERATION_ID" --async --format json --no-update-check
 meshy text-to-3d wait REFINE_ID --timeout 600 -o "JOB_DIR/refine/NAME.glb" --workspace "WORKSPACE" --format json --no-update-check
 ```
 
@@ -92,7 +98,9 @@ meshy image-to-3d wait MODEL_ID --timeout 600 -o "JOB_DIR/model/NAME.glb" --work
 For many props use T2 when its shape/detail tradeoff fits. For PBR, replace N1 with Meshy 7 and
 add supported PBR/resolution flags. Freeze the actual choice in the stage request.
 
-Only if a new character concept is needed and authorized:
+Only if a new character concept is needed and authorized. With `meshy-image-prompt` installed,
+take the prompt and image settings from its rig-ready character section; otherwise use this
+template:
 
 ```bash
 meshy text-to-image create --ai-model gpt-image-2-5-flare --pose-mode a-pose --aspect-ratio 3:4 --prompt "CHARACTER_DESCRIPTION, full body, front view, centered with space around it, soft even lighting, plain background, single character, empty hands" --operation-id "IMAGE_OPERATION_ID" --async --format json --no-update-check
