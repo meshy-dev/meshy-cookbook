@@ -2,6 +2,11 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **`meshy-image-prompt`** and **`meshy-text-to-3d-prompt`**: T-pose is now tested (2026-11-11, 77 tasks). Text to Image `pose_mode: "t-pose"` gave a clean T-pose on all five GPT Image models, `gpt-image-2-6-flare` and `gpt-image-2-6-sunburst` included, and on `nano-banana-pro`; `nano-banana-2`, `nano-banana-2-lite` and `nano-banana-2-1` angled the arms down instead. A T-pose fills a 3:4 frame, so the skill now sends `aspect_ratio: "1:1"` for one. Image to 3D re-poses the mesh to its `pose_mode`, so it must match the image. T-pose and A-pose rigs both rigged and animated cleanly on three characters; each deforms best near its own pose, so A-pose stays the default for characters that mostly walk and run, and T-pose suits animations with the arms raised. `skeleton_template` (`mixamo`, `ue5_mannequin`) and `include_fingers` rigged both poses, and a template keeps the model's pose. On Text to 3D, `pose_mode: "t-pose"` gave a real T-pose in 6 of 6 previews, unlike `"a-pose"`, and a refined preview of each model rigged cleanly. `references/rig-ready-characters.md` has the measurements; both evidence files have the runs.
+- **`meshy-image-prompt`**: the rig-ready section compares the two texture models for step 2, Meshy 7 with PBR and Meshy N1, from the 2026-11-08 run already in the evidence file (same 15 credits; maps, inputs, time, file size, when to use each). It notes that leaving out `enable_pbr` gives base color only, and that Meshy N1 has not been tested on a T-pose model.
+
 ### Added
 
 - `meshy-unreal`: a self-contained Unreal 5.9 Preview skill with 5.8 compatibility guidance,
