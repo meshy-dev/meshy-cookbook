@@ -1,6 +1,6 @@
 # Rig-ready characters
 
-A rig-ready character takes three API calls: an A-pose image, one Image to 3D task that makes and textures the mesh, and Rigging. Rigging needs a textured humanoid model of at most 380,000 triangles (a quad counts as two); a model with more returns `400`. A standard Image to 3D mesh comes out at 600,000 to 1.4 million faces, so it has to be remeshed, at generation with `should_remesh` or afterwards with the Remesh API to 300,000 or less. A Smart Topology mesh is generated at the face count you set and needs no remesh, which is why it is the recommended route.
+A rig-ready character takes three API calls: an A-pose (or T-pose) image, one Image to 3D task that makes and textures the mesh, and Rigging. Rigging needs a textured humanoid model of at most 380,000 triangles (a quad counts as two); a model with more returns `400`. A standard Image to 3D mesh comes out at 600,000 to 1.4 million faces, so it has to be remeshed, at generation with `should_remesh` or afterwards with the Remesh API to 300,000 or less. A Smart Topology mesh is generated at the face count you set and needs no remesh, which is why it is the recommended route.
 
 ## The recommended pipeline (29 credits, tested 2026-11-08)
 
@@ -40,7 +40,7 @@ Only the 30,000-face setting was rigged. Lower counts (5,000 for crowds, 20,000 
 
 - **The standard route (44 credits):** Text to Image (9), Image to 3D on `latest` with `should_texture: true`, `should_remesh: true`, `target_polycount: 30000` and `enable_pbr: true` (30), Rigging (5). Tested on 2026-10-07 with `nano-banana-pro` (30,912 faces, standard A-pose, 24 joints, no forearm or hand weighted to the torso) and again on 2026-11-08 as the third arm above.
 - **The longer route (49 credits):** mesh-only Image to 3D (20), Remesh to 30,000 faces (5), Retexture with the source image as `image_style_url` (10), then Rigging (5), plus the image (9). This is how the first rig test was run; Rigging accepts a Retexture task id.
-- **Text to 3D** can also remesh at generation (`should_remesh: true` on the preview gave 31,105 faces, kept through refine, rigged directly), but its `pose_mode` result is an arms-out, palms-up pose whose hands face unnaturally in the walk animation, so it is not usable for animated characters.
+- **Text to 3D** can also remesh at generation (`should_remesh: true` on the preview gave 31,105 faces, kept through refine, rigged directly), but its `pose_mode: "a-pose"` result is an arms-out, palms-up pose whose hands face unnaturally in the walk animation, so it is not usable for animated characters. `pose_mode: "t-pose"` is different: it gave a real T-pose in 6 of 6 previews (2026-11-11), and a refined preview of each model rigged and walked cleanly (see below). A T-pose character from text costs 20 credits on `meshy-t2.5` (preview 5, refine 10, rig 5) or 35 on `latest`, but Text to 3D follows fewer of the prompt's details than the image route.
 - **Quadrupeds do not rig.** The Rigging docs say Rigging works only with humanoid (bipedal) characters. Plan animals, creatures and vehicles as static models or animate them by hand.
 
 ## Rig measurements (standard route, 2026-10-07)
@@ -57,6 +57,25 @@ Angles measured from the joint positions in each rigged GLB, about 20,000 vertic
 
 No image-route rig has a forearm or hand fused to the body, which is the usual failure when arms touch the body in the source image. Some overlap at the shoulders is normal. The leg overlap comes from the long apron: a long apron or skirt is weighted to both legs and stretches when the legs separate, so ask for clothing that ends above the knee or splits between the legs.
 
+## A-pose or T-pose (tested 2026-11-11)
+
+Three characters (the dwarf blacksmith, a knight with large rounded pauldrons, a slim pilot) went through the recommended pipeline once in each pose: `gpt-image-2-5-flare` with `pose_mode` and `aspect_ratio: "3:4"`, Image to 3D on `meshy-t2.5` at 30,000 with `meshy-7` PBR and the matching `pose_mode`, and Rigging with `height_meters: 1.8`. The rigs were measured in Blender. "Shoulder stretch" is the 99th percentile of how much the edges around the shoulders stretch or squash against the bind pose, at the worst frame of the clip, as |log(length / bind length)|: higher means more distortion.
+
+| Rig | Upper arm below horizontal | Elbow bend | Vertices shared by arm and torso | Shoulder stretch, walk | Run | Jumping Jacks |
+|---|---|---|---|---|---|---|
+| Dwarf, T-pose | 17 to 18° | 17° | 8.6% | 0.85 | 1.03 | 1.18 |
+| Dwarf, A-pose | 57 to 58° | 16 to 18° | 8.4% | 0.53 | 0.88 | 1.34 |
+| Knight, T-pose | 25 to 26° | 19 to 23° | 9.7% | 0.53 | 0.71 | 0.85 |
+| Knight, A-pose | 61 to 63° | 19 to 22° | 5.3% | 0.40 | 0.58 | 1.10 |
+| Pilot, T-pose | 12 to 14° | 14 to 17° | 7.3% | 0.60 | 0.66 | not run |
+| Pilot, A-pose | 64 to 66° | 18 to 19° | 3.7% | 0.35 | 0.54 | not run |
+| Text to 3D `latest`, T-pose (refined) | 32 to 34° | 28 to 31° | 15.7% | 0.72 | 0.99 | not run |
+| Text to 3D `meshy-t2.5`, T-pose (refined) | 24 to 25° | 22 to 25° | 6.3% | 0.66 | 0.81 | not run |
+
+All eight rigs had 24 bones, no forearm or hand vertex weighted to the torso, and walking and running clips that played. Jumping Jacks is action 326 (3 credits), whose arms swing from the hips to overhead. In the walk and run the T-pose rigs stretched the shoulders more, and with the arms down the T-pose dwarf's shoulders bulged. In Jumping Jacks the A-pose rigs stretched more, and with the arms out the A-pose dwarf's shoulders pinched in. The `meshy-t2.5` Text to 3D model had small floating fragments at the wrists.
+
+`skeleton_template: "mixamo"` and `"ue5_mannequin"` rigged the dwarf and the knight in both poses (8 of 8): 28 bones, an armature in meters, walking and running included, and the same arm angles as the default rig, so the template keeps the model's pose. These were checked in Blender, not imported into an engine. `include_fingers: true` rigged the dwarf and the pilot in both poses (4 of 4) with 38 finger bones. Each rig took 19 to 35 seconds.
+
 ## Not yet tested
 
-T-pose through this pipeline; characters with capes or held props; Smart Topology below 30,000 faces through Rigging; `texture_prompt` on step 2 with Meshy 7 (the tests textured from the image alone).
+Characters with capes or held props; Smart Topology below 30,000 faces through Rigging; `texture_prompt` on step 2 with Meshy 7 (the tests textured from the image alone).

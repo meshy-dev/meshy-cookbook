@@ -43,6 +43,17 @@ A standard A-pose means arms straight, angled about 45 degrees down, clear of th
 
 One arms-out preview was remeshed, retextured and rigged: 24 joints, clean weights, no forearm or hand vertex weighted to the torso. But the bind pose has the elbows bent 75° against 19 to 29° on image-route rigs, and in Meshy's walking animation the hands do not face naturally. So the Text to 3D pose rigs but is not usable for animated characters. Pose words alone are not usable either: hands on hips and arms at the sides fuse the arms to the torso in the mesh.
 
+## T-pose (2026-11-11)
+
+The dwarf prompt above with `pose_mode: "t-pose"`, three previews on `latest` with `should_remesh: true` and `target_polycount: 30000` (20 credits each) and three on `model_type: "smart-topology"`, `ai_model: "meshy-t2.5"`, `target_polycount: 30000` (5 credits each).
+
+| Preview setup | Previews | T-pose | Pose seen |
+|---|---|---|---|
+| `pose_mode: "t-pose"`, `latest` | 3 | 3 | Arms out and roughly level (one a little lower), palms down |
+| `pose_mode: "t-pose"`, `meshy-t2.5` | 3 | 3 | Arms level, palms down |
+
+Unlike `"a-pose"`, `"t-pose"` gives the pose it names on Text to 3D. The first preview of each was refined with `enable_pbr: true` and a texture prompt (10 credits) and rigged (5): 24 joints, no forearm or hand vertex weighted to the torso, walking and running clips that play. Bind pose: upper arms 24 to 34° below horizontal, elbows bent 22 to 31°. The `meshy-t2.5` model had small floating fragments at the wrists. The image skill's `references/rig-ready-characters.md` compares these rigs with the image-route rigs.
+
 ## Face counts of raw previews
 
 | Preview | Faces (triangles) |
