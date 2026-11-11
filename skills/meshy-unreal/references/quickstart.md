@@ -24,6 +24,8 @@ platform coverage and remaining gaps, see [validation evidence](validation.md).
 2. Install this complete skill directory into the selected agent's project skills location
    (Claude Code `.claude/skills/`, Cursor `.cursor/skills/`, Codex `.agents/skills/`), or use the
    suite's installer with `--skill meshy-unreal`. Ensure `assets/` and `scripts/` are included.
+   For new generations, install the four Meshy prompt-writing skills beside it: this skill
+   uses them to write its prompts and falls back to its own templates without them.
 3. In Unreal **Edit > Plugins**, enable Unreal MCP and All Toolsets (or the specific required
    toolsets). Save existing work and restart only if plugin activation requires it.
 4. In Unreal's Cmd box run `ModelContextProtocol.GenerateClientConfig` with your agent name,

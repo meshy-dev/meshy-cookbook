@@ -31,6 +31,8 @@ cp -R skills/meshy-unreal /path/to/your-project/.agents/skills/
 
 Copy the whole skill directory, including its references, assets and scripts. No plugin installation is needed to install these skills.
 
+`meshy-unreal` uses the four prompt-writing skills to write its prompts when they are installed beside it, and falls back to its own templates when they are not. Copy them too if you will generate new assets.
+
 The four prompt-writing skills produce prompts and settings without calling Meshy or spending credits. Python 3 is needed only for their optional prompt checker. Generating assets requires a Meshy account and credits; local Unreal imports and edits do not.
 
 For Unreal, follow the [quickstart](meshy-unreal/references/quickstart.md) to connect your agent to the editor and set up the tools needed for your task.
