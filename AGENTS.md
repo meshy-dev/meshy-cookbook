@@ -21,6 +21,7 @@ selected language's `main` file, and the shared client it imports.
 | Concept art plus a one-line prop description → a 5,000-face low-poly prop GLB painted in the art's style with Meshy N1 | `examples/14-image-to-style-matched-prop` |
 | An asset description → a concept image, then a textured GLB made from it with the Meshy CLI and placed in an Unreal Engine 5.8 level through Unreal MCP, with no code | `examples/15-text-to-unreal-asset` |
 | A character description → A-pose concept image → 30,000-triangle Smart Topology model → rigged FBX with walk and run, imported into Unreal Engine 5.8, with no code | `examples/16-text-to-unreal-character` |
+| A web app: one sentence → textured, rigged, idling character on a 3D stage, directed by hand or by an AI agent, with library animations and described moves | `examples/17-character-studio` |
 
 - A live run spends Meshy credits; each README states the amount. Tell the user the cost
   and wait for their approval before running, unless they already gave it.
@@ -42,6 +43,13 @@ selected language's `main` file, and the shared client it imports.
   Meshy CLI commands (text-to-image, image-to-3d, rigging), each starting from the task
   before it; the user imports the FBX files into Unreal, and an optional prompt has the agent
   place the character in the level through Unreal MCP. Its prompts are in its `agent/` folder.
+- Cookbook 17 is an application, a Next.js app in its `app/` folder, with no Python or
+  `shared/` client. Read its README and `app/AGENTS.md`. The key goes in `app/.env` with
+  `ALLOW_SERVER_MESHY=true` on the user's own machine, or in the app's API keys dialog;
+  under `npm run dev` the app can use the Meshy CLI's sign-in instead.
+  Nothing is spent until a person presses Generate in the page (38 credits a character,
+  13 a described move, 3 for each library animation's first use on a character); never
+  press those for the user without their approval.
 - To adapt a recipe into a project, copy `shared/<language>/meshy.*` next to the pipeline
   and keep the payloads literal.
 - When the user brings their own description or image prompt, write it with the matching

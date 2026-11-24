@@ -1,0 +1,46 @@
+{
+  "name": "meshy-cookbook-17-character-studio-app",
+  "version": "0.1.0",
+  "private": true,
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev --hostname 127.0.0.1",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "check": "npm run typecheck && npm test"
+  },
+  "dependencies": {
+    "@ai-sdk/react": "4.0.186",
+    "@react-three/drei": "10.7.9",
+    "@react-three/fiber": "9.8.2",
+    "@ui-sdk/core": "0.1.0-beta.16",
+    "@ui-sdk/react": "0.1.0-beta.16",
+    "ai": "7.0.181",
+    "geist": "1.9.2",
+    "lucide-react": "1.78.0",
+    "next": "16.4.6",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "server-only": "0.0.1",
+    "three": "0.186.1",
+    "zod": "4.6.7",
+    "zustand": "5.1.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/turbopack": "4.3.3",
+    "@testing-library/react": "16.3.3",
+    "@types/node": "22.20.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/three": "0.186.0",
+    "@vitejs/plugin-react": "6.3.0",
+    "jsdom": "31.0.1",
+    "tailwindcss": "4.3.3",
+    "typescript": "5.9.3",
+    "vitest": "5.1.1"
+  }
+}

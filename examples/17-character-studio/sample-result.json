@@ -1,0 +1,22 @@
+{
+  "schema_version": 1,
+  "slug": "character-studio",
+  "historical_run": {
+    "documented_on": "2026-11-24",
+    "source": "README.md",
+    "credits": 38,
+    "model": "Not reported: no task response includes a model field. The text-to-3d preview sent ai_model latest and followed Meshy's current model; the refine textured that preview; text-to-motion used mode prime; the rigging and animation endpoints have no model selection.",
+    "note": "Two characters generated in the app's live mode on November 24, 2026, before this recipe removed the app's mock mode and demo reel; the Meshy requests are unchanged. Robot barista (prompt: A cheerful robot barista with a copper body and a green apron, stylized game character, full body): text-to-3d preview 01a20bf5-1dea-72f1-a1e7-31f0c2d65e19 (20 credits), refine 01a20bf6-10a5-745d-a2f9-42a4479aa946 (10), rigging 01a20bf6-a84f-71c4-8de2-a72fdedfb15c (5), animation 01a20bf7-291f-77c1-b312-fb424b2ca425 with action 0, Idle (3); 38 credits, read from consumed_credits. From each task's creation to its GLB's Last-Modified time: preview 57 s, refine 29 s, rigging 22 s, idle 9 s; each next task was created 3 to 14 s after the previous GLB, and 141 s passed from the first creation to the idle GLB. The same character then played All Night Dance (action 64), Victory Cheer (59) and Big Wave Hello (28) at 3 credits each, 10 to 11 s from creation to file, and one described move: text-to-motion 01a20c04-7e19-7411-b569-caf126325e71 (prime, 6,000 ms, 10 credits) and animation 01a20c04-d539-776f-82db-41a2cd71f1a2 (3 credits), 30 s from the first creation to the clip's file. Viking (prompt: A funky Viking): preview 01a20c47-3915-74d7-9208-2127bf80f2dd (20), refine 01a20c49-0487-7557-9812-6f874f41d22e (10), rigging 01a20c49-d3e9-71a8-a27b-6c80e5b31ded (5), Idle animation 01a20c4a-6319-74b1-959d-46086ed3dd99 (3); 38 credits, 217 s from the first creation to the idle GLB."
+  },
+  "artifact_inspection": {
+    "inspected_on": "2026-11-24",
+    "method": "Downloaded on November 24, 2026 from the tasks' signed URLs: local byte count and SHA-256; GLB JSON meshes, primitives, accessors, materials, images, skins and animations; triangle counts from the index accessors; clip durations from the animation sampler inputs; height from the POSITION accessor bounds. The rigged character and its clips were loaded in this recipe's app in Chrome on macOS.",
+    "note": "Robot barista run. The preview has no materials; the refine adds three embedded 2,048 px JPEG textures (base color, metallic-roughness, normal) to the same 61,680-triangle mesh. The rigged file adds one 24-joint skin under a root node scaled 0.01 and stands 1.70 m tall; the rigging task's walk and run files hold 1.07 s and 0.67 s clips. Each animation file holds the whole rigged character again with one clip: Idle 4.03 s, All Night Dance 8.20 s, Big Wave Hello 5.37 s, Victory Cheer 9.37 s and the described move 5.97 s, 13.4 to 13.5 MB each. The Viking's rigged file was 20,407,300 bytes. Model files are not published by this repository.",
+    "artifacts": [
+      {"filename": "model.glb", "format": "glb", "bytes": 2370020, "sha256": "5da32b1b6e543dd0f8aba8fc5fdd6b1c1563f0cc626b5d74a83a3c2f478f818c", "triangles": 61680, "vertices": 62465, "meshes": 1, "materials": 0, "embedded_images": 0, "skins": 0, "animations": 0},
+      {"filename": "model.glb", "format": "glb", "bytes": 11309256, "sha256": "c22903531cbccb5c67b1e34b5983ad632a2d8cba7ce45aaf5e07c6a937335506", "triangles": 61680, "vertices": 62465, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 0, "animations": 0},
+      {"filename": "Character_output.glb", "format": "glb", "bytes": 13313492, "sha256": "878cf4dd738918b95b4bd32f8336d396e44a784b7dad64f3e7025c654e788466", "triangles": 61680, "vertices": 63146, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 1, "animations": 1},
+      {"filename": "Animation_Idle_withSkin.glb", "format": "glb", "bytes": 13372520, "sha256": "872dba681d4d9ebb2c9ae9e6dbdcc2bdf27fbde122c7578e008aa3acca369743", "triangles": 61680, "vertices": 63146, "meshes": 1, "materials": 1, "embedded_images": 3, "skins": 1, "animations": 1}
+    ]
+  }
+}

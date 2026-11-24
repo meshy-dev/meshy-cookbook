@@ -4,7 +4,7 @@
 
 Example code and guides for creating 3D assets with the [Meshy API](https://docs.meshy.ai/en/api). To run these examples, you'll need a Meshy account with API access and an API key. [Create your API key](https://www.meshy.ai/developers), then set the `MESHY_API_KEY` environment variable. Alternatively, copy a recipe's `.env.example` to `.env` and add your key there.
 
-Every recipe includes Python and TypeScript implementations. Follow the recipe's README for installation and run commands. Live runs spend Meshy credits; each recipe lists its approximate cost. See [current API pricing](https://docs.meshy.ai/en/api/pricing) for details.
+Most recipes include Python and TypeScript implementations. A few are carried out by a coding agent with no code, and the Applications recipes are complete apps you run, such as [Character Studio](examples/17-character-studio/). Follow the recipe's README for installation and run commands. Live runs spend Meshy credits; each recipe lists its approximate cost. See [current API pricing](https://docs.meshy.ai/en/api/pricing) for details.
 
 ## Agent skills
 

@@ -1,5 +1,6 @@
 # Secrets
 .env
+.env*.local
 
 # Generated models and thumbnails (keep the empty folders)
 examples/*/*/output/*
@@ -20,3 +21,8 @@ COOKBOOK_STANDARDS.md
 
 # The compressed model the three.js page loads (made by npm run optimize)
 examples/*/web/public/models/
+
+# Next.js build output and generated types (cookbook 17's app)
+.next/
+next-env.d.ts
+*.tsbuildinfo

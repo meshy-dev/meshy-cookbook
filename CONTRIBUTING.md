@@ -41,6 +41,7 @@ Contributions are released under this repository's [MIT License](LICENSE).
 - `assets/` contains curated previews with provenance. Keep runtime output under the ignored language-specific `output/` directories.
 - `python/` and `typescript/` contain runnable implementations with equivalent literal request payloads, dependency files, and `.env.example`. A community recipe may have only one of them.
 - `agent/` holds the prompts and MCP client configurations of an agent recipe, one a coding agent carries out with the Meshy CLI and no code, such as [cookbook 15](examples/15-text-to-unreal-asset/). An agent recipe has no `python/` or `typescript/`; see the `agent` block in [scripts/README.md](scripts/README.md).
+- `app/` holds an application recipe's whole app, such as the Next.js web app of [cookbook 17](examples/17-character-studio/), with its own `package.json`, `.env.example`, tests and an `AGENTS.md` for coding agents. It appears under the site's **Applications** topic and has no `python/` or `typescript/`; see the `app` block in [scripts/README.md](scripts/README.md). Its `check` script runs in CI with `npm run check`, so keep its tests offline.
 - `shared/` contains the small HTTP, polling, and download clients. Keep workflow decisions in each example.
 - `skills/<name>/` holds self-contained agent skills, which are separate from the recipes; see [Agent skills](#agent-skills).
 
@@ -87,7 +88,7 @@ Live smoke tests are separate: state the cost and obtain approval before running
 
 Open one pull request containing the tutorial, both implementations, metadata, and preview changes. Check the generated catalog and article assets together. Review relative links and the complete example ZIP, including its shared client and inputs.
 
-The website should build from a reviewed commit and retain the export's source provenance. Preview builds can use a dirty working tree, which is identified in the export. Keep tutorial content in this repository; the website owns navigation, presentation, language tabs, and viewers. A larger standalone application can live in its own repository and be linked from a cookbook recipe.
+The website should build from a reviewed commit and retain the export's source provenance. Preview builds can use a dirty working tree, which is identified in the export. Keep tutorial content in this repository; the website owns navigation, presentation, language tabs, and viewers. An application recipe keeps its whole app in `app/`; an app too large for that can live in its own repository and be linked from a cookbook recipe.
 
 ## Agent skills
 

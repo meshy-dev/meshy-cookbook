@@ -1,0 +1,159 @@
+schema_version: 1
+slug: character-studio
+order: 17
+title: 'Character Studio: generate a 3D character and direct it with an AI agent'
+description: A Next.js app that turns one sentence into a textured, rigged, idling
+  3D character with Meshy, then lets you or an AI agent direct it on a 3D stage with
+  678 library animations, described moves, camera shots, finishes and lighting.
+authors:
+- serafin-meshy
+contributor: meshy
+date: '2026-11-24'
+tags:
+- application
+- web-app
+- nextjs
+- react
+- three.js
+- ui-sdk
+- ai-agent
+- character
+- text-to-3d
+- rigging
+- animation
+- text-to-motion
+readme: README.md
+input:
+  type: text
+  description: A one-sentence description of one character on two legs. The app suggests
+    three, and the recipe's sample is the robot barista.
+  files: []
+outputs:
+- glb
+endpoints:
+- text-to-3d
+- rigging
+- animations
+- text-to-motion
+model_policy: The text-to-3d preview sends ai_model latest, so it follows Meshy's
+  current model, and the refine textures that preview. Text to Motion uses mode prime.
+  The rigging and animation endpoints have no model selection. The AI director uses
+  anthropic/claude-sonnet-5.5 through Vercel AI Gateway unless AGENT_MODEL names another.
+app:
+  runtime: Node.js 22+ and a desktop browser with WebGL; optionally the Meshy CLI
+    0.8.6+ to sign in with a browser instead of a key, and a Vercel AI Gateway key
+    for the director
+  files:
+  - app/.env.example
+  - app/AGENTS.md
+  - app/next.config.ts
+  - app/package.json
+  - app/src/app/api/chat/route.ts
+  - app/src/app/api/config/route.ts
+  - app/src/app/api/keys/check/route.ts
+  - app/src/app/api/meshy/asset/[kind]/[id]/route.ts
+  - app/src/app/api/meshy/cli/login/route.ts
+  - app/src/app/api/meshy/cli/route.ts
+  - app/src/app/api/meshy/library/route.ts
+  - app/src/app/api/meshy/respond.ts
+  - app/src/app/api/meshy/tasks/[kind]/[id]/route.ts
+  - app/src/app/api/meshy/tasks/route.ts
+  - app/src/app/favicon.ico
+  - app/src/app/globals.css
+  - app/src/app/layout.tsx
+  - app/src/app/page.tsx
+  - app/src/components/agent-dock.tsx
+  - app/src/components/agent-pointer.tsx
+  - app/src/components/anchor.tsx
+  - app/src/components/build-up.tsx
+  - app/src/components/character-model.tsx
+  - app/src/components/cli-sign-in.test.tsx
+  - app/src/components/cli-sign-in.tsx
+  - app/src/components/create-panel.tsx
+  - app/src/components/director-panel.tsx
+  - app/src/components/keys-dialog.tsx
+  - app/src/components/load-boundary.test.tsx
+  - app/src/components/load-boundary.tsx
+  - app/src/components/meshy-status.tsx
+  - app/src/components/stage-banner.test.tsx
+  - app/src/components/stage-banner.tsx
+  - app/src/components/stage.tsx
+  - app/src/components/studio-agent.test.tsx
+  - app/src/components/studio.tsx
+  - app/src/lib/agent.ts
+  - app/src/lib/director-errors.test.ts
+  - app/src/lib/director-errors.ts
+  - app/src/lib/gateway.ts
+  - app/src/lib/guard.test.ts
+  - app/src/lib/guard.ts
+  - app/src/lib/keys.ts
+  - app/src/lib/limits.test.ts
+  - app/src/lib/limits.ts
+  - app/src/lib/meshy-cli.ts
+  - app/src/lib/meshy-headers.ts
+  - app/src/lib/meshy.test.ts
+  - app/src/lib/meshy.ts
+  - app/src/lib/paid.test.ts
+  - app/src/lib/paid.ts
+  - app/src/lib/pipeline.test.ts
+  - app/src/lib/pipeline.ts
+  - app/src/lib/rate-limit.test.ts
+  - app/src/lib/rate-limit.ts
+  - app/src/lib/reveal.test.ts
+  - app/src/lib/reveal.ts
+  - app/src/lib/stage-view.test.ts
+  - app/src/lib/stage-view.ts
+  - app/src/lib/store.test.ts
+  - app/src/lib/store.ts
+  - app/src/lib/types.ts
+  - app/src/test/library.ts
+  - app/src/test/setup.ts
+  - app/tsconfig.json
+  - app/vitest.config.mts
+estimates:
+  credits: 38
+  time_seconds:
+    min: 141
+    max: 217
+  basis: Two characters generated in the app on November 24, 2026, a robot barista
+    and a Viking, each charged 20, 10, 5 and 3 credits, read from consumed_credits.
+    Times run from the first task's creation to the idle clip's file on Meshy's storage,
+    141 and 217 seconds. In the robot run, library animations took 10 to 11 seconds
+    for 3 credits each and a described move about 30 seconds for 13. Observed range,
+    not a service guarantee.
+last_verified: '2026-11-24'
+verification_note: 'Two characters generated in the app''s live mode on November
+  24, 2026, before this recipe removed the app''s mock mode and demo reel; the Meshy
+  requests are unchanged. The tasks were read back from the Meshy API on November
+  24, 2026: each character was a text-to-3d preview (20 credits), refine (10), rigging
+  (5) and Idle animation, action 0 (3). The robot run also played three library animations
+  (3 credits each) and one described move (text-to-motion prime, 6 seconds, 10 credits,
+  then an animation task, 3). Stage times come from task creation times and the Last-Modified
+  time of each task''s GLB. The pictured stage is this recipe''s app in Chrome on macOS,
+  loading the robot run''s downloaded files. The AI director was not run with a model
+  for this recipe; the agent bridge it drives is covered by the app''s tests.'
+previews:
+- path: assets/studio.png
+  alt: Character Studio with a copper robot barista in a green apron standing idle
+    on the gray studio stage, between the Create and Direct panels
+  role: result
+- path: assets/directed.png
+  alt: The same robot in gold metal on a night-blue stage, mid-way through the All
+    Night Dance
+  role: animation
+- path: assets/skeleton.png
+  alt: The robot as a lime wireframe on a black stage, with the blue lines of its
+    skeleton drawn inside
+  role: skeleton
+assets:
+- assets/SOURCES.md
+sample_result: sample-result.json
+site:
+  slug: character-studio
+  description: Run a web app that turns one sentence into a rigged, animated 3D character
+    with Meshy, then direct it on a 3D stage by hand or through an AI agent.
+  topics:
+  - Applications
+  - Animation
+  - Text to 3D
+  short_name: Character Studio app
