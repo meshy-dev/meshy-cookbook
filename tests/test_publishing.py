@@ -50,11 +50,13 @@ class PublishingTests(unittest.TestCase):
     def commit_fixture(self):
         self.git("init", "-q")
         self.git("add", ".")
-        self.git("-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false", "commit", "-qm", "Fixture")
+        # No background gc or maintenance: it can still be writing to .git when the temporary directory is removed.
+        self.git("-c", "user.name=Test", "-c", "user.email=test@example.com", "-c", "commit.gpgsign=false",
+                 "-c", "gc.auto=0", "-c", "maintenance.auto=false", "commit", "-qm", "Fixture")
 
     def test_validation_needs_no_runtime_output(self):
         self.assertFalse(list(self.root.glob("examples/*/*/output")))
-        self.assertEqual(len(publish.load_recipes(self.root)), 16)
+        self.assertEqual(len(publish.load_recipes(self.root)), 17)
 
     def test_metadata_requires_valid_types_and_dates(self):
         self.change_metadata(lambda data: data.update(last_verified="not-a-date"))
@@ -139,6 +141,41 @@ class PublishingTests(unittest.TestCase):
             self.assertIn("examples/01-image-to-3d-character/web/index.html", bundle.namelist())
         self.change_metadata(lambda data: data["web"].update(files=["web/package.json", "web/index.html", "README.md"]))
         with self.assertRaisesRegex(publish.ValidationError, "web files must be in web/"):
+            publish.load_recipes(self.root)
+
+    def test_app_recipes_ship_the_app_in_the_zip_but_not_the_site_export(self):
+        catalog = publish.build(self.root, self.output)
+        entry = next(recipe for recipe in catalog["recipes"] if "app" in recipe)
+        # Like an agent recipe, an app recipe has no language tabs on the site.
+        self.assertEqual(entry["languages"], {})
+        self.assertFalse(any("/app/" in file["source_path"] for file in entry["files"]))
+        self.assertFalse((self.output / "recipes" / entry["slug"] / "app").exists())
+        app = f"{entry['source_directory']}/app/"
+        with zipfile.ZipFile(self.output / entry["download"]) as bundle:
+            names = bundle.namelist()
+            self.assertEqual(sorted(name for name in names if name.startswith(app)),
+                             sorted(f"{entry['source_directory']}/{value}" for value in entry["app"]["files"]))
+            self.assertFalse(any(name.startswith("shared/") for name in names))
+            self.assertNotIn("package.json", names)
+            self.assertIn("/app/AGENTS.md", bundle.read("AGENTS.md").decode())
+        self.change_metadata(lambda data: data.update(app={"runtime": "Node.js 22+", "files": ["README.md"]}))
+        with self.assertRaisesRegex(publish.ValidationError, "app files must be in app/"):
+            publish.load_recipes(self.root)
+
+    def test_every_app_file_is_listed_for_the_download(self):
+        app = next(recipe for recipe in self.recipes if "app" in recipe.metadata)
+        extra = self.root / app.directory.relative_to(self.source) / "app" / "src" / "extra.ts"
+        extra.write_text("export {}\n")
+        self.commit_fixture()
+        with self.assertRaisesRegex(publish.ValidationError, "app files missing from app.files: app/src/extra.ts"):
+            publish.load_recipes(self.root)
+
+    def test_env_examples_hold_only_placeholders(self):
+        example = self.directory / "python/.env.example"
+        example.write_text("# Settings\nMESHY_API_KEY=\nALLOW_SERVER_MESHY=\n# AGENT_MODEL=any/model\n")
+        publish.load_recipes(self.root)
+        example.write_text("MESHY_API_KEY=\nOTHER_KEY=msy_live_secret\n")
+        with self.assertRaisesRegex(publish.ValidationError, "only placeholders"):
             publish.load_recipes(self.root)
 
     def test_duplicate_yaml_keys_are_rejected(self):

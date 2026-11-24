@@ -60,7 +60,7 @@ class Recipe:
     metadata: dict
     files: set[Path]
     links: dict[Path, list[tuple[str, Path]]]
-    # The `web` files: in the download ZIP, not in the site export. The site serves
+    # The `web` and `app` files: in the download ZIP, not in the site export. The site serves
     # only Markdown, code, data and images from www.meshy.ai, never a page's HTML or JS.
     bundle: set[Path]
 
@@ -99,16 +99,17 @@ def listed_file(root: Path, base: Path, value: str) -> Path:
     if not result.is_file():
         raise ValidationError(f"Expected a file: {value}")
     if result.name == ".env.example":
-        # The published example is deliberately a template, never a copied live env.
+        # The published example is deliberately a template, never a copied live env: every
+        # variable is empty or a placeholder (an app may list keys and settings besides MESHY_API_KEY).
         text = result.read_text(encoding="utf-8")
         for line in text.splitlines():
             if not line.strip() or line.lstrip().startswith("#"):
                 continue
             key, separator, val = line.partition("=")
-            if key.strip() != "MESHY_API_KEY" or not separator or val.strip().lower() not in {
+            if not re.fullmatch(r"[A-Z][A-Z0-9_]*", key.strip()) or not separator or val.strip().lower() not in {
                 "", "your_api_key", "your_api_key_here", "your-meshy-api-key", "your_key_here"
             }:
-                raise ValidationError(f".env.example must contain only a placeholder: {result}")
+                raise ValidationError(f".env.example must contain only placeholders: {result}")
     return result
 
 
@@ -206,6 +207,18 @@ def check_python_snippets(readme: Path, entrypoint: Path) -> None:
         raise ValidationError(f"Python syntax error in {readme} or {entrypoint}: {error}") from error
 
 
+def unlisted_app_files(root: Path, app: Path, listed: set[Path]) -> list[str]:
+    """Files git would commit under an app's folder but its `app.files` leaves out. The ZIP
+    ships only listed files, so one missing from the list breaks the downloaded app."""
+    try:
+        output = subprocess.run(["git", "-C", str(root), "ls-files", "--cached", "--others", "--exclude-standard", "-z", "--", str(app)],
+                                check=True, capture_output=True, text=True).stdout
+    except (OSError, subprocess.CalledProcessError):
+        return []  # Not a Git checkout, such as an extracted download: nothing to compare against.
+    on_disk = {(root / name).resolve() for name in output.split("\0") if name}
+    return sorted(path.relative_to(app.parent).as_posix() for path in on_disk - listed if path.is_file())
+
+
 def load_authors(root: Path = ROOT) -> dict:
     """authors.yaml maps the GitHub usernames recipes list as authors to their name, website and avatar."""
     path = root / "authors.yaml"
@@ -234,8 +247,8 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
         except yaml.YAMLError as error:
             raise ValidationError(f"{path}: invalid YAML: {error}") from error
         # Checked before the schema, whose anyOf error would print the whole recipe.
-        if isinstance(metadata, dict) and "languages" not in metadata and "agent" not in metadata:
-            raise ValidationError(f"{path}: list languages (python, typescript) or, for a recipe a coding agent carries out without code, an agent block")
+        if isinstance(metadata, dict) and not {"languages", "agent", "app"} & set(metadata):
+            raise ValidationError(f"{path}: list languages (python, typescript) or, for a recipe a coding agent carries out without code, an agent block, or, for a whole application, an app block")
         validate_schema(metadata, root, "recipe.schema.json", path)
         if metadata["slug"] in slugs or metadata["order"] in orders:
             raise ValidationError(f"{path}: recipe slug and order must each be unique")
@@ -246,6 +259,7 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
                 raise ValidationError(f"{path}: author {author!r} needs an entry in authors.yaml")
         # Meshy recipes with code ship Python and TypeScript; a community recipe may ship either one. An agent
         # recipe (an `agent` block and no `languages`) has no code: a coding agent runs its prompts and CLI commands.
+        # An application recipe (an `app` block) is one runnable app in app/, in whatever language the app needs.
         languages = set(metadata.get("languages", {}))
         missing = sorted({"python", "typescript"} - languages)
         if metadata["contributor"] == "meshy" and "languages" in metadata and missing:
@@ -290,6 +304,15 @@ def load_recipes(root: Path = ROOT) -> list[Recipe]:
             if not {"web/package.json", "web/index.html"}.issubset(web) or not all(value.startswith("web/") for value in web):
                 raise ValidationError(f"{path}: web files must be in web/ and include package.json and index.html")
             bundle = {listed_file(root, directory, value) for value in web}
+        if "app" in metadata:
+            app = metadata["app"]["files"]
+            if not {"app/package.json", "app/.env.example"}.issubset(app) or not all(value.startswith("app/") for value in app):
+                raise ValidationError(f"{path}: app files must be in app/ and include package.json and .env.example")
+            listed = {listed_file(root, directory, value) for value in app}
+            missing = unlisted_app_files(root, directory / "app", listed)
+            if missing:
+                raise ValidationError(f"{path}: app files missing from app.files: {', '.join(missing)}")
+            bundle |= listed
         for source in files:
             if source.suffix == ".py":
                 try:
@@ -435,6 +458,26 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
                     + ("Use the user's project language, or Python by default. " if len(languages) > 1 else f"The example is written in {languages[0]}. ")
                     + "When adapting the recipe, copy the full shared client and retain its error handling.\n"
                 ).encode("utf-8")
+            elif "app" in recipe.metadata:
+                # An application recipe ships its app/ folder; it installs and runs on its own, with no shared client.
+                app = recipe.directory.relative_to(root).as_posix() + "/app"
+                members["README.md"] = (
+                    f"# {recipe.metadata['title']}\n\n"
+                    f"Open [{recipe.metadata['title']}]({readme}) for setup and usage.\n\n"
+                    f"The application is in `{app}/`. Run `npm install` and `npm run dev` there; "
+                    f"it needs {recipe.metadata['app']['runtime']}. Live generation spends Meshy credits.\n\n"
+                    "Skip the tutorial's clone step when using this extracted download.\n\n"
+                    f"Source: {REPOSITORY}\n\n"
+                    "Links to other recipes lead to the full repository; this download includes only the selected recipe.\n"
+                ).encode("utf-8")
+                members["AGENTS.md"] = (
+                    "# Using this Meshy cookbook example\n\n"
+                    f"Read `{readme}` and `{app}/AGENTS.md` before running or changing the application.\n\n"
+                    f"Generating with it spends approximately {credits} Meshy credits. "
+                    "Tell the user the cost and wait for approval unless already given.\n\n"
+                    f"Read MESHY_API_KEY from the environment or `{app}/.env`. Never write it into code, "
+                    "ask for it in chat, or move Meshy calls into browser code.\n"
+                ).encode("utf-8")
             else:
                 # An agent recipe has no code or shared client: the README, its prompts and the files in agent/.
                 members["README.md"] = (
@@ -478,7 +521,7 @@ def build(root: Path = ROOT, output: Path | None = None, require_clean: bool = F
             bundle_path = f"downloads/{slug}.zip"
             write_zip(staging / bundle_path, members)
             entry = dict(recipe.metadata)
-            # The site reads `languages` for its code tabs; an agent recipe gets an empty map, never a missing key.
+            # The site reads `languages` for its code tabs; an agent or app recipe gets an empty map, never a missing key.
             entry.setdefault("languages", {})
             entry["source_directory"] = recipe.directory.relative_to(root).as_posix()
             entry["markdown"] = export_path(root, recipe.directory / recipe.metadata["readme"], recipes)
