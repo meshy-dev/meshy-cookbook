@@ -31,12 +31,17 @@ function directorErrorMessage(error: unknown) {
   if (/customer_verification_required|credit card on file/i.test(text)) {
     return "AI Gateway needs a credit card on the Vercel account behind this key before it runs models. Add one in Vercel's AI Gateway settings; that also unlocks its free credits."
   }
-  if (status === 401) return "AI Gateway rejected the key. Check it under API keys."
-  if (status === 402 || /insufficient[_ ]funds|out of credits/i.test(text)) {
-    return "The Vercel account behind this AI Gateway key is out of credits."
+  if (status === 401) {
+    return "The director's API key was rejected. Check it under API keys."
+  }
+  if (
+    status === 402 ||
+    /insufficient[_ ]funds|out of credits|credit balance is too low/i.test(text)
+  ) {
+    return "The account behind the director's API key is out of credits."
   }
   if (status === 429) {
-    return "AI Gateway is limiting requests right now. Try again in a minute."
+    return "The AI model is limiting requests right now. Try again in a minute."
   }
   return "The director couldn't reach the AI model. Try again."
 }

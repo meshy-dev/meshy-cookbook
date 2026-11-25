@@ -15,8 +15,6 @@ import { AgentDock } from "./agent-dock"
 import { AgentPointer } from "./agent-pointer"
 import { CreatePanel } from "./create-panel"
 import { DirectorPanel } from "./director-panel"
-import { KeysDialog } from "./keys-dialog"
-import { MeshyStatus } from "./meshy-status"
 import { StageBanner } from "./stage-banner"
 
 const Stage = dynamic(() => import("./stage").then((module) => module.Stage), {
@@ -44,14 +42,7 @@ function Studio() {
       <CreatePanel />
       <section className="stage" aria-label="Stage">
         <header className="stage-header">
-          <h1>
-            Character Studio
-            <span>Built with Meshy and Vercel UI SDK</span>
-          </h1>
-          <div className="stage-tools">
-            <MeshyStatus />
-            <KeysDialog />
-          </div>
+          <h1>Character Studio</h1>
         </header>
         <div className="stage-canvas">
           <Stage />

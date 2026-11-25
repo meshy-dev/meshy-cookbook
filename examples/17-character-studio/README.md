@@ -31,13 +31,13 @@ To get there, you'll:
 2. Open the app and check that Meshy is connected.
 3. Generate a character, which spends 38 credits when you press Generate.
 4. Direct it by hand.
-5. Hand the controls to the director. Optional; it needs a key for Vercel AI Gateway, a Vercel service that passes the director's requests to an AI model and bills per token.
+5. Hand the controls to the director. Optional; it needs an Anthropic API key, or a key for Vercel AI Gateway, a Vercel service that passes the director's requests to an AI model.
 6. Put the app online without paying for every visitor. Optional.
 
 - **Start with:** a one-sentence description of one character on two legs. The app suggests three under the **Character prompt** box, Astronaut, Robot barista and Fox ranger, and the pictures show the robot barista.
 - **Receive:** a rigged, textured character playing on a 3D stage, with walk, run and idle clips and any animations you add. The app streams the files from Meshy rather than saving them; [What you get](#what-you-get) explains how to keep one.
 - **Allow:** two to four minutes per character, plus a few minutes of first-time setup.
-- **Budget:** 38 Meshy credits per character, 3 for each library animation the first time you play it on that character, and 13 for each move you describe. The director, if you use it, is billed separately by Vercel AI Gateway, per token.
+- **Budget:** 38 Meshy credits per character, 3 for each library animation the first time you play it on that character, and 13 for each move you describe. The director, if you use it, is billed separately per token, by Anthropic or Vercel AI Gateway.
 
 These are recorded sample costs and timings, not guarantees. Your generated result will vary. [Check current API pricing](https://docs.meshy.ai/en/api/pricing) before you run it.
 
@@ -47,7 +47,7 @@ These are recorded sample costs and timings, not guarantees. Your generated resu
 2. **Node.js 22 or newer and a desktop browser with WebGL.** The app was tested in Chrome. Your agent installs or updates Node.js if needed.
 3. **A coding agent.** That is an AI assistant such as Claude Code, Codex or Cursor that can open a folder on your computer and run commands for you. It is optional: [Run it](#run-it) lists the same commands for a terminal.
 4. **The example files.** Character Studio is example 17 in the Meshy Cookbook, a public repository of examples for the Meshy API. [Download the cookbook files](https://github.com/meshy-dev/meshy-cookbook/archive/refs/heads/main.zip), unzip them, and open the extracted folder in your agent. Or skip the download and ask your agent to clone the [cookbook repository](https://github.com/meshy-dev/meshy-cookbook) for you. Either way, open the folder containing `AGENTS.md` and `examples`.
-5. **Optional: a [Vercel AI Gateway](https://vercel.com/ai-gateway) key** for the director in Step 5. Vercel asks for a credit card on the account before AI Gateway runs models, which also unlocks its free credits. Every control on the page works without it.
+5. **Optional: a key for the director** in Step 5: an [Anthropic API key](https://platform.claude.com/settings/keys), which runs it on Claude directly, or a [Vercel AI Gateway](https://vercel.com/ai-gateway) key. Vercel asks for a credit card on the account before AI Gateway runs models, which also unlocks its free credits. Every control on the page works without either.
 
 Keep your API keys on your computer. Paste them yourself into `app/.env`, the app's local settings file, or into the app's **API keys** dialog, never into chat.
 
@@ -65,11 +65,11 @@ Follow the agent's instructions and paste your key into `examples/17-character-s
 
 ## Step 2: Open the app and check that Meshy is connected
 
-Open the address in your browser. The status above the stage reads **Meshy connected** when the app has a key it may use; hover it to see which key. If it reads **No Meshy key**, ask your agent to check that `app/.env` has both `MESHY_API_KEY` and `ALLOW_SERVER_MESHY=true`, then restart the app: Next.js reads `.env` only when it starts.
+Open the address in your browser. The **API keys** button at the bottom of the left panel has a green dot when the app has a Meshy key it may use; hover it to see which key. If the dot is amber, ask your agent to check that `app/.env` has both `MESHY_API_KEY` and `ALLOW_SERVER_MESHY=true`, then restart the app: Next.js reads `.env` only when it starts.
 
-You can also skip `.env`. Click **API keys** above the stage, paste your Meshy key, and press **Check and save**. The app asks Meshy whether the key works and shows your credit balance before saving it. A key saved this way stays in this browser's local storage and goes to the app's server with each request, which uses it for that request and never stores it. That is also how you use someone else's copy of the app with your own account.
+You can also skip `.env`. Click **API keys** at the bottom of the left panel, paste your Meshy key, and press **Check and save**. The app asks Meshy whether the key works and shows your credit balance before saving it. A key saved this way stays in this browser's local storage and goes to the app's server with each request, which uses it for that request and never stores it. That is also how you use someone else's copy of the app with your own account.
 
-Or use the Meshy CLI, Meshy's command-line tool, which keeps a browser sign-in on your computer. Under `npm run dev`, with no key in the dialog or in `app/.env`, the app uses that sign-in, so if the CLI is already signed in, the status reads **Meshy connected** straight away. Otherwise open **API keys** and press **Sign in with Meshy** in the Meshy CLI section. Open the sign-in page, check that it shows the same code as the dialog, and approve; the dialog then shows the account and its balance. The app never sees the CLI's token: for each Meshy request its server runs the CLI's `meshy api` command, and the CLI signs the request. If the dialog says the CLI isn't installed, install it with `npm install -g meshy-cli` and reopen the dialog.
+Or use the Meshy CLI, Meshy's command-line tool, which keeps a browser sign-in on your computer. Under `npm run dev`, with no key in the dialog or in `app/.env`, the app uses that sign-in, so if the CLI is already signed in, the dot on **API keys** is green straight away. Otherwise open **API keys** and press **Sign in with Meshy** in the Meshy CLI section. Open the sign-in page, check that it shows the same code as the dialog, and approve; the dialog then shows the account and its balance. The app never sees the CLI's token: for each Meshy request its server runs the CLI's `meshy api` command, and the CLI signs the request. If the dialog says the CLI isn't installed, install it with `npm install -g meshy-cli` and reopen the dialog.
 
 When there's more than one, a key in the dialog comes first, then `MESHY_API_KEY` with `ALLOW_SERVER_MESHY=true`, then the CLI's sign-in.
 
@@ -108,7 +108,7 @@ Meshy returns each animation as a full copy of the character, about 13 MB, so th
 
 ## Step 5: Hand the controls to the director
 
-The bar under the stage is the director, an AI model that works the same controls you just used. It needs a Vercel AI Gateway key. Add `AI_GATEWAY_API_KEY` and `ALLOW_SERVER_CHAT=true`, the director's version of `ALLOW_SERVER_MESHY`, to `app/.env` and restart the app, or paste the key under **API keys**. Three suggested instructions then appear as buttons above the bar.
+The bar under the stage is the director, an AI model that works the same controls you just used. It needs an Anthropic API key or a Vercel AI Gateway key. Paste one under **API keys**, or add `ANTHROPIC_API_KEY` or `AI_GATEWAY_API_KEY` to `app/.env` with `ALLOW_SERVER_CHAT=true`, the director's version of `ALLOW_SERVER_MESHY`, and restart the app. With both, the Anthropic key is used. Three suggested instructions then appear as buttons above the bar.
 
 Type an instruction such as "Make it dance under night lights, turn it gold, and spin the camera". The model reads a list of every control on the page with its current state, then sends actions such as Backdrop to Night, Finish to Metal, Tint to gold, Animation to a dance, and Auto-rotate on. The browser runs them one at a time while a pointer moves to each control, and the actions appear under the model's reply.
 
@@ -120,13 +120,13 @@ The controls are built with Vercel's [UI SDK](https://github.com/vercel-labs/ui)
 
 It can pick library animations, though, and each one costs 3 credits the first time, just as when you pick it. Each request gets up to 8 rounds; a round is one reply from the model that reads the page or changes it, and one round can carry several actions.
 
-The director uses `anthropic/claude-sonnet-5.5` through AI Gateway unless you set `AGENT_MODEL` in `app/.env` to another AI Gateway model id. AI Gateway bills you per token.
+The director uses Claude Sonnet 5.5. With an Anthropic key, `AGENT_ANTHROPIC_MODEL` in `app/.env` names another Claude model; through AI Gateway, `AGENT_MODEL` names any AI Gateway model id. Either service bills you per token. On Anthropic, a request Claude declines is retried on a fallback model in the same call.
 
 ## Step 6: Put the app online without paying for every visitor
 
 The app runs on any host that runs Next.js, such as Vercel. Build it with `npm run build` and start it with `npm start`, or point your host at the `examples/17-character-studio/app` folder.
 
-`MESHY_API_KEY` and `AI_GATEWAY_API_KEY` on the server do nothing by themselves. On Vercel, the app could also reach AI Gateway with `VERCEL_OIDC_TOKEN`, a token Vercel can give a deployment, and without `ALLOW_SERVER_CHAT=true` it doesn't use that either. Until you set `ALLOW_SERVER_MESHY=true` or `ALLOW_SERVER_CHAT=true`, the server spends none of your credits, and each visitor adds their own keys under **API keys**. That is the right setting for a public link.
+`MESHY_API_KEY`, `ANTHROPIC_API_KEY` and `AI_GATEWAY_API_KEY` on the server do nothing by themselves. On Vercel, the app could also reach AI Gateway with `VERCEL_OIDC_TOKEN`, a token Vercel can give a deployment, and without `ALLOW_SERVER_CHAT=true` it doesn't use that either. Until you set `ALLOW_SERVER_MESHY=true` or `ALLOW_SERVER_CHAT=true`, the server spends none of your credits, and each visitor adds their own keys under **API keys**. That is the right setting for a public link.
 
 If you do switch them on, the app limits each visitor's network address to 12 Meshy tasks an hour (a character is 4) and 10 director requests every 10 minutes, and the director still can't press the Generate buttons. The counts are kept in the server's memory, so they start over when the server restarts, and if your host runs several copies of the server at once, as serverless hosts such as Vercel can, each copy counts on its own. Don't set the `ALLOW_SERVER_*` switches on a public link unless you mean to pay for everyone who opens it.
 
@@ -143,7 +143,7 @@ Write your own character, or start from one of these. Paste one into **Character
 
 Rigging works best on one character, on two legs, with the whole body in view and the arms clear of the torso. It tends to fail on animals on four legs, several characters at once, floor-length cloaks or gowns, and anything without clear arms and legs.
 
-With an AI Gateway key, try these in the director's bar:
+With a key for the director, try these in its bar:
 
 - "Close-up on the face, give a big wave, then pull back to the hero shot at sunset"
 - "Show me the skeleton in wireframe from the side at half speed"
@@ -161,7 +161,7 @@ In examples/17-character-studio/app, change the triangle target the app asks Mes
 
 ## If something goes wrong
 
-- **The status reads No Meshy key:** the app has no key it may use. Ask your agent to check `MESHY_API_KEY` and `ALLOW_SERVER_MESHY=true` in `app/.env` and restart the app, add your key under **API keys**, or sign in with the Meshy CLI there. Never paste the key into chat.
+- **The dot on API keys is amber:** the app has no Meshy key it may use. Ask your agent to check `MESHY_API_KEY` and `ALLOW_SERVER_MESHY=true` in `app/.env` and restart the app, add your key under **API keys**, or sign in with the Meshy CLI there. Never paste the key into chat.
 - **There's no Meshy CLI section under API keys:** the app offers it only under `npm run dev`, or on a production server with `ALLOW_SERVER_MESHY=true`.
 - **The CLI sign-in failed, expired or was denied:** press **Sign in with Meshy** again for a new code. If a character was made with a different account's key, the CLI's account can't open its tasks, and the stage shows an error.
 - **"Meshy rejected the API key":** the key is wrong or revoked. Create a new one in the Meshy Developer Platform.
@@ -169,13 +169,13 @@ In examples/17-character-studio/app, change the triangle target the app asks Mes
 - **Rigging fails:** the stage keeps showing the last model that finished, usually the painted one, and names the error. Rewrite the prompt with one standing character whose arms and legs are clear of the body, and generate again. A new generation pays for all four tasks again.
 - **"This character's files expired":** Meshy deletes generated files after three days outside Enterprise plans. The stage shows two buttons: **Regenerate** makes it again from the same prompt for 38 credits, and **Remove from library** takes it off the Characters list.
 - **You closed or reloaded the tab mid-generation:** open the app in the same browser. It picks up the same Meshy tasks instead of starting paid new ones. Characters live in that browser only, so another browser starts empty.
-- **"The director is unavailable":** add an AI Gateway key under **API keys**, or `AI_GATEWAY_API_KEY` with `ALLOW_SERVER_CHAT=true` in `app/.env`. "AI Gateway needs a credit card" means the Vercel account behind the key has none on file yet; add one in Vercel's AI Gateway settings. "The director hit its step limit" is the app's message when one request used all 8 rounds; send a shorter instruction.
+- **"The director is unavailable":** add an Anthropic or AI Gateway key under **API keys**, or `ANTHROPIC_API_KEY` or `AI_GATEWAY_API_KEY` with `ALLOW_SERVER_CHAT=true` in `app/.env`. "AI Gateway needs a credit card" means the Vercel account behind the key has none on file yet; add one in Vercel's AI Gateway settings, or use an Anthropic key instead. "The director hit its step limit" is the app's message when one request used all 8 rounds; send a shorter instruction.
 - **The stage stays empty after the app opens:** the browser needs WebGL. Open the browser's developer console and paste the error to your agent.
 
 ## Technical details
 
 **Endpoints:** `POST /openapi/v2/text-to-3d` (preview, then refine) → `GET /openapi/v2/text-to-3d/:id`, then `POST /openapi/v1/rigging` → `GET /openapi/v1/rigging/:id`, then `POST /openapi/v1/animations` → `GET /openapi/v1/animations/:id`; for a described move, `POST /openapi/v1/text-to-motion` → `GET /openapi/v1/text-to-motion/:id` first. `GET /openapi/v1/animations/library` and `GET /openapi/v1/balance` are free\
-**Stack:** Next.js 16.4 on Node.js 22+, React 19.3, three.js 0.186 with react-three-fiber 9.8 and drei 10.7, UI SDK 0.1.0-beta.16, AI SDK 7 with Vercel AI Gateway; optionally the Meshy CLI 0.8.6 or newer\
+**Stack:** Next.js 16.4 on Node.js 22+, React 19.3, three.js 0.186 with react-three-fiber 9.8 and drei 10.7, UI SDK 0.1.0-beta.16, AI SDK 7 with the Anthropic provider or Vercel AI Gateway; optionally the Meshy CLI 0.8.6 or newer\
 **Source:** [Meshy client](app/src/lib/meshy.ts) · [Pipeline](app/src/lib/pipeline.ts) · [Stage](app/src/components/stage.tsx) · [Director bridge](app/src/lib/agent.ts) · [Director route](app/src/app/api/chat/route.ts)\
 **Last verified run measurements:** November 24, 2026 · [Sample result](sample-result.json)
 
@@ -197,7 +197,7 @@ Nothing is generated until you press a Generate button in the page. `npm run dev
     npm run build             # production build
     npm start                 # serve the production build
 
-`app/.env.example` lists every setting: `MESHY_API_KEY`, `ALLOW_SERVER_MESHY`, `AI_GATEWAY_API_KEY`, `ALLOW_SERVER_CHAT` and `AGENT_MODEL`.
+`app/.env.example` lists every setting: `MESHY_API_KEY`, `ALLOW_SERVER_MESHY`, `ANTHROPIC_API_KEY`, `AI_GATEWAY_API_KEY`, `ALLOW_SERVER_CHAT`, `AGENT_ANTHROPIC_MODEL` and `AGENT_MODEL`.
 
 ## How it works
 
@@ -288,7 +288,7 @@ These are measurements of two runs, not guarantees: the triangle count lands nea
 | [`enable_pbr`](https://docs.meshy.ai/en/api/text-to-3d#create-a-text-to-3d-refine-task) (text-to-3d refine) | `true` | Adds the metallic-roughness and normal maps, which the Original finish shows; Matte and Metal replace all the textures |
 | [`height_meters`](https://docs.meshy.ai/en/api/rigging#create-a-rigging-task) (rigging) | `1.7` | Character height in meters, which is also the API default |
 | [`duration`](https://docs.meshy.ai/en/api/text-to-motion) and `mode` (text-to-motion, `src/lib/pipeline.ts` and `src/lib/meshy.ts`) | `6` seconds, `"prime"` | Length and quality of a described move. Prime costs 10 credits; swift costs 3 |
-| `AGENT_MODEL` (`app/.env`) | `anthropic/claude-sonnet-5.5` | Any AI Gateway model id for the director |
+| `AGENT_ANTHROPIC_MODEL` and `AGENT_MODEL` (`app/.env`) | `claude-sonnet-5-5`; `anthropic/claude-sonnet-5.5` | The director's model: a Claude model id for an Anthropic key, any AI Gateway model id for AI Gateway |
 | `MAX_CHAT_TOOL_ROUNDS`, `MESHY_SERVER_RATE`, `CHAT_SERVER_RATE` (`src/lib/limits.ts`) | 8 rounds; 12 tasks an hour; 10 requests per 10 minutes | Limits for a server that pays for its visitors |
 
 Unlike Text to 3D, the rigging and animation endpoints have no model to choose.

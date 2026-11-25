@@ -38,11 +38,12 @@ endpoints:
 model_policy: The text-to-3d preview sends ai_model latest, so it follows Meshy's
   current model, and the refine textures that preview. Text to Motion uses mode prime.
   The rigging and animation endpoints have no model selection. The AI director uses
-  anthropic/claude-sonnet-5.5 through Vercel AI Gateway unless AGENT_MODEL names another.
+  Claude Sonnet 5.5, through an Anthropic API key or Vercel AI Gateway; AGENT_ANTHROPIC_MODEL
+  and AGENT_MODEL name others.
 app:
   runtime: Node.js 22+ and a desktop browser with WebGL; optionally the Meshy CLI
-    0.8.6+ to sign in with a browser instead of a key, and a Vercel AI Gateway key
-    for the director
+    0.8.6+ to sign in with a browser instead of a key, and an Anthropic API key or
+    a Vercel AI Gateway key for the director
   files:
   - app/.env.example
   - app/AGENTS.md
@@ -74,15 +75,17 @@ app:
   - app/src/components/keys-dialog.tsx
   - app/src/components/load-boundary.test.tsx
   - app/src/components/load-boundary.tsx
-  - app/src/components/meshy-status.tsx
   - app/src/components/stage-banner.test.tsx
   - app/src/components/stage-banner.tsx
   - app/src/components/stage.tsx
   - app/src/components/studio-agent.test.tsx
   - app/src/components/studio.tsx
   - app/src/lib/agent.ts
+  - app/src/lib/anthropic-headers.ts
   - app/src/lib/director-errors.test.ts
   - app/src/lib/director-errors.ts
+  - app/src/lib/director.test.ts
+  - app/src/lib/director.ts
   - app/src/lib/gateway.ts
   - app/src/lib/guard.test.ts
   - app/src/lib/guard.ts

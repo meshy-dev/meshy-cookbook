@@ -23,6 +23,7 @@ import {
   type Stage,
 } from "@/lib/store"
 import { Anchor } from "./anchor"
+import { KeysDialog } from "./keys-dialog"
 
 const STAGES: { id: Stage; label: string; hint: string }[] = [
   { id: "mesh", label: "Sculpting mesh", hint: "Meshy text to 3D" },
@@ -146,7 +147,9 @@ function Library() {
                 >
                   <Trash2Icon aria-hidden="true" />
                 </TooltipTrigger>
-                <TooltipContent className="tip">Delete character</TooltipContent>
+                <TooltipContent className="tip">
+                  Delete character
+                </TooltipContent>
               </Tooltip>
             </div>
           ))}
@@ -209,6 +212,9 @@ function CreatePanel() {
         <Pipeline />
       </section>
       <Library />
+      <footer className="panel-footer">
+        <KeysDialog />
+      </footer>
     </aside>
   )
 }

@@ -10,7 +10,9 @@ function envFlag(name: string, env: Env = process.env) {
 function serverChatEnabled(env: Env = process.env) {
   return (
     envFlag("ALLOW_SERVER_CHAT", env) &&
-    Boolean(env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN)
+    Boolean(
+      env.AI_GATEWAY_API_KEY || env.VERCEL_OIDC_TOKEN || env.ANTHROPIC_API_KEY,
+    )
   )
 }
 

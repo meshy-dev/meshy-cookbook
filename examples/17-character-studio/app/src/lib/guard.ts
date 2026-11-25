@@ -1,3 +1,5 @@
+import { ANTHROPIC_KEY_HEADER } from "./anthropic-headers"
+import type { DirectorKey } from "./director"
 import { GATEWAY_KEY_HEADER } from "./gateway"
 import { KEY_HEADER } from "./meshy-headers"
 import {
@@ -12,7 +14,7 @@ import { serverChatEnabled, serverMeshyEnabled } from "./paid"
 import { clientIp, rateLimit } from "./rate-limit"
 
 type Admission =
-  | { ok: true; ownKey?: string }
+  | { ok: true; own?: DirectorKey }
   | { ok: false; status: number; error: string; retryAfter?: number }
 
 function limited(
@@ -30,12 +32,19 @@ function admitChat(
   messages: { role: string; parts?: { type: string }[] }[],
   env: Record<string, string | undefined> = process.env,
 ): Admission {
-  const ownKey = request.headers.get(GATEWAY_KEY_HEADER)?.trim() || undefined
-  if (!ownKey && !serverChatEnabled(env)) {
+  const gateway = request.headers.get(GATEWAY_KEY_HEADER)?.trim()
+  const anthropic = request.headers.get(ANTHROPIC_KEY_HEADER)?.trim()
+  const own: DirectorKey | undefined = anthropic
+    ? { kind: "anthropic", key: anthropic }
+    : gateway
+      ? { kind: "gateway", key: gateway }
+      : undefined
+  if (!own && !serverChatEnabled(env)) {
     return {
       ok: false,
       status: 401,
-      error: "Add an AI Gateway key under API keys to use the director.",
+      error:
+        "Add an AI Gateway or Anthropic API key under API keys to use the director.",
     }
   }
   if (messages.length > MAX_CHAT_MESSAGES) {
@@ -53,22 +62,22 @@ function admitChat(
     }
   }
   const ip = clientIp(request)
-  if (!ownKey) {
+  if (!own) {
     const result = limited(
       `chat-server:${ip}`,
       CHAT_SERVER_RATE,
-      "Too many director requests from this network. Try later, or add your own AI Gateway key.",
+      "Too many director requests from this network. Try later, or add your own AI Gateway or Anthropic key.",
     )
     if (!result.ok) return result
     return { ok: true }
   }
-  const own = limited(
+  const ownRate = limited(
     `chat-own:${ip}`,
     CHAT_OWN_RATE,
     "Too many director requests from this network. Try later.",
   )
-  if (!own.ok) return own
-  return { ok: true, ownKey }
+  if (!ownRate.ok) return ownRate
+  return { ok: true, own }
 }
 
 function admitMeshyTask(

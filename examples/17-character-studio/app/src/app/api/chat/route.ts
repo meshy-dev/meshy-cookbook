@@ -1,7 +1,6 @@
 import { agentTools } from "@ui-sdk/core/agent"
 import {
   convertToModelMessages,
-  createGateway,
   createUIMessageStreamResponse,
   isStepCount,
   jsonSchema,
@@ -10,6 +9,7 @@ import {
   toUIMessageStream,
   type UIMessage,
 } from "ai"
+import { directorModel } from "@/lib/director"
 import { directorErrorMessage } from "@/lib/director-errors"
 import { admitChat } from "@/lib/guard"
 import { MAX_CHAT_TOOL_ROUNDS } from "@/lib/limits"
@@ -60,11 +60,14 @@ async function POST(request: Request) {
     )
   }
 
-  const modelId = process.env.AGENT_MODEL ?? "anthropic/claude-sonnet-5.5"
+  const { model, provider } = directorModel(access.own)
   const result = streamText({
-    model: access.ownKey
-      ? createGateway({ apiKey: access.ownKey })(modelId)
-      : modelId,
+    model,
+    // A declined request is retried on Anthropic's fallback model, in the same call.
+    providerOptions:
+      provider === "anthropic"
+        ? { anthropic: { fallbacks: "default" } }
+        : undefined,
     system: SYSTEM,
     messages: await convertToModelMessages(messages),
     tools,

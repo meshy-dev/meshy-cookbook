@@ -1,4 +1,5 @@
 import { afterEach, expect, test } from "vitest"
+import { ANTHROPIC_KEY_HEADER } from "./anthropic-headers"
 import { GATEWAY_KEY_HEADER } from "./gateway"
 import { admitChat, admitMeshyTask } from "./guard"
 import {
@@ -33,7 +34,37 @@ test("lets a visitor's own gateway key through without the flag", () => {
     [],
     { VERCEL_OIDC_TOKEN: "oidc" },
   )
-  expect(result).toEqual({ ok: true, ownKey: "vck_own" })
+  expect(result).toEqual({ ok: true, own: { kind: "gateway", key: "vck_own" } })
+})
+
+test("lets a visitor's own Anthropic key through, ahead of a gateway key", () => {
+  const result = admitChat(
+    chatRequest({
+      [ANTHROPIC_KEY_HEADER]: "sk-ant-own",
+      [GATEWAY_KEY_HEADER]: "vck_own",
+    }),
+    [],
+    {},
+  )
+  expect(result).toEqual({
+    ok: true,
+    own: { kind: "anthropic", key: "sk-ant-own" },
+  })
+})
+
+test("server-paid chat can run on an Anthropic key, still behind the flag", () => {
+  expect(
+    admitChat(chatRequest(), [], { ANTHROPIC_API_KEY: "sk" }),
+  ).toMatchObject({
+    ok: false,
+    status: 401,
+  })
+  expect(
+    admitChat(chatRequest(), [], {
+      ANTHROPIC_API_KEY: "sk",
+      ALLOW_SERVER_CHAT: "true",
+    }),
+  ).toEqual({ ok: true })
 })
 
 test("caps tool rounds on the conversation", () => {

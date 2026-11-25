@@ -14,7 +14,9 @@
     "check": "npm run typecheck && npm test"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "4.0.107",
     "@ai-sdk/react": "4.0.186",
+    "@anthropic-ai/sdk": "1.12.0",
     "@react-three/drei": "10.7.9",
     "@react-three/fiber": "9.8.2",
     "@ui-sdk/core": "0.1.0-beta.16",

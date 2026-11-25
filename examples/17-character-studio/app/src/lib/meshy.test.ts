@@ -68,7 +68,10 @@ test("a character's first stage asks Meshy for an A-pose preview", async () => {
 
 test("with the CLI's sign-in, the request goes through meshy api without the key", async () => {
   process.env.MESHY_API_KEY = "msy_env"
-  cliAnswers({ ok: true, result: { http_status: 202, body: { result: "t-1" } } })
+  cliAnswers({
+    ok: true,
+    result: { http_status: 202, body: { result: "t-1" } },
+  })
   const id = await createTask(
     { kind: "preview", prompt: "A knight" },
     { kind: "cli" },

@@ -152,7 +152,11 @@ interface RawTask {
   }
 }
 
-async function rawTask(auth: MeshyAuth | undefined, kind: TaskKind, id: string) {
+async function rawTask(
+  auth: MeshyAuth | undefined,
+  kind: TaskKind,
+  id: string,
+) {
   const { data, retryAfter } = await meshy(
     auth,
     `${ENDPOINT[kind]}/${encodeURIComponent(id)}`,

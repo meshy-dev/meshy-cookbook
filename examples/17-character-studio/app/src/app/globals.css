@@ -90,8 +90,15 @@ body {
   background: var(--surface);
 }
 
-.panel-section:last-child {
+.panel > section:last-of-type {
   flex: 1;
+}
+
+.panel-footer {
+  position: sticky;
+  bottom: 0;
+  padding: 0.625rem 0.75rem;
+  background: var(--surface);
 }
 
 .panel h2 {
@@ -419,52 +426,9 @@ body {
 }
 
 .stage-header h1 {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
   font-size: 1.125rem;
   font-weight: 600;
   letter-spacing: -0.01em;
-}
-
-.stage-header h1 span {
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: 0;
-  color: var(--ui-muted-foreground);
-}
-
-.status[data-slot] {
-  gap: 0.4375rem;
-  height: 1.75rem;
-  padding-inline: 0.625rem;
-  border-color: transparent;
-  border-radius: 999px;
-  background: transparent;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--ui-muted-foreground);
-}
-
-.status[data-slot]:hover {
-  background: rgb(255 255 255 / 0.06);
-  color: var(--ui-foreground);
-}
-
-.status[data-live] {
-  color: var(--ui-foreground);
-}
-
-.status-dot {
-  width: 0.4375rem;
-  height: 0.4375rem;
-  border-radius: 999px;
-  background: #f5b942;
-}
-
-.status[data-live] .status-dot {
-  background: var(--accent);
-  box-shadow: 0 0 0 3px rgb(198 255 61 / 0.18);
 }
 
 .tip[data-slot] {
@@ -473,33 +437,40 @@ body {
   line-height: 1.4;
 }
 
-.stage-tools {
-  display: flex;
-  align-items: center;
+.keys-trigger[data-slot] {
+  width: 100%;
+  justify-content: flex-start;
   gap: 0.5rem;
-  pointer-events: auto;
+  height: 2.25rem;
+  padding-inline: 0.75rem;
+  border-color: transparent;
+  border-radius: var(--ui-radius);
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
 }
 
-.keys-trigger[data-slot] {
-  gap: 0.375rem;
-  height: 1.75rem;
-  padding-inline: 0.625rem;
-  border-radius: 999px;
-  background: rgb(7 8 11 / 0.5);
-  backdrop-filter: blur(8px);
-  font-size: 0.75rem;
+.keys-trigger[data-slot]:hover {
+  background: rgb(255 255 255 / 0.06);
 }
 
 .keys-trigger svg {
-  width: 0.875rem;
-  height: 0.875rem;
+  width: 0.9375rem;
+  height: 0.9375rem;
+  color: var(--ui-muted-foreground);
 }
 
 .keys-dot {
-  width: 0.375rem;
-  height: 0.375rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  margin-inline-start: auto;
   border-radius: 999px;
+  background: #f5b942;
+}
+
+.keys-trigger[data-live] .keys-dot {
   background: var(--accent);
+  box-shadow: 0 0 0 3px rgb(198 255 61 / 0.18);
 }
 
 .keys-dialog[data-slot] {
