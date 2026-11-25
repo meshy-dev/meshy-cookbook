@@ -115,7 +115,7 @@ Findings:
 
 ## Task object gaps
 
-The preview task object returns `consumed_credits`, `created_at`, `finished_at`, `id`, `mode`, `model_type`, `model_urls`, `name`, `progress`, `prompt`, `seed`, `started_at`, `status`, `task_error`, `texture_image_url`, `texture_prompt`, `texture_urls`, `thumbnail_url`, `type`. It does not return `ai_model`, `pose_mode`, `should_remesh` or a face count, so log request bodies on the client if you need to verify which model or pose ran.
+The preview task object returns `consumed_credits`, `created_at`, `finished_at`, `id`, `mode`, `model_type`, `model_urls`, `name`, `progress`, `prompt`, `started_at`, `status`, `task_error`, `texture_image_url`, `texture_prompt`, `texture_urls`, `thumbnail_url`, `type`. It does not return `ai_model`, `pose_mode`, `should_remesh` or a face count, so log request bodies on the client if you need to verify which model or pose ran.
 
 ## Sources
 

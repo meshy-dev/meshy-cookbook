@@ -5,8 +5,8 @@
     "documented_on": "2026-09-27",
     "source": "README.md",
     "credits": 30,
-    "model": "Not reported: the text-to-3d task response echoes mode, model_type (standard) and seed but no ai_model field. ai_model was omitted on both stages; the preview followed the API default and the refine inherited the preview's model.",
-    "note": "Two live runs, one per language, on September 27, 2026, started together. Each consumed 20 credits (preview, should_remesh false, GLB only) + 10 credits (refine with enable_pbr), read from consumed_credits. Preview stage 50.2-60.9 s from creation to finish; refine 40.0-42.2 s; 98-105 s wall from start to files on disk. The refine task reuses the preview's seed. A second refine of the Python preview with a texture_prompt (navy body, cream nose cone and fins), made the same day, cost 10 credits, ran 57.7 s, reused the seed and returned a 403,910-triangle, 216,103-vertex, 17,816,512-byte GLB with new textures."
+    "model": "Not reported: the text-to-3d task response echoes mode and model_type (standard) but no ai_model field. ai_model was omitted on both stages; the preview followed the API default and the refine inherited the preview's model.",
+    "note": "Two live runs, one per language, on September 27, 2026, started together. Each consumed 20 credits (preview, should_remesh false, GLB only) + 10 credits (refine with enable_pbr), read from consumed_credits. Preview stage 50.2-60.9 s from creation to finish; refine 40.0-42.2 s; 98-105 s wall from start to files on disk. A second refine of the Python preview with a texture_prompt (navy body, cream nose cone and fins), made the same day, cost 10 credits, ran 57.7 s and returned a 403,910-triangle, 216,103-vertex, 17,816,512-byte GLB with new textures."
   },
   "artifact_inspection": {
     "inspected_on": "2026-09-27",

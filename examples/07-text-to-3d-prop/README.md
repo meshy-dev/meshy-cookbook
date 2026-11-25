@@ -238,7 +238,7 @@ refine_id = client.create(
 )
 ```
 
-   The refine task inherits the preview's model and seed.
+   The refine task inherits the preview's model.
 
 4. **Download the model and its preview.**
 
@@ -259,7 +259,7 @@ These are measurements of the two recorded sample runs, one per language. The Py
 | `textured-prop.glb` | 277,978–403,910 triangles; 149,722–216,091 vertices; one material with three embedded JPEG images; 16.9–19.4 MB; 1.90 m tall |
 | `preview-thumbnail.png`, `textured-prop-thumbnail.png` | 512 × 512 previews |
 
-The preview stage took 50–61 seconds and the refine stage 40–42 seconds; each language's run finished in 98–105 seconds from start to files on disk. A second refine of the Python run's preview with a `texture_prompt`, made the same day, cost 10 credits, took 58 seconds and returned the same 403,910-triangle mesh with new textures. The task object echoes `mode`, `model_type` (`standard`), the prompt and a `seed` shared by the preview and its refine, but not `ai_model`.
+The preview stage took 50–61 seconds and the refine stage 40–42 seconds; each language's run finished in 98–105 seconds from start to files on disk. A second refine of the Python run's preview with a `texture_prompt`, made the same day, cost 10 credits, took 58 seconds and returned the same 403,910-triangle mesh with new textures. The task object echoes `mode`, `model_type` (`standard`) and the prompt, but not `ai_model`.
 
 ## Parameters worth changing
 
