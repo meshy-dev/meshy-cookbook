@@ -142,7 +142,7 @@ function AgentDock() {
           placeholder={
             agentAvailable
               ? "Direct the scene: “make it dance, zoom in, turn it gold”"
-              : "Add an AI Gateway key under API keys to direct by chat"
+              : "Add an AI Gateway or Anthropic API key under API keys to direct by chat"
           }
           disabled={!agentAvailable}
         />

@@ -91,7 +91,7 @@ async function loadConfig() {
   useStudio.getState().set({
     server,
     meshyAvailable: server.meshy || Boolean(own.meshy),
-    agentAvailable: server.agent || Boolean(own.gateway),
+    agentAvailable: server.agent || Boolean(own.gateway || own.anthropic),
     library,
   })
 }

@@ -35,7 +35,10 @@ function childEnv() {
 
 function run<T>(
   args: string[],
-  { timeoutMs = 60_000, signal }: { timeoutMs?: number; signal?: AbortSignal } = {},
+  {
+    timeoutMs = 60_000,
+    signal,
+  }: { timeoutMs?: number; signal?: AbortSignal } = {},
 ): Promise<Envelope<T>> {
   return new Promise((resolve, reject) => {
     execFile(
@@ -70,7 +73,11 @@ function run<T>(
 
 /** One API request, signed by the CLI's stored sign-in. `path` starts with
  * its API version, like `/v2/text-to-3d` or `/v1/rigging/<id>`. */
-async function cliRequest(method: "GET" | "POST", path: string, body?: unknown) {
+async function cliRequest(
+  method: "GET" | "POST",
+  path: string,
+  body?: unknown,
+) {
   const [, version, ...rest] = path.split("/")
   const args = ["api", method, `/${rest.join("/")}`, `--${version}`]
   if (body !== undefined) args.push("--data", JSON.stringify(body))
@@ -78,7 +85,9 @@ async function cliRequest(method: "GET" | "POST", path: string, body?: unknown) 
   if (envelope.ok && envelope.result) return envelope.result.body
   const error = envelope.error ?? {}
   throw new CliError(
-    error.details?.body?.message ?? error.message ?? "The Meshy CLI request failed",
+    error.details?.body?.message ??
+      error.message ??
+      "The Meshy CLI request failed",
     error.code ?? "api",
     error.http_status,
   )

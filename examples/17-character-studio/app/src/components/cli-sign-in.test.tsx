@@ -11,29 +11,26 @@ afterEach(() => {
 
 function serve(status: object) {
   const calls: { url: string; body?: string }[] = []
-  vi.stubGlobal(
-    "fetch",
-    (input: RequestInfo | URL, init?: RequestInit) => {
-      const url = String(input)
-      calls.push({ url, body: init?.body ? String(init.body) : undefined })
-      if (url === "/api/meshy/cli") return Promise.resolve(Response.json(status))
-      const body = JSON.parse(String(init?.body ?? "{}")) as { flowId?: string }
-      if (!body.flowId) {
-        return Promise.resolve(
-          Response.json({
-            flowId: "flow-1",
-            url: "https://www.meshy.ai/oauth/device?code=ABCD-1234",
-            code: "ABCD-1234",
-          }),
-        )
-      }
-      return new Promise<Response>((_, reject) => {
-        init?.signal?.addEventListener("abort", () =>
-          reject(new DOMException("Aborted", "AbortError")),
-        )
-      })
-    },
-  )
+  vi.stubGlobal("fetch", (input: RequestInfo | URL, init?: RequestInit) => {
+    const url = String(input)
+    calls.push({ url, body: init?.body ? String(init.body) : undefined })
+    if (url === "/api/meshy/cli") return Promise.resolve(Response.json(status))
+    const body = JSON.parse(String(init?.body ?? "{}")) as { flowId?: string }
+    if (!body.flowId) {
+      return Promise.resolve(
+        Response.json({
+          flowId: "flow-1",
+          url: "https://www.meshy.ai/oauth/device?code=ABCD-1234",
+          code: "ABCD-1234",
+        }),
+      )
+    }
+    return new Promise<Response>((_, reject) => {
+      init?.signal?.addEventListener("abort", () =>
+        reject(new DOMException("Aborted", "AbortError")),
+      )
+    })
+  })
   return calls
 }
 
@@ -53,7 +50,9 @@ test("shows who the CLI is signed in as", async () => {
     credits: 1200,
   })
   render(<CliSignIn hasOwnKey={false} />)
-  expect(await screen.findByText("Signed in as Ada · 1,200 credits")).toBeTruthy()
+  expect(
+    await screen.findByText("Signed in as Ada · 1,200 credits"),
+  ).toBeTruthy()
 })
 
 test("signing in shows the code and the page, and can be canceled", async () => {
